@@ -1,6 +1,6 @@
 import { GeneUtil } from '../../src/common/gene-util'
 import { Pitch } from '../../src/common/pitch'
-import { UInt8 } from '../../src/common/uint8'
+import { Uint8 } from '../../src/common/uint8'
 
 describe('GeneUtil', () => {
     describe('getPitch', () => {
@@ -8,7 +8,7 @@ describe('GeneUtil', () => {
             expect(GeneUtil.getPitch(255)).toBe(Pitch.Hold)
         })
 
-        const testGenes: {gene: UInt8, expected: Pitch }[] = [
+        const testGenes: {gene: Uint8, expected: Pitch }[] = [
             { gene: 0, expected: Pitch.Rest },
             { gene: 2, expected: Pitch.Db },
             { gene: 12, expected: Pitch.B },
@@ -31,7 +31,7 @@ describe('GeneUtil', () => {
             expect(GeneUtil.getOctave(255)).toBe(GeneUtil.MIN_OCTAVE - 1)
         })
 
-        const testGenes: { gene: UInt8, expected: number }[] = [
+        const testGenes: { gene: Uint8, expected: number }[] = [
             { gene: 0, expected: 0 },
             { gene: 13, expected: 1 },
             { gene: 65, expected: 5 },
@@ -39,7 +39,7 @@ describe('GeneUtil', () => {
             { gene: 14, expected: 1 },
             { gene: 71, expected: 5 },
             { gene: 87, expected: 6 },
-            { gene: (Pitch.Hold - 1) as UInt8, expected: GeneUtil.MAX_OCTAVE }
+            { gene: (Pitch.Hold - 1) as Uint8, expected: GeneUtil.MAX_OCTAVE }
         ]
 
         testGenes.forEach(({ gene, expected }) => {
@@ -56,7 +56,7 @@ describe('GeneUtil', () => {
             expect(GeneUtil.convertToGene(Pitch.Hold, 12)).toBe(Pitch.Hold)
         })
 
-        const tests: { pitch: Pitch, octave: number, expected: UInt8 }[] = [
+        const tests: { pitch: Pitch, octave: number, expected: Uint8 }[] = [
             { pitch: Pitch.Rest, octave: 2, expected: 26 },
             { pitch: Pitch.Rest, octave: 0, expected: 0 },
             { pitch: Pitch.Rest, octave: 8, expected: 104 },

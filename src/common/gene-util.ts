@@ -1,4 +1,4 @@
-import { UInt8 } from './uint8'
+import { Uint8 } from './uint8'
 import { Pitch } from './pitch'
 
 /**
@@ -11,12 +11,12 @@ export class GeneUtil {
     // Octave length is 12 chromatic notes + 1 for Rest.
     private static readonly OCTAVE_LENGTH = 13
 
-    static getPitch(gene: UInt8): Pitch {
+    static getPitch(gene: Uint8): Pitch {
         if (gene === Pitch.Hold) { return Pitch.Hold }
         return gene % this.OCTAVE_LENGTH
     }
 
-    static getOctave(gene: UInt8): number {
+    static getOctave(gene: Uint8): number {
         if (gene === Pitch.Hold) { return this.MIN_OCTAVE - 1 }
         const octave = Math.floor(gene / this.OCTAVE_LENGTH)
         if (octave < this.MIN_OCTAVE) { return this.MIN_OCTAVE }
@@ -24,9 +24,9 @@ export class GeneUtil {
         return octave
     }
 
-    static convertToGene(pitch: Pitch, octave: number): UInt8 {
+    static convertToGene(pitch: Pitch, octave: number): Uint8 {
         if (pitch === Pitch.Hold) { return Pitch.Hold }
         const octaveInRange = Math.max(Math.min(octave, this.MAX_OCTAVE), this.MIN_OCTAVE)
-        return ((octaveInRange * this.OCTAVE_LENGTH) + pitch) as UInt8
+        return ((octaveInRange * this.OCTAVE_LENGTH) + pitch) as Uint8
     }
 }
