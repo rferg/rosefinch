@@ -1,6 +1,7 @@
 import { Population } from './population'
 import { GeneticAlgorithmRunnerOptions } from './genetic-algorithm-runner-options'
 import { Int8 } from '../common/int8'
+import { RunData } from './run-data'
 
 export class GeneticAlgorithmRunner {
     private readonly mutationFunction: (population: Population) => Population
@@ -46,10 +47,4 @@ export class GeneticAlgorithmRunner {
         }
         return fitnessValues
     }
-}
-
-interface RunData {
-    population: Population,
-    fitnessValues: Int8Array,
-    generation: number
 }

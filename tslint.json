@@ -7,5 +7,8 @@
         "no-any": false,
         "indent": [true, "spaces", 4],
         "ter-indent": false
+    },
+    "linterOptions": {
+        "exclude": ["node_modules", "dist", "coverage"]
     }
 }
