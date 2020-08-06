@@ -1,6 +1,6 @@
-import { hybridPointCrossoverFactory } from '../../src/genetic-algorithm/crossover/hybrid-point-crossover-factory'
-import { Population } from '../../src/genetic-algorithm/population'
-import { Uint8 } from '../../src/common/uint8'
+import { hybridPointCrossoverFactory } from '../../../src/genetic-algorithm/crossover/hybrid-point-crossover-factory'
+import { Population } from '../../../src/genetic-algorithm/population'
+import { Uint8 } from '../../../src/common/uint8'
 
 describe('HybridPointCrossover', () => {
     let random: jasmine.Spy<(min: number, max: number) => number>

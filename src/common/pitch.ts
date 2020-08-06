@@ -20,7 +20,7 @@ export enum Pitch {
     Bb = 11,
     B = 12,
     /**
-     * Hold the previous pitch. By convention, this is the maximum 8bit value.
+     * Previous note is held.
      */
-    Hold = 255
+    Hold = 13
 }
