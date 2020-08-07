@@ -6,18 +6,18 @@ import { RunData } from './run-data'
 export class GeneticAlgorithmRunner {
     private readonly mutationFunction: (population: Population) => Population
     private readonly fitnessFunction: (genome: Uint8Array) => Int8
-    private readonly parentSelectionFunction: (population: Population, fitnessValues: Int8Array) => Population
+    private readonly selectionFunction: (population: Population, fitnessValues: Int8Array) => Population
     private readonly crossoverFunction: (population: Population) => Population
 
     constructor({
         mutationFunction,
         fitnessFunction,
-        parentSelectionFunction,
+        selectionFunction,
         crossoverFunction
     }: GeneticAlgorithmRunnerOptions) {
         this.mutationFunction = mutationFunction
         this.fitnessFunction = fitnessFunction
-        this.parentSelectionFunction = parentSelectionFunction
+        this.selectionFunction = selectionFunction
         this.crossoverFunction = crossoverFunction
     }
 
@@ -30,7 +30,7 @@ export class GeneticAlgorithmRunner {
     }
 
     private nextGeneration({ population, fitnessValues, generation }: RunData): RunData {
-        const parents = this.parentSelectionFunction(population, fitnessValues)
+        const parents = this.selectionFunction(population, fitnessValues)
         const children = this.mutationFunction(this.crossoverFunction(parents))
         const childFitnessValues = this.evaluateFitness(children)
         return {

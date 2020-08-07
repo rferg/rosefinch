@@ -1,19 +1,19 @@
 import { Population } from '../population'
-import { ParentSelectionMethod } from './parent-selection-method'
+import { SelectionMethod } from './selection-method'
 import { RandomIntegerGenerator } from '../random-integer-generator'
 import { tournamentSelectionFactory } from './tournament-selection-factory'
 
-export function parentSelectionFunctionFactory({
+export function selectionFunctionFactory({
     method,
     randomInteger,
     tournamentSize
 }: {
-    method: ParentSelectionMethod,
+    method: SelectionMethod,
     randomInteger: RandomIntegerGenerator
     tournamentSize?: number
 }): (population: Population, fitnessValues: Int8Array) => Population {
     switch (method) {
-        case ParentSelectionMethod.Tournament:
+        case SelectionMethod.Tournament:
             return tournamentSelectionFactory({ randomInteger, tournamentSize: tournamentSize || 2 })
         default:
             throw new Error(`Invalid parent selection method: ${method}`)

@@ -1,6 +1,6 @@
 import { RandomIntegerGenerator } from '../../../src/genetic-algorithm/random-integer-generator'
 import { Population } from '../../../src/genetic-algorithm/population'
-import { tournamentSelectionFactory } from '../../../src/genetic-algorithm/parent-selection/tournament-selection-factory'
+import { tournamentSelectionFactory } from '../../../src/genetic-algorithm/selection/tournament-selection-factory'
 import { Uint8 } from '../../../src/common/uint8'
 
 describe('TournamentSelection', () => {

@@ -7,7 +7,7 @@ describe('GeneticAlgorithmRunner', () => {
     const mutationSpy = jasmine.createSpy('mutationFunction', (pop: Population) => pop).and.callThrough()
     const crossoverSpy = jasmine.createSpy('crossoverFunction', (pop: Population) => pop).and.callThrough()
     const fitnessSpy = jasmine.createSpy('fitnessFunction', (_: Uint8Array) => 1 as Int8).and.callThrough()
-    const parentSelectionSpy = jasmine.createSpy('parentSelectionFunction', (pop: Population, _: Int8Array) => pop)
+    const selectionSpy = jasmine.createSpy('selectionFunction', (pop: Population, _: Int8Array) => pop)
         .and.callThrough()
 
     let population: Population
@@ -19,7 +19,7 @@ describe('GeneticAlgorithmRunner', () => {
             mutationFunction: mutationSpy,
             fitnessFunction: fitnessSpy,
             crossoverFunction: crossoverSpy,
-            parentSelectionFunction: parentSelectionSpy
+            selectionFunction: selectionSpy
         })
     })
 
@@ -50,11 +50,11 @@ describe('GeneticAlgorithmRunner', () => {
             expect(result.generation).toBe(expectedGeneration)
         })
 
-        it('should call parentSelectionFunction and pass results to crossoverFunction, ' +
+        it('should call selectionFunction and pass results to crossoverFunction, ' +
             'then mutationFunction, and then fitnessFunction',
             () => {
                 const parents = new Population({ size: population.size, genomeSize: population.genomeSize })
-                parentSelectionSpy.and.returnValue(parents)
+                selectionSpy.and.returnValue(parents)
                 const crossoverResult = new Population({ size: parents.size, genomeSize: parents.size })
                 crossoverSpy.and.returnValue(crossoverResult)
                 const children = new Population({ size: crossoverResult.size, genomeSize: crossoverResult.genomeSize })
@@ -75,7 +75,7 @@ describe('GeneticAlgorithmRunner', () => {
 
                 expect(result.population).toEqual(children)
                 expect(result.fitnessValues).toEqual(expectedFitnessValues)
-                expect(parentSelectionSpy).toHaveBeenCalledWith(runData.population, runData.fitnessValues)
+                expect(selectionSpy).toHaveBeenCalledWith(runData.population, runData.fitnessValues)
                 expect(crossoverSpy).toHaveBeenCalledWith(parents)
                 expect(mutationSpy).toHaveBeenCalledWith(crossoverResult)
                 for (const child of children) {
