@@ -1,12 +1,12 @@
 import { Population } from '../../src/genetic-algorithm/population'
 import { GeneticAlgorithmRunner } from '../../src/genetic-algorithm/genetic-algorithm-runner'
-import { Int8 } from '../../src/common/int8'
 import { RunData } from '../../src/genetic-algorithm/run-data'
 
 describe('GeneticAlgorithmRunner', () => {
     const mutationSpy = jasmine.createSpy('mutationFunction', (pop: Population) => pop).and.callThrough()
     const crossoverSpy = jasmine.createSpy('crossoverFunction', (pop: Population) => pop).and.callThrough()
-    const fitnessSpy = jasmine.createSpy('fitnessFunction', (_: Uint8Array) => 1 as Int8).and.callThrough()
+    const fitnessSpy = jasmine.createSpy('fitnessFunction', (pop: Population) => new Int8Array(pop.size))
+        .and.callThrough()
     const selectionSpy = jasmine.createSpy('selectionFunction', (pop: Population, _: Int8Array) => pop)
         .and.callThrough()
 
@@ -59,12 +59,11 @@ describe('GeneticAlgorithmRunner', () => {
                 crossoverSpy.and.returnValue(crossoverResult)
                 const children = new Population({ size: crossoverResult.size, genomeSize: crossoverResult.genomeSize })
                 mutationSpy.and.returnValue(children)
-                const fitness = 8
-                fitnessSpy.and.returnValue(fitness)
                 const expectedFitnessValues = new Int8Array(population.size)
                 for (let index = 0; index < population.size; index++) {
-                    expectedFitnessValues[index] = fitness
+                    expectedFitnessValues[index] = 1
                 }
+                fitnessSpy.and.returnValue(expectedFitnessValues)
 
                 const runData = {
                     population,
@@ -78,9 +77,7 @@ describe('GeneticAlgorithmRunner', () => {
                 expect(selectionSpy).toHaveBeenCalledWith(runData.population, runData.fitnessValues)
                 expect(crossoverSpy).toHaveBeenCalledWith(parents)
                 expect(mutationSpy).toHaveBeenCalledWith(crossoverResult)
-                for (const child of children) {
-                    expect(fitnessSpy).toHaveBeenCalledWith(child)
-                }
+                expect(fitnessSpy).toHaveBeenCalledWith(children)
             })
     })
 })
