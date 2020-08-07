@@ -4,7 +4,7 @@ import { RunData } from './run-data'
 
 export class GeneticAlgorithmRunner {
     private readonly mutationFunction: (population: Population) => Population
-    private readonly fitnessFunction: (genome: Population) => Int8Array
+    private readonly fitnessFunction: (population: Population) => Int8Array
     private readonly selectionFunction: (population: Population, fitnessValues: Int8Array) => Population
     private readonly crossoverFunction: (population: Population) => Population
 
