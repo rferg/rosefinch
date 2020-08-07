@@ -1,6 +1,6 @@
 import { Int8 } from '../../common/int8'
 
-export function normalizeInt16ToInt8(rawValues: Int8Array | Int16Array): Int8Array {
+export function normalizeToInt8Range(rawValues: Int8Array | Int16Array): Int8Array {
     const normalized = new Int8Array(rawValues.length)
     const max = Math.max(...rawValues)
     const min = Math.min(...rawValues)
