@@ -11,7 +11,7 @@ export function tournamentSelectionFactory({
 }): (population: Population, fitnessValues: Int8Array) => Population {
     return (population, fitnessValues) => {
         const results = new Population({ size: population.size, genomeSize: population.genomeSize })
-        for (let tournamentCount = 0; tournamentCount < population.size; tournamentCount++) {
+        for (let genomeIndex = 0; genomeIndex < population.size; genomeIndex++) {
             let best: Uint8Array | undefined
             let bestFitness: Int8 = -128
             for (let contenderCount = 0; contenderCount < tournamentSize; contenderCount++) {
@@ -24,9 +24,9 @@ export function tournamentSelectionFactory({
                 }
             }
             if (!best) {
-                throw new Error(`No winner in tournament ${tournamentCount} was selected!`)
+                throw new Error(`No winner in tournament ${genomeIndex} was selected!`)
             }
-            results.get(tournamentCount).set(best)
+            results.get(genomeIndex).set(best)
         }
         return results
     }
