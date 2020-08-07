@@ -3,7 +3,7 @@ import { Population } from '../../../src/genetic-algorithm/population'
 import { Int8 } from '../../../src/common/int8'
 
 describe('fitnessFunctionComposer', () => {
-    const defaultNormalizer = (values: Int16Array) => new Int8Array(values)
+    const defaultNormalizer = (values: Int8Array | Int16Array) => new Int8Array(values)
     const defaultFitnessFunction = (pop: Population) => new Int8Array(pop.size)
 
     it('should throw if no functions provided', () => {
@@ -29,18 +29,20 @@ describe('fitnessFunctionComposer', () => {
             expect(result.length).toEqual(population.size)
         })
 
-        it('should call normalizer', () => {
+        it('should call normalizer for each function output and at end', () => {
             const normalizer = jasmine.createSpy('normalizer', defaultNormalizer).and.callThrough()
             const population = new Population({ size: 1, genomeSize: 1 })
+            const functions = [ defaultFitnessFunction, defaultFitnessFunction ]
 
             const composed = fitnessFunctionComposer({
-                functions: [ defaultFitnessFunction ],
+                functions,
                 weights: [],
                 normalizer
             })
             composed(population)
 
             expect(normalizer).toHaveBeenCalledWith(new Int16Array(population.size))
+            expect(normalizer).toHaveBeenCalledTimes(functions.length + 1)
         })
 
         it('should use 1 as default weight', () => {

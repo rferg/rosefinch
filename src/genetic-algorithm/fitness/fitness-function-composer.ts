@@ -22,7 +22,7 @@ export function fitnessFunctionComposer({
         for (let functionIndex = 0; functionIndex < definedFunctions.length; functionIndex++) {
             const fitnessFunction = definedFunctions[functionIndex]
             const weight = (weights?.length ?? 0) > functionIndex ? weights[functionIndex] : 1
-            const fitnesses = fitnessFunction(population)
+            const fitnesses = normalizer(fitnessFunction(population))
             for (let genomeIndex = 0; genomeIndex < fitnesses.length; genomeIndex++) {
                 rawValues[genomeIndex] += (fitnesses[genomeIndex] * weight)
             }
