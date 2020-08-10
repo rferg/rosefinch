@@ -1,6 +1,7 @@
 import { Population } from '../population'
 import { Uint8 } from '../../common/uint8'
 import { Pitch } from '../../common/pitch'
+import { GeneUtil } from '../../common/gene-util'
 
 enum SequenceType {
     Ascending = 'ascending',
@@ -25,7 +26,10 @@ export function pitchSequenceDirectionFactory({
         const maxScore = Math.max(...Object.keys(scores).map(key => scores[key as SequenceType] || 0))
         for (let genomeIndex = 0; genomeIndex < population.size; genomeIndex++) {
             const genome = population.get(genomeIndex)
-            const noteGenes = genome.filter(gene => gene !== Pitch.Rest && gene !== Pitch.Hold)
+            const noteGenes = genome.filter(gene => {
+                const pitch = GeneUtil.getPitch(gene as Uint8)
+                return pitch !== Pitch.Rest && pitch !== Pitch.Hold
+            })
             let score = 0
             for (let geneIndex = 0; geneIndex < noteGenes.length - (sequenceLength - 1); geneIndex++) {
                 let currentGene = noteGenes[geneIndex] as Uint8

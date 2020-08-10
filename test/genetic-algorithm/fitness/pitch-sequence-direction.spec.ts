@@ -132,7 +132,7 @@ describe('pitchSequenceDirection', () => {
         expected: number
     }[] = [
         {
-            genome: [ 15, Pitch.Rest, 12, Pitch.Hold, 9 ],
+            genome: [ 15, Pitch.Rest * (Pitch.Hold + 1) as Uint8, 12, Pitch.Hold, 9 ],
             sequenceLength: 3,
             scores: { ascending: 0, stable: 0, descending: 1 },
             expected: 100
