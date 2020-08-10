@@ -1,6 +1,5 @@
 import { Population } from '../population'
 import { Uint8 } from '../../common/uint8'
-import { GeneUtil } from '../../common/gene-util'
 import { Pitch } from '../../common/pitch'
 
 enum SequenceType {
@@ -54,17 +53,9 @@ export function pitchSequenceDirectionFactory({
 }
 
 function getSequenceType(gene: Uint8, nextGene: Uint8): SequenceType {
-    const octave = GeneUtil.getOctave(gene)
-    const nextGeneOctave = GeneUtil.getOctave(nextGene)
-    if (octave !== nextGeneOctave) {
-        const octaveDifference = octave - nextGeneOctave
-        if (octaveDifference === 0) { return SequenceType.Stable }
-        return octaveDifference < 0 ? SequenceType.Ascending : SequenceType.Descending
-    }
-
-    const pitchDifference = GeneUtil.getPitch(gene) - GeneUtil.getPitch(nextGene)
-    if (pitchDifference === 0) { return SequenceType.Stable }
-    return pitchDifference < 0 ? SequenceType.Ascending : SequenceType.Descending
+    const difference = gene - nextGene
+    if (!difference) { return SequenceType.Stable }
+    return difference < 0 ? SequenceType.Ascending : SequenceType.Descending
 }
 
 function calculateFitness(score: number, noteGeneCount: number, sequenceLength: number, maxScore: number): number {
