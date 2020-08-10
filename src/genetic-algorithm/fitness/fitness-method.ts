@@ -2,6 +2,7 @@ export enum FitnessMethod {
     ChordFit,
     RestProportion,
     PitchSequenceDirection,
-    ScaleDegree,
-    RhythmicVariance
+    ScaleInterval,
+    RhythmicVariance,
+    RepeatedPattern
 }
