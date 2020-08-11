@@ -1,20 +1,19 @@
 import { RandomGenerator } from '../../../src/genetic-algorithm/random-generator'
-import { RandomIntegerGenerator } from '../../../src/genetic-algorithm/random-integer-generator'
 import { Population } from '../../../src/genetic-algorithm/population'
 import { pointMutationFactory } from '../../../src/genetic-algorithm/mutation/point-mutation-factory'
-import { GeneUtil } from '../../../src/common/gene-util'
+import { Uint8 } from '../../../src/common/uint8'
 
 describe('PointMutation', () => {
     let random: jasmine.Spy<RandomGenerator>
-    let randomInteger: jasmine.Spy<RandomIntegerGenerator>
+    let geneFactory: jasmine.Spy<(i: number) => Uint8>
     let mutate: (p: Population) => Population
     const mutationRate = 0.5
 
     beforeEach(() => {
         random = jasmine.createSpy('randomGenerator', () => 0.9).and.callThrough()
-        randomInteger = jasmine.createSpy('randomIntegerGenerator', (min: number, _max: number) => min)
+        geneFactory = jasmine.createSpy('geneFactor', (_: number) => 0)
             .and.callThrough()
-        mutate = pointMutationFactory({ mutationRate, random, randomInteger })
+        mutate = pointMutationFactory({ mutationRate, random, geneFactory })
     })
 
     it('should return same population if no mutations', () => {
@@ -29,12 +28,13 @@ describe('PointMutation', () => {
         const population = new Population({ size: 1, genomeSize: 5 })
         const mutatedValue = 77
         random.and.returnValues(mutationRate - 0.1, 0.9)
-        randomInteger.and.returnValue(mutatedValue)
+        geneFactory.and.returnValue(mutatedValue)
 
         const result = mutate(population)
 
         expect(result.get(0)[0]).toEqual(mutatedValue)
+        expect(geneFactory).toHaveBeenCalledWith(0)
+        expect(geneFactory).toHaveBeenCalledTimes(1)
         expect(result.get(0).slice(1).every(x => x === 0)).toBeTrue()
-        expect(randomInteger).toHaveBeenCalledWith(0, GeneUtil.MAX_NOTE_VALUE + 1)
     })
 })

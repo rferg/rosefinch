@@ -1,24 +1,22 @@
 import { RandomGenerator } from '../random-generator'
 import { Population } from '../population'
-import { RandomIntegerGenerator } from '../random-integer-generator'
-import { GeneUtil } from '../../common/gene-util'
+import { Uint8 } from '../../common/uint8'
 
 export function pointMutationFactory({
     mutationRate,
     random,
-    randomInteger
+    geneFactory
 }: {
     mutationRate: number,
     random: RandomGenerator,
-    randomInteger: RandomIntegerGenerator
+    geneFactory: (geneIndex: number) => Uint8
 }): (population: Population) => Population {
     return population => {
-        const maxMutatedValue = GeneUtil.MAX_NOTE_VALUE + 1
         for (let genomeIndex = 0; genomeIndex < population.size; genomeIndex++) {
             const genome = population.get(genomeIndex)
             for (let geneIndex = 0; geneIndex < population.genomeSize; geneIndex++) {
                 if (random() <= mutationRate) {
-                    genome[genomeIndex] = randomInteger(0, maxMutatedValue)
+                    genome[genomeIndex] = geneFactory(geneIndex)
                 }
             }
         }
