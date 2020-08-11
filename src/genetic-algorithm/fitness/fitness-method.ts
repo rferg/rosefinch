@@ -4,5 +4,5 @@ export enum FitnessMethod {
     PitchSequenceDirection,
     ScaleInterval,
     RhythmicDispersion,
-    RepeatedPattern
+    RepeatedSequences
 }
