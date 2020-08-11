@@ -1,0 +1,7 @@
+export { Population } from './population'
+export { SerializedPopulation } from './serialized-population'
+export { SelectionMethod } from './selection/selection-method'
+export { MutationMethod } from './mutation/mutation-method'
+export { FitnessMethod } from './fitness/fitness-method'
+export { FitnessConfig } from './fitness/fitness-config'
+export { CrossoverMethod } from './crossover/crossover-method'

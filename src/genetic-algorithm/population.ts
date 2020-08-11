@@ -1,5 +1,5 @@
 import { Uint8 } from '../common/uint8'
-import { SerializedPopulation } from '../common/serialized-population'
+import { SerializedPopulation } from './serialized-population'
 
 /**
  * Represents a collection of genomes.
