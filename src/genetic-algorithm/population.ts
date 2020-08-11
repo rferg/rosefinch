@@ -1,4 +1,5 @@
 import { Uint8 } from '../common/uint8'
+import { SerializedPopulation } from '../common/serialized-population'
 
 /**
  * Represents a collection of genomes.
@@ -16,20 +17,29 @@ export class Population implements IterableIterator<Uint8Array> {
      * @param options
      * @param options.size the number of genomes
      * @param options.genomeSize the number of genes in a genome
+     * @param options.array [Optional] for passing in serialized population to be re-created
      * @param options.geneFactory [Optional] the function to initialize genes with;
      * if not provided, all genes will be 0
      */
-    constructor({ size, genomeSize, geneFactory }: {
+    constructor({ size, genomeSize, array, geneFactory }: {
         size: number,
         genomeSize: number,
+        array?: Uint8Array,
         geneFactory?: (geneIndexInPopulation: number) => Uint8
     }) {
-        this.size = Math.max(size || 0, 0)
         this.genomeSize = Math.max(genomeSize || 0, 0)
-        if (!(this.size && this.genomeSize)) {
+
+        if (!(size && this.genomeSize)) {
             throw new Error(`Invalid population size: ${size} or genome size ${genomeSize}.`)
         }
-        this.array = new Uint8Array(size * genomeSize)
+        if (array && size !== (array.length / this.genomeSize)) {
+            throw new Error(`Invalid population size: ${size} does not match given array length: ` +
+                `${array.length} divided by genomeSize ${this.genomeSize}`)
+        }
+
+        this.array = array || new Uint8Array(size * genomeSize)
+        this.size = Math.floor(this.array.length / this.genomeSize)
+
         if (geneFactory) {
             for (let index = 0; index < this.array.length; index++) {
                 this.array[index] = geneFactory(index)
@@ -71,6 +81,18 @@ export class Population implements IterableIterator<Uint8Array> {
         this.throwIfInvalidIndex(index)
         const firstGeneIndex = index * this.genomeSize
         return this.array.subarray(firstGeneIndex, firstGeneIndex + this.genomeSize)
+    }
+
+    /**
+     * Serializes population
+     * @returns population suitable for being sent over worker messages
+     */
+    serialize(): SerializedPopulation {
+        return {
+            size: this.size,
+            genomeSize: this.genomeSize,
+            array: this.array
+        }
     }
 
     private throwIfInvalidIndex(index: number): void {

@@ -15,6 +15,26 @@ describe('Population', () => {
             })
         })
 
+        it('should throw if given array but size !== array.length / genomeSize', () => {
+            const array = new Uint8Array(10)
+
+            expect(() => new Population({ size: 2, genomeSize: 4, array: array }))
+                .toThrowError(/does not match given array length.*divided by genomeSize/i)
+        })
+
+        it('should set array and size if given array', () => {
+            const array = new Uint8Array([ 1, 1, 1, 1 ])
+            const genomeSize = 2
+            const size = array.length / genomeSize
+
+            const population = new Population({ size, genomeSize, array })
+
+            expect(population.size).toBe(size)
+            for (const genome of population) {
+                expect(genome.every(gene => gene === 1)).toBeTrue()
+            }
+        })
+
         it('should initialize genes to 0 if no geneFactory provided', () => {
             const size = 3
             const genomeSize = 5
@@ -136,6 +156,21 @@ describe('Population', () => {
             const sameGenome = population.get(0)
 
             expect(sameGenome[0]).toBe(newValue)
+        })
+    })
+
+    describe('serialize', () => {
+        it('should return size, genomeSize, and array', () => {
+            const array = new Uint8Array([ 1, 2, 3, 4, 5, 9 ])
+            const genomeSize = 2
+            const size = array.length / genomeSize
+            const population = new Population({ size, genomeSize, array })
+
+            const serialized = population.serialize()
+
+            expect(serialized.size).toBe(size)
+            expect(serialized.genomeSize).toBe(genomeSize)
+            expect(serialized.array).toEqual(array)
         })
     })
 })
