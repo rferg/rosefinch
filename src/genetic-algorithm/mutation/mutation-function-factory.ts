@@ -3,21 +3,20 @@ import { RandomGenerator } from '../random-generator'
 import { MutationMethod } from './mutation-method'
 import { pointMutationFactory } from './point-mutation-factory'
 import { Uint8 } from '../../common/uint8'
+import { MutationConfig } from './mutation-config'
 
 export function mutationFunctionFactory({
-    method,
-    mutationRate,
+    config: { method, mutationRate },
     random,
     geneFactory
 }: {
-    method: MutationMethod,
-    mutationRate: number,
+    config: MutationConfig
     random: RandomGenerator,
     geneFactory: (geneIndex: number) => Uint8
 }): (population: Population) => Population {
     switch (method) {
         case MutationMethod.Point:
-            return pointMutationFactory({ mutationRate, random, geneFactory })
+            return pointMutationFactory({ mutationRate: mutationRate || 0.05, random, geneFactory })
         default:
             throw new Error(`Invalid mutation method: ${method}!`)
     }

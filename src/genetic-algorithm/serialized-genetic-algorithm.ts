@@ -1,9 +1,9 @@
 import { SerializedPopulation } from './serialized-population'
 import { CrossoverMethod } from './crossover/crossover-method'
-import { MutationMethod } from './mutation/mutation-method'
-import { SelectionMethod } from './selection/selection-method'
 import { FitnessConfig } from './fitness/fitness-config'
 import { GeneFactoryOptions } from './gene-factory-options'
+import { MutationConfig } from './mutation/mutation-config'
+import { SelectionConfig } from './selection/selection-config'
 
 export interface SerializedGeneticAlgorithm {
     id: string
@@ -12,7 +12,7 @@ export interface SerializedGeneticAlgorithm {
     population: SerializedPopulation
     fitnessValues: Int8Array
     crossoverMethod: CrossoverMethod
-    mutationMethod: MutationMethod
-    selectionMethod: SelectionMethod
+    mutationMethod: MutationConfig
+    selectionMethod: SelectionConfig
     fitnessConfigs: FitnessConfig[]
 }

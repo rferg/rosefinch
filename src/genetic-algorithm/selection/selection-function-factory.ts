@@ -2,15 +2,14 @@ import { Population } from '../population'
 import { SelectionMethod } from './selection-method'
 import { RandomIntegerGenerator } from '../random-integer-generator'
 import { tournamentSelectionFactory } from './tournament-selection-factory'
+import { SelectionConfig } from './selection-config'
 
 export function selectionFunctionFactory({
-    method,
-    randomInteger,
-    tournamentSize
+    config: { method, tournamentSize },
+    randomInteger
 }: {
-    method: SelectionMethod,
+    config: SelectionConfig,
     randomInteger: RandomIntegerGenerator
-    tournamentSize?: number
 }): (population: Population, fitnessValues: Int8Array) => Population {
     switch (method) {
         case SelectionMethod.Tournament:
