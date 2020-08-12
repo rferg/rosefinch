@@ -1,6 +1,7 @@
 import { Population } from './population'
 import { GeneticAlgorithmRunnerOptions } from './genetic-algorithm-runner-options'
 import { RunData } from './run-data'
+import { RunnerProgressReporter } from './runner-progress-reporter'
 
 export class GeneticAlgorithmRunner {
     private readonly mutationFunction: (population: Population) => Population
@@ -20,10 +21,16 @@ export class GeneticAlgorithmRunner {
         this.crossoverFunction = crossoverFunction
     }
 
-    run(numberOfGenerations: number, runData: RunData): RunData {
+    run(numberOfGenerations: number, runData: RunData, reportProgress: RunnerProgressReporter): RunData {
         let data: RunData = runData
+        const startingGeneration = data.generation
         for (let i = 0; i < numberOfGenerations; i++) {
             data = this.nextGeneration(data)
+            reportProgress({
+                startingGeneration,
+                currentGeneration: data.generation,
+                endingGeneration: startingGeneration + numberOfGenerations
+            })
         }
         return data
     }
