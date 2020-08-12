@@ -12,7 +12,7 @@ export interface SerializedGeneticAlgorithm {
     population: SerializedPopulation
     fitnessValues: Int8Array
     crossoverMethod: CrossoverMethod
-    mutationMethod: MutationConfig
-    selectionMethod: SelectionConfig
+    mutationConfig: MutationConfig
+    selectionConfig: SelectionConfig
     fitnessConfigs: FitnessConfig[]
 }

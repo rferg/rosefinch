@@ -10,7 +10,7 @@ export function mutationFunctionFactory({
     random,
     geneFactory
 }: {
-    config: MutationConfig
+    config: MutationConfig,
     random: RandomGenerator,
     geneFactory: (geneIndex: number) => Uint8
 }): (population: Population) => Population {
