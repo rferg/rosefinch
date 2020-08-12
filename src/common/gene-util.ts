@@ -9,7 +9,7 @@ export class GeneUtil {
     static readonly MIN_OCTAVE = 0
     static readonly MAX_OCTAVE = 8
     // Octave length is 12 chromatic notes + 1 for Rest + 1 for Hold.
-    private static readonly OCTAVE_LENGTH = 14
+    static readonly OCTAVE_LENGTH = (Pitch.Hold + 1)
     static get MAX_NOTE_VALUE(): Uint8 {
         return (this.MAX_OCTAVE * (this.OCTAVE_LENGTH + 1)) - 1 as Uint8
     }
