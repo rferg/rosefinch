@@ -6,6 +6,7 @@ import { MutationConfig } from './mutation/mutation-config'
 import { SelectionConfig } from './selection/selection-config'
 
 export interface SerializedGeneticAlgorithm {
+    kind: 'SerializedGeneticAlgorithm'
     id: string
     generation: number
     geneFactoryOptions: GeneFactoryOptions

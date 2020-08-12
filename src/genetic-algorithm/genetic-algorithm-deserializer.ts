@@ -13,7 +13,10 @@ import { SelectionConfig } from './selection/selection-config'
 import { FitnessConfig } from '.'
 import { Normalizer } from './fitness/normalizer'
 
-type GeneFactoryFactory = (options: GeneFactoryOptions) => (i: number) => Uint8
+type GeneFactoryFactory = (config: {
+    options: GeneFactoryOptions,
+    randomIntegerGenerator: RandomIntegerGenerator
+}) => (i: number) => Uint8
 
 type MutationFunctionFactory = (options: {
     config: MutationConfig,
@@ -50,7 +53,10 @@ export class GeneticAlgorithmDeserializer {
     }
 
     deserialize(serialized: SerializedGeneticAlgorithm): DeserializedGeneticAlgorithm {
-        const geneFactory = this.geneFactoryFactory(serialized.geneFactoryOptions)
+        const geneFactory = this.geneFactoryFactory({
+            options: serialized.geneFactoryOptions,
+            randomIntegerGenerator: this.randomInteger
+        })
 
         return {
             id: serialized.id,

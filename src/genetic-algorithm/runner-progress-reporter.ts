@@ -1,5 +1,3 @@
-export type RunnerProgressReporter = (report: {
-    startingGeneration: number,
-    currentGeneration: number,
-    endingGeneration: number
-}) => void
+import { RunnerProgressReport } from './runner-progress-report'
+
+export type RunnerProgressReporter = (report: RunnerProgressReport) => void
