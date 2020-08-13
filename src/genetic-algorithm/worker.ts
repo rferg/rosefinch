@@ -11,17 +11,16 @@ import { selectionFunctionFactory } from './selection/selection-function-factory
 import { GeneticAlgorithmWorker } from './genetic-algorithm-worker'
 import { GeneticAlgorithmRunner } from './genetic-algorithm-runner'
 
-onmessage = (event: MessageEvent) => {
-    const deserializer = new GeneticAlgorithmDeserializer(
-        getRandom,
-        getRandomInteger,
-        normalizeToInt8Range,
-        geneFactoryFactory,
-        mutationFunctionFactory,
-        crossoverFunctionFactory,
-        selectionFunctionFactory,
-        fitnessFunctionFactory
-    )
-    const worker = new GeneticAlgorithmWorker(deserializer, options => new GeneticAlgorithmRunner(options))
-    messageHandler(event, postMessage as (message: any) => void, worker)
-}
+const deserializer = new GeneticAlgorithmDeserializer(
+    getRandom,
+    getRandomInteger,
+    normalizeToInt8Range,
+    geneFactoryFactory,
+    mutationFunctionFactory,
+    crossoverFunctionFactory,
+    selectionFunctionFactory,
+    fitnessFunctionFactory
+)
+const worker = new GeneticAlgorithmWorker(deserializer, options => new GeneticAlgorithmRunner(options))
+
+onmessage = (event: MessageEvent) => messageHandler(event, postMessage as (message: any) => void, worker)
