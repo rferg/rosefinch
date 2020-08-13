@@ -11,7 +11,7 @@ export interface SerializedGeneticAlgorithm {
     generation: number
     geneFactoryOptions: GeneFactoryOptions
     population: SerializedPopulation
-    fitnessValues: Int8Array
+    fitnessValues?: Int8Array
     crossoverMethod: CrossoverMethod
     mutationConfig: MutationConfig
     selectionConfig: SelectionConfig

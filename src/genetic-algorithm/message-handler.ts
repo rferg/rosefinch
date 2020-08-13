@@ -7,7 +7,7 @@ import { GeneticAlgorithmWorkerMessageType } from './genetic-algorithm-worker-me
 import { ResultMessage } from './result-message'
 import { RunMessage } from './run-message'
 
-type MessagePoster = (message: any, targetOrigin: string, transfer?: Transferable[]) => void
+type MessagePoster = (message: any, transfer?: Transferable[]) => void
 
 export function messageHandler(
     { data }: MessageEvent,
@@ -28,7 +28,7 @@ export function messageHandler(
             fitnessValues,
             population: population.serialize()
         }
-        postMessage(message, '*')
+        postMessage(message)
 }
 
 function progressReporterFactory(postMessage: MessagePoster): RunnerProgressReporter {
@@ -46,7 +46,7 @@ function progressReporterFactory(postMessage: MessagePoster): RunnerProgressRepo
                 type: GeneticAlgorithmWorkerMessageType.Progress,
                 percentComplete
             }
-            postMessage(message, '*')
+            postMessage(message)
         }
     }
 }

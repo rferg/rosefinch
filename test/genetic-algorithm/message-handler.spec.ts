@@ -6,7 +6,7 @@ import { GeneticAlgorithmWorkerMessageType } from '../../src/genetic-algorithm/g
 import { ProgressMessage } from '../../src/genetic-algorithm/progress-message'
 
 describe('messageHandler', () => {
-    let postMessageSpy: jasmine.Spy<(message: any, targetOrigin: string, transfer?: Transferable[]) => void>
+    let postMessageSpy: jasmine.Spy<(message: any, transfer?: Transferable[]) => void>
     let workerSpy: jasmine.SpyObj<GeneticAlgorithmWorker>
 
     beforeEach(() => {
@@ -79,7 +79,7 @@ describe('messageHandler', () => {
             generation: runData.generation,
             fitnessValues: runData.fitnessValues,
             population: runData.population.serialize()
-        } as ResultMessage, '*')
+        } as ResultMessage)
     })
 
     it('should create progressReporter that postsMessage only on whole number percentage progress', () => {
@@ -105,14 +105,14 @@ describe('messageHandler', () => {
         expect(postMessageSpy).toHaveBeenCalledWith({
             type: GeneticAlgorithmWorkerMessageType.Progress,
             percentComplete: 25
-        } as ProgressMessage, '*')
+        } as ProgressMessage)
         expect(postMessageSpy).toHaveBeenCalledWith({
             type: GeneticAlgorithmWorkerMessageType.Progress,
             percentComplete: 10
-        } as ProgressMessage, '*')
+        } as ProgressMessage)
         expect(postMessageSpy).not.toHaveBeenCalledWith({
             type: GeneticAlgorithmWorkerMessageType.Progress,
             percentComplete: (1 / 3) * 100
-        } as ProgressMessage, '*')
+        } as ProgressMessage)
     })
 })

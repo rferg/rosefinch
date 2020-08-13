@@ -37,7 +37,7 @@ export function rhythmicDispersionFactory({
 }
 
 function getNoteDurations(genome: Uint8Array): number[] {
-    return genome.reduce((result, current) => {
+    return genome.reduce((result: number[], current: number) => {
         const pitch = GeneUtil.getPitch(current as Uint8)
         if (pitch === Pitch.Hold && result.length) {
             result[result.length - 1] += 1
@@ -45,7 +45,7 @@ function getNoteDurations(genome: Uint8Array): number[] {
             result.push(1)
         }
         return result
-    }, [] as number[])
+    }, [])
 }
 
 function getMean(data: number[]): number {

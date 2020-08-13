@@ -23,5 +23,5 @@ onmessage = (event: MessageEvent) => {
         fitnessFunctionFactory
     )
     const worker = new GeneticAlgorithmWorker(deserializer, options => new GeneticAlgorithmRunner(options))
-    messageHandler(event, postMessage, worker)
+    messageHandler(event, postMessage as (message: any) => void, worker)
 }
