@@ -2,14 +2,12 @@ import { Population } from '../population'
 import { Pitch } from '../../common/pitch'
 import { GeneUtil } from '../../common/gene-util'
 import { Uint8 } from '../../common/uint8'
+import { ScaleIntervalOptions } from './scale-interval-options'
 
 export function scaleIntervalFactory({
     scale,
     intervalScores
-}: {
-    scale: Pitch[],
-    intervalScores: number[]
-}): (population: Population) => Int8Array {
+}: ScaleIntervalOptions): (population: Population) => Int8Array {
     return (population: Population) => {
         const results = new Int8Array(population.size)
         const maxIntervalScore = Math.max(...intervalScores)

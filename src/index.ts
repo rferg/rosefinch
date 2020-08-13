@@ -78,7 +78,7 @@ function runGeneticAlgorithm(worker: Worker) {
                 },
                 {
                     method: FitnessMethod.RhythmicDispersion,
-                    options: { target: 2 }
+                    options: { target: 1 }
                 },
                 {
                     method: FitnessMethod.PitchSequenceDirection,

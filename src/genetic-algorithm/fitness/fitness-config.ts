@@ -1,7 +1,11 @@
-import { FitnessMethod } from './fitness-method'
+import { ChordFitConfig } from './chord-fit-config'
+import { PitchSequenceDirectionConfig } from './pitch-sequence-direction-config'
+import { RestProportionConfig } from './rest-proportion-config'
+import { RhythmicDispersionConfig } from './rhythmic-dispersion-config'
+import { ScaleIntervalConfig } from './scale-interval-config'
 
-export interface FitnessConfig {
-    method: FitnessMethod,
-    options: { [key: string]: any }
-    weight?: number
-}
+export type FitnessConfig = ChordFitConfig
+    | PitchSequenceDirectionConfig
+    | RestProportionConfig
+    | RhythmicDispersionConfig
+    | ScaleIntervalConfig

@@ -2,6 +2,7 @@ import { Population } from '../population'
 import { GeneUtil } from '../../common/gene-util'
 import { Uint8 } from '../../common/uint8'
 import { Pitch } from '../../common/pitch'
+import { RhythmicDispersionOptions } from './rhythmic-dispersion-options'
 
 /**
  * Returns a fitness function that computes
@@ -18,9 +19,7 @@ import { Pitch } from '../../common/pitch'
  */
 export function rhythmicDispersionFactory({
     target
-}: {
-    target: 0 | 1 | 2
-}): (population: Population) => Int8Array {
+}: RhythmicDispersionOptions): (population: Population) => Int8Array {
     const maxIndexValue = 4
     const maxDifference = maxIndexValue - target
     return (population: Population) => {

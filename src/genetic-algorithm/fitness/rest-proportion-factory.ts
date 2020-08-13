@@ -2,6 +2,7 @@ import { Population } from '../population'
 import { GeneUtil } from '../../common/gene-util'
 import { Pitch } from '../../common/pitch'
 import { Uint8 } from '../../common/uint8'
+import { RestProportionOptions } from './rest-proportion-options'
 /**
  * Returns fitness function that evaluates genome's fitness
  * by calculating the proportion of genes that are Pitch.Rests
@@ -16,9 +17,7 @@ import { Uint8 } from '../../common/uint8'
  */
 export function restProportionFactory({
     targetProportion
-}: {
-    targetProportion: number
-}): (population: Population) => Int8Array {
+}: RestProportionOptions): (population: Population) => Int8Array {
     targetProportion = Math.min(Math.max(0, targetProportion), 1)
     return (population: Population) => {
         const results = new Int8Array(population.size)

@@ -2,12 +2,11 @@ import { Pitch } from '../../common/pitch'
 import { Population } from '../population'
 import { GeneUtil } from '../../common/gene-util'
 import { Uint8 } from '../../common/uint8'
+import { ChordFitOptions } from './chord-fit-options'
 
 export function chordFitFactory({
     chords = {}
-}: {
-    chords: { [geneIndex: number]: Pitch[] }
-}): (population: Population) => Int8Array {
+}: ChordFitOptions): (population: Population) => Int8Array {
     return (population) => {
         const results = new Int8Array(population.size)
         for (let genomeIndex = 0; genomeIndex < population.size; genomeIndex++) {
