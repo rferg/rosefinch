@@ -3,6 +3,7 @@ import { SelectionMethod } from './selection-method'
 import { RandomIntegerGenerator } from '../random-integer-generator'
 import { tournamentSelectionFactory } from './tournament-selection-factory'
 import { SelectionConfig } from './selection-config'
+import { assertUnreachable } from '../../common/assert-unreachable'
 
 export function selectionFunctionFactory({
     config: { method, tournamentSize },
@@ -15,6 +16,6 @@ export function selectionFunctionFactory({
         case SelectionMethod.Tournament:
             return tournamentSelectionFactory({ randomInteger, tournamentSize: tournamentSize || 2 })
         default:
-            throw new Error(`Invalid parent selection method: ${method}`)
+            assertUnreachable(method, `Invalid parent selection method: ${method}`)
     }
 }

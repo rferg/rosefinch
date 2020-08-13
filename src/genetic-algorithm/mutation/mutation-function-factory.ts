@@ -4,6 +4,7 @@ import { MutationMethod } from './mutation-method'
 import { pointMutationFactory } from './point-mutation-factory'
 import { Uint8 } from '../../common/uint8'
 import { MutationConfig } from './mutation-config'
+import { assertUnreachable } from '../../common/assert-unreachable'
 
 export function mutationFunctionFactory({
     config: { method, mutationRate },
@@ -18,6 +19,6 @@ export function mutationFunctionFactory({
         case MutationMethod.Point:
             return pointMutationFactory({ mutationRate: mutationRate || 0.05, random, geneFactory })
         default:
-            throw new Error(`Invalid mutation method: ${method}!`)
+            assertUnreachable(method, `Invalid mutation method: ${method}!`)
     }
 }

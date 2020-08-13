@@ -9,6 +9,7 @@ import { pitchSequenceDirectionFactory } from './pitch-sequence-direction-factor
 import { scaleIntervalFactory } from './scale-interval-factory'
 import { rhythmicDispersionFactory } from './rhythmic-dispersion-factory'
 import { repeatedSequencesFactory } from './repeated-sequences-factory'
+import { assertUnreachable } from '../../common/assert-unreachable'
 
 export function fitnessFunctionFactory({
     configs,
@@ -55,6 +56,6 @@ function getFunction(
                 type: options?.type || 1
             })
         default:
-            throw new Error(`Invalid fitness function method ${method}!`)
+            assertUnreachable(method, `Invalid fitness function method ${method}!`)
     }
 }
