@@ -6,8 +6,7 @@ import { ProgressMessage } from './progress-message'
 import { GeneticAlgorithmWorkerMessageType } from './genetic-algorithm-worker-message-type'
 import { ResultMessage } from './result-message'
 import { RunMessage } from './run-message'
-
-type MessagePoster = (message: any, transfer?: Transferable[]) => void
+import { MessagePoster } from '../common/message-poster'
 
 export function messageHandler(
     { data }: MessageEvent,
