@@ -6,46 +6,108 @@ import {
     ProgressMessage,
     ResultMessage,
     RunMessage,
-    SelectionMethod
+    SelectionMethod,
+    SerializedPopulation
 } from './genetic-algorithm'
 import { Pitch } from './common/pitch'
+import { ClusterProgressMessage, ClusterResultMessage, ClusterWorkerMessageType } from './clustering'
+import { ClusterMessage } from './clustering/cluster-message'
 
 const gaWorker = new Worker('./genetic-algorithm/worker.ts')
+const clusterWorker = new Worker('./clustering/worker.ts')
 
 gaWorker.addEventListener('message', ({ data }: MessageEvent) => {
-    if (isProgressMessage(data)) {
-        handleProgressMessage(data)
-    } else if (isResultMessage(data)) {
-        handleResultMessage(data)
+    if (isGAProgressMessage(data)) {
+        handleGAProgressMessage(data)
+    } else if (isGAResultMessage(data)) {
+        handleGAResultMessage(data)
     } else {
         throw new Error(`Received invalid message ${data} from genetic algorithm worker!`)
     }
 })
 
 gaWorker.addEventListener('error', error => {
-    console.error(`Received worker error: ${error}`)
+    console.error(`Received GA worker error: ${error}`)
 })
 
 gaWorker.addEventListener('messageerror', error => {
-    console.log(`Received message error: ${error}`)
+    console.log(`Received GA message error: ${error}`)
+})
+
+clusterWorker.addEventListener('message', ({ data }: MessageEvent) => {
+    if (isClusterProgressMessage(data)) {
+        handleClusterProgressMessage(data)
+    } else if (isClusterResultMessage(data)) {
+        handleClusterResultMessage(data)
+    } else {
+        throw new Error(`Invalid message ${data} received from Cluster Worker.`)
+    }
+})
+
+clusterWorker.addEventListener('error', error => {
+    console.error(`Received Cluster worker error: ${error}`)
+})
+
+clusterWorker.addEventListener('messageerror', error => {
+    console.log(`Received Cluster message error: ${error}`)
 })
 
 runGeneticAlgorithm(gaWorker)
 
-function isProgressMessage(data: any): data is ProgressMessage {
+function isGAProgressMessage(data: any): data is ProgressMessage {
     return (data as ProgressMessage)?.type === GeneticAlgorithmWorkerMessageType.Progress
 }
 
-function isResultMessage(data: any): data is ResultMessage {
+function isGAResultMessage(data: any): data is ResultMessage {
     return (data as ResultMessage)?.type === GeneticAlgorithmWorkerMessageType.Results
 }
 
-function handleProgressMessage({ percentComplete }: ProgressMessage): void {
-    console.log(`Progress: ${percentComplete}% complete.`)
+function isClusterProgressMessage(data: any): data is ClusterProgressMessage {
+    return (data as ClusterProgressMessage)?.type === ClusterWorkerMessageType.Progress
 }
 
-function handleResultMessage({ generation }: ResultMessage): void {
+function isClusterResultMessage(data: any): data is ClusterResultMessage {
+    return (data as ClusterResultMessage)?.type === ClusterWorkerMessageType.Result
+}
+
+function sendClusterMessage(population: SerializedPopulation): void {
+    const message: ClusterMessage = {
+        kind: 'ClusterMessage',
+        population,
+        numberOfRepresentatives: 10,
+        maxIterations: 1000,
+        stopThreshold: 1
+    }
+
+    clusterWorker.postMessage(message)
+}
+
+function handleGAProgressMessage({ percentComplete }: ProgressMessage): void {
+    console.log(`GA Progress: ${percentComplete}% complete.`)
+}
+
+function handleGAResultMessage({ generation, population }: ResultMessage): void {
     console.log(`Got results for generation ${generation}.`)
+    console.log('Sending clustering message...')
+    sendClusterMessage(population)
+}
+
+function handleClusterProgressMessage({ iteration }: ClusterProgressMessage): void {
+    console.log(`Clustering iteration ${iteration}`)
+}
+
+function handleClusterResultMessage({ result }: ClusterResultMessage): void {
+    console.log(`Got results from Clustering ${result.representativeIndexes}`)
+    result.representativeIndexes.forEach(repIdx =>
+        console.log(result.assignments[repIdx].clusterIndex, result.assignments[repIdx].distanceToCentroid))
+    const assignmentCounts = result.assignments.reduce((prev, { clusterIndex }) => {
+        if (!prev[clusterIndex]) {
+            prev[clusterIndex] = 0
+        }
+        prev[clusterIndex]++
+        return prev
+    }, {} as { [key: number]: number })
+    console.log(assignmentCounts)
 }
 
 function runGeneticAlgorithm(worker: Worker) {
@@ -59,7 +121,7 @@ function runGeneticAlgorithm(worker: Worker) {
                 octaveRange: [ 3, 5 ],
                 excludedPitches: []
             },
-            population: { size: 1000, genomeSize: 256 },
+            population: { size: 5000, genomeSize: 128 },
             fitnessConfigs: [
                 {
                     method: FitnessMethod.ChordFit,
