@@ -1,7 +1,7 @@
 import { messageHandler } from './message-handler'
 import { KMeans } from './k-means'
 import { randomCentroidsFactory } from './random-centroids-factory'
-import { getRandomInteger } from '../genetic-algorithm/get-random-integer'
+import { getRandomInteger } from '../common/get-random-integer'
 import { GeneUtil } from '../common/gene-util'
 import { manhattanDistance } from './manhattan-distance'
 import { KMeansWorker } from './k-means-worker'
