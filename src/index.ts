@@ -75,7 +75,7 @@ function sendClusterMessage(population: SerializedPopulation): void {
         kind: 'ClusterMessage',
         population,
         numberOfRepresentatives: 10,
-        maxIterations: 1000,
+        maxIterations: 250,
         stopThreshold: 1
     }
 
@@ -112,7 +112,7 @@ function handleClusterResultMessage({ result }: ClusterResultMessage): void {
 
 function runGeneticAlgorithm(worker: Worker) {
     const message: RunMessage = {
-        numberOfGenerations: 100,
+        numberOfGenerations: 50,
         geneticAlgorithm: {
             kind: 'SerializedGeneticAlgorithm',
             id: 'ga-1',

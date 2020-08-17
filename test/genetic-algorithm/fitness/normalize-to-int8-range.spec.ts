@@ -1,4 +1,4 @@
-import { normalizeToInt8Range } from '../../../src/genetic-algorithm/fitness/normalize-to-int8-range'
+import { normalizeToInt8Range } from '../../../src/common/normalize-to-int8-range'
 
 describe('normalizeInt16ToInt8', () => {
     it('should return all 0s if values are identical', () => {

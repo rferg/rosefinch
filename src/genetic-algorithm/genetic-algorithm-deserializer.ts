@@ -11,7 +11,7 @@ import { CrossoverMethod } from './crossover/crossover-method'
 import { RandomIntegerGenerator } from './random-integer-generator'
 import { SelectionConfig } from './selection/selection-config'
 import { FitnessConfig } from '.'
-import { Normalizer } from './fitness/normalizer'
+import { Normalizer } from '../common/normalizer'
 
 type GeneFactoryFactory = (config: {
     options: GeneFactoryOptions,

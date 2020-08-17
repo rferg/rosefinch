@@ -1,5 +1,5 @@
 import { Population } from '../population'
-import { Normalizer } from './normalizer'
+import { Normalizer } from '../../common/normalizer'
 
 export function fitnessFunctionComposer({
     functions,

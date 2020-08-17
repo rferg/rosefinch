@@ -1,4 +1,4 @@
-import { Int8 } from '../../common/int8'
+import { Int8 } from './int8'
 
 export function normalizeToInt8Range(rawValues: Int8Array | Int16Array): Int8Array {
     const normalized = new Int8Array(rawValues.length)
