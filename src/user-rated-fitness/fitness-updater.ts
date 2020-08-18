@@ -32,9 +32,10 @@ export class FitnessUpdater {
                 const referenceDistance = Math.max(representativeDistance, 1)
                 assignments.forEach(({ clusterIndex, distanceToCentroid }, assignmentIndex) => {
                     if (clusterIndex === currentClusterIndex) {
-                        const distanceWeight = referenceDistance / Math.max(distanceToCentroid, 1)
-                        newFitnessValues[assignmentIndex] = Math.round(
-                            distanceWeight * distanceToCentroid * ratingWeight)
+                        distanceToCentroid = Math.max(distanceToCentroid, 1)
+                        const distanceWeight = referenceDistance / distanceToCentroid
+                        newFitnessValues[assignmentIndex] = fitnessValues[assignmentIndex] + Math.round(
+                            distanceWeight * ratingWeight * rating)
                     }
                 })
             }
