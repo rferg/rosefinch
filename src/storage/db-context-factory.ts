@@ -28,6 +28,18 @@ export class DbContextFactory {
                     })
                 }
 
+                if (!db.objectStoreNames.contains('geneticAlgorithmSummary')) {
+                    const summaryStore = db.createObjectStore('optionsTemplate', {
+                        keyPath: 'id'
+                    })
+
+                    // Seems to be sum bug with idb types, where index names in
+                    // the Schema are not parsed correctly.
+                    if (!summaryStore.indexNames.contains('by-lastRunOn' as never)) {
+                        summaryStore.createIndex('by-lastRunOn' as never, 'lastRunOn')
+                    }
+                }
+
                 if (!db.objectStoreNames.contains('geneticAlgorithm')) {
                     db.createObjectStore('geneticAlgorithm', {
                         keyPath: 'id'
@@ -35,14 +47,14 @@ export class DbContextFactory {
                 }
             }
         }).then(db => {
-            const context = new IDBContextWrapper(db)
+            const context = new IDBPContextWrapper(db)
             this.context = context
             return context
         })
     }
 }
 
-class IDBContextWrapper implements DbContext {
+class IDBPContextWrapper implements DbContext {
 
     constructor(private readonly idbp: IDBPDatabase<Schema>) {
 

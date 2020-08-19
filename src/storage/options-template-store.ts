@@ -1,5 +1,5 @@
 import { Store } from './store'
-import { CrossoverMethod, FitnessConfig } from '../genetic-algorithm'
+import { CrossoverMethod, FitnessConfig, GeneFactoryOptions } from '../genetic-algorithm'
 import { MutationConfig } from '../genetic-algorithm/mutation/mutation-config'
 import { SelectionConfig } from '../genetic-algorithm/selection/selection-config'
 
@@ -9,4 +9,6 @@ export interface OptionsTemplateStore extends Store {
     mutationConfig: MutationConfig
     selectionConfig: SelectionConfig
     fitnessConfigs: FitnessConfig[]
+    geneFactoryOptions: GeneFactoryOptions
+    createdOn: Date
 }
