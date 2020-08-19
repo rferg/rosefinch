@@ -1,15 +1,15 @@
 import { Inject, Injectable } from 'cewdi'
 import { WebWorkerType } from './web-worker-type'
 import { assertUnreachable } from '../common/assert-unreachable'
-import { windowToken } from '../common/window-token'
 import { WorkerEventType } from './worker-event-type'
+import { globalEventTargetToken } from '../common/global-event-target-token'
 
 @Injectable()
 export class WorkerFactory {
     private readonly workerCache = new Map<WebWorkerType, Worker>()
 
-    constructor(@Inject(windowToken) private readonly window: Window) {
-        this.window.addEventListener(
+    constructor(@Inject(globalEventTargetToken) private readonly eventTarget: EventTarget) {
+        this.eventTarget.addEventListener(
             WorkerEventType.Terminated,
             (ev) => this.workerTerminatedListener(ev as CustomEvent<WebWorkerType | undefined>))
     }

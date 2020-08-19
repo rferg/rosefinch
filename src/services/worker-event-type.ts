@@ -1,3 +1,4 @@
 export enum WorkerEventType {
-    Terminated = 'worker-terminated'
+    Terminated = 'worker-terminated',
+    Error = 'worker-error'
 }

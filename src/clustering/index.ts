@@ -1,4 +1,5 @@
 export { ClusterAssignment } from './cluster-assignment'
+export { ClusterMessage } from './cluster-message'
 export { ClusterResult } from './cluster-result'
 export { ClusterProgressMessage } from './cluster-progress-message'
 export { ClusterResultMessage } from './cluster-result-message'
