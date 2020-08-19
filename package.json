@@ -15,7 +15,8 @@
   "license": "ISC",
   "dependencies": {
     "@abraham/reflection": "^0.7.0",
-    "cewdi": "^0.2.4"
+    "cewdi": "^0.2.4",
+    "idb": "^5.0.4"
   },
   "devDependencies": {
     "@types/jasmine": "^3.5.12",
