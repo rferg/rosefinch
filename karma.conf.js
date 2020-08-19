@@ -15,11 +15,13 @@ module.exports = (config) => {
         clearContext: false
       },
       files: [
+        'test/setup.ts',
         { pattern: 'src/**/*.ts' },
         { pattern: 'test/**/*.spec.ts' }
       ],
       exclude: [ 'src/index.ts' ],
       preprocessors: {
+        'test/setup.ts': [ 'karma-typescript' ],
         'src/**/*.ts': [ 'karma-typescript' ],
         'test/**/*.spec.ts': [ 'karma-typescript' ]
       },

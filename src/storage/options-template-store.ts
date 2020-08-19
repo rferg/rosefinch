@@ -11,4 +11,5 @@ export interface OptionsTemplateStore extends Store {
     fitnessConfigs: FitnessConfig[]
     geneFactoryOptions: GeneFactoryOptions
     createdOn: Date
+    updatedOn: Date
 }
