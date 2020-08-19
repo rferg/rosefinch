@@ -60,16 +60,16 @@ class IDBPContextWrapper implements DbContext {
 
     }
 
-    get(storeName: StoreName, key: string): Promise<StoreType> {
+    get(storeName: StoreName, key: string): Promise<StoreType | undefined> {
         return this.idbp.get(storeName, key)
     }
 
-    add(storeName: StoreName, val: StoreType): Promise<void> {
-        return this.add(storeName, val)
+    add(storeName: StoreName, val: StoreType): Promise<string> {
+        return this.idbp.add(storeName, val)
     }
 
-    put(storeName: StoreName, val: StoreType): Promise<void> {
-        return this.put(storeName, val)
+    put(storeName: StoreName, val: StoreType, key: string): Promise<string> {
+        return this.idbp.put(storeName, val, key)
     }
 
     delete(storeName: StoreName, key: string): Promise<void> {
