@@ -7,8 +7,8 @@ import { globalEventTargetToken } from '../common/global-event-target-token'
 import { WorkerServiceCallbacks } from './worker-service-callbacks'
 
 interface GeneticAlgorithmCallbacks extends WorkerServiceCallbacks {
-    [GeneticAlgorithmWorkerMessageType.Progress]: (message: ProgressMessage) => void,
-    [GeneticAlgorithmWorkerMessageType.Results]: (message: ResultMessage) => void
+    [GeneticAlgorithmWorkerMessageType.Progress]: (message: ProgressMessage) => any,
+    [GeneticAlgorithmWorkerMessageType.Results]: (message: ResultMessage) => any
 }
 
 @Injectable()
