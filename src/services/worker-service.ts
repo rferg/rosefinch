@@ -3,8 +3,10 @@ import { WorkerFactory } from './worker-factory'
 import { WorkerEventType } from './worker-event-type'
 import { Inject } from 'cewdi'
 import { globalEventTargetToken } from '../common/global-event-target-token'
+import { WorkerServiceCallbacks } from './worker-service-callbacks'
 
 export abstract class WorkerService {
+    protected callbacks?: WorkerServiceCallbacks
     private worker: Worker
 
     constructor(
@@ -12,8 +14,8 @@ export abstract class WorkerService {
         private readonly workerFactory: WorkerFactory,
         @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget) {
             this.worker = this.workerFactory.getWorker(this.workerType)
-            this.worker.onmessage = (ev) => this.onMessageListener(ev)
-            this.worker.onerror = (ev) => this.onErrorListener(ev)
+            this.worker.onmessage = (ev) => this.onMessage(ev)
+            this.worker.onerror = (ev) => this.onError(ev)
     }
 
     terminate(): void {
@@ -28,9 +30,11 @@ export abstract class WorkerService {
         this.worker = this.workerFactory.getWorker(this.workerType)
     }
 
-    protected abstract onMessageListener(message: MessageEvent): void
+    abstract run({ message, callbacks }: { message: any, callbacks: WorkerServiceCallbacks }): void
 
-    protected onErrorListener(error: ErrorEvent): void {
+    protected abstract onMessage(message: MessageEvent): void
+
+    protected onError(error: ErrorEvent): void {
         this.eventTarget.dispatchEvent(new CustomEvent<{ workerType: WebWorkerType, error: ErrorEvent }>(
             WorkerEventType.Error,
             {
@@ -40,6 +44,9 @@ export abstract class WorkerService {
                 }
             }
         ))
+
+        const errorCallback = this.callbacks?.error
+        if (errorCallback) { errorCallback(error) }
     }
 
     protected postMessage(message: any): void {

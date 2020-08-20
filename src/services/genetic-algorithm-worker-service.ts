@@ -4,15 +4,16 @@ import { GeneticAlgorithmWorkerMessageType, ProgressMessage, ResultMessage, RunM
 import { WebWorkerType } from './web-worker-type'
 import { WorkerFactory } from './worker-factory'
 import { globalEventTargetToken } from '../common/global-event-target-token'
+import { WorkerServiceCallbacks } from './worker-service-callbacks'
 
-type GeneticAlgorithmCallbacks = {
+interface GeneticAlgorithmCallbacks extends WorkerServiceCallbacks {
     [GeneticAlgorithmWorkerMessageType.Progress]: (message: ProgressMessage) => void,
     [GeneticAlgorithmWorkerMessageType.Results]: (message: ResultMessage) => void
 }
 
 @Injectable()
 export class GeneticAlgorithmWorkerService extends WorkerService {
-    private callbacks?: GeneticAlgorithmCallbacks
+    protected callbacks?: GeneticAlgorithmCallbacks
 
     constructor(
         workerFactory: WorkerFactory,
@@ -31,7 +32,7 @@ export class GeneticAlgorithmWorkerService extends WorkerService {
         this.postMessage(message)
     }
 
-    protected onMessageListener({ data }: MessageEvent): void {
+    protected onMessage({ data }: MessageEvent): void {
         if (this.isProgressMessage(data)) {
             const callback = this.callbacks?.[GeneticAlgorithmWorkerMessageType.Progress]
             if (callback) { callback(data) }

@@ -2,13 +2,17 @@ import { WorkerService } from './worker-service'
 import { WorkerFactory } from './worker-factory'
 import { globalEventTargetToken } from '../common/global-event-target-token'
 import { WebWorkerType } from './web-worker-type'
-import { Inject } from 'cewdi'
+import { Inject, Injectable } from 'cewdi'
 import { UserRatedFitnessMessage, UserRatedFitnessResultMessage } from '../user-rated-fitness'
+import { WorkerServiceCallbacks } from './worker-service-callbacks'
 
-type UserRatedFitnessCallback = (fitnessValues: Int8Array) => void
+interface UserRatedFitnessCallbacks extends WorkerServiceCallbacks {
+    result: (fitnessValues: Int8Array) => void
+}
 
+@Injectable()
 export class UserRatedFitnessWorkerService extends WorkerService {
-    private callback?: UserRatedFitnessCallback
+    protected callbacks?: UserRatedFitnessCallbacks
 
     constructor(
         workerFactory: WorkerFactory,
@@ -18,18 +22,19 @@ export class UserRatedFitnessWorkerService extends WorkerService {
 
     run({
         message,
-        callback
+        callbacks
     }: {
         message: UserRatedFitnessMessage,
-        callback: UserRatedFitnessCallback
+        callbacks: UserRatedFitnessCallbacks
     }): void {
-        this.callback = callback
+        this.callbacks = callbacks
         this.postMessage(message)
     }
 
-    protected onMessageListener({ data }: MessageEvent): void {
+    protected onMessage({ data }: MessageEvent): void {
         if (this.isUserRatedFitnessResultMessage(data)) {
-            if (this.callback) { this.callback(data.fitnessValues) }
+            const callback = this.callbacks?.result
+            if (callback) { callback(data.fitnessValues) }
         } else {
             throw new Error(`UserRatedFitnessWorkerService received invalid message ${data}`)
         }

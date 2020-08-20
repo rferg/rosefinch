@@ -10,14 +10,15 @@ import {
     ClusterResultMessage,
     ClusterWorkerMessageType
 } from '../clustering'
+import { WorkerServiceCallbacks } from './worker-service-callbacks'
 
-type ClusterCallbacks = {
+interface ClusterCallbacks extends WorkerServiceCallbacks {
     [ClusterWorkerMessageType.Result]: (result: ClusterResult) => void,
     [ClusterWorkerMessageType.Progress]?: (message: ClusterProgressMessage) => void
 }
 @Injectable()
 export class ClusterWorkerService extends WorkerService {
-    private callbacks?: ClusterCallbacks
+    protected callbacks?: ClusterCallbacks
 
     constructor(
         workerFactory: WorkerFactory,
@@ -36,7 +37,7 @@ export class ClusterWorkerService extends WorkerService {
         this.postMessage(message)
     }
 
-    protected onMessageListener({ data }: MessageEvent): void {
+    protected onMessage({ data }: MessageEvent): void {
         if (this.isClusterProgressMessage(data)) {
             const callback = this.callbacks?.[ClusterWorkerMessageType.Progress]
             if (callback) { callback(data) }
