@@ -14,8 +14,9 @@ class TestWorkerService extends WorkerService {
         super(workerType, workerFactory, eventTarget)
     }
 
-    run({ callbacks }: { message: any, callbacks: WorkerServiceCallbacks }): void {
+    run({ message, callbacks }: { message: any, callbacks: WorkerServiceCallbacks }): void {
         this.callbacks = callbacks
+        this.postMessage(message)
     }
     protected onMessage(ev: MessageEvent): void {
         this.messageListenerSpy(ev)
@@ -115,6 +116,15 @@ describe('WorkerService', () => {
             service.terminate()
 
             expect(eventTargetSpy.dispatchEvent).toHaveBeenCalledWith(expectedEvent)
+        })
+    })
+
+    describe('postMessage', () => {
+        it('should call worker.postMessage with message', () => {
+            const message = { data: 1 }
+            service.run({ message, callbacks: { error: (_: ErrorEvent) => {} } })
+
+            expect(workerSpy.postMessage).toHaveBeenCalledWith(message)
         })
     })
 })
