@@ -23,15 +23,11 @@ export class DbContextFactory {
         return openDB<Schema>(this.dbName, this.version, {
             upgrade(db) {
                 if (!db.objectStoreNames.contains('optionsTemplate')) {
-                    db.createObjectStore('optionsTemplate', {
-                        keyPath: 'id'
-                    })
+                    db.createObjectStore('optionsTemplate', { keyPath: 'id' })
                 }
 
                 if (!db.objectStoreNames.contains('geneticAlgorithmSummary')) {
-                    const summaryStore = db.createObjectStore('optionsTemplate', {
-                        keyPath: 'id'
-                    })
+                    const summaryStore = db.createObjectStore('optionsTemplate', { keyPath: 'id' })
 
                     // Seems to be sum bug with idb types, where index names in
                     // the Schema are not parsed correctly.
@@ -41,9 +37,11 @@ export class DbContextFactory {
                 }
 
                 if (!db.objectStoreNames.contains('geneticAlgorithm')) {
-                    db.createObjectStore('geneticAlgorithm', {
-                        keyPath: 'id'
-                    })
+                    db.createObjectStore('geneticAlgorithm', { keyPath: 'id' })
+                }
+
+                if (!db.objectStoreNames.contains('clusterResult')) {
+                    db.createObjectStore('clusterResult', { keyPath: 'id' })
                 }
             }
         }).then(db => {
