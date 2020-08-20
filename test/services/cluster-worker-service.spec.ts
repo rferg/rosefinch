@@ -1,7 +1,7 @@
 import { ClusterWorkerService } from '../../src/services/cluster-worker-service'
 import { WorkerFactory } from '../../src/services/worker-factory'
 import { WebWorkerType } from '../../src/services/web-worker-type'
-import { ClusterMessage, ClusterWorkerMessageType, ClusterProgressMessage, ClusterResultMessage } from '../../src/clustering'
+import { ClusterMessage, ClusterProgressMessage, ClusterResultMessage, ClusterWorkerMessageType } from '../../src/clustering'
 
 describe('ClusterWorkerService', () => {
     let service: ClusterWorkerService
