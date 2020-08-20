@@ -13,8 +13,8 @@ import {
 import { WorkerServiceCallbacks } from './worker-service-callbacks'
 
 interface ClusterCallbacks extends WorkerServiceCallbacks {
-    [ClusterWorkerMessageType.Result]: (result: ClusterResult) => void,
-    [ClusterWorkerMessageType.Progress]?: (message: ClusterProgressMessage) => void
+    [ClusterWorkerMessageType.Result]: (result: ClusterResult) => any,
+    [ClusterWorkerMessageType.Progress]?: (message: ClusterProgressMessage) => any
 }
 @Injectable()
 export class ClusterWorkerService extends WorkerService {
