@@ -1,4 +1,7 @@
 import { PipelineStage } from './pipeline-stage'
+import { PipelineProgressCallback } from './pipeline-progress-callback'
+import { PipelineError } from './pipeline-error'
+import { PipelineResult } from './pipeline-result'
 
 interface Execution<TState extends { [k: string]: any, [k: number]: any }> {
     stage: PipelineStage<TState>
@@ -17,19 +20,19 @@ export class SharedStatePipeline<TState extends { [k: string]: any, [k: number]:
     private currentState?: TState
     private isCanceled = false
 
-    constructor(
-        private readonly stages: PipelineStage<TState>[],
-        private readonly rollbackOnFail: boolean) {
+    constructor(private readonly stages: PipelineStage<TState>[]) {
     }
 
-    async run(initialState: TState): Promise<{ result: TState, canceled: boolean, error: any }> {
+    async run(
+        initialState: TState,
+        progressCallback?: PipelineProgressCallback): Promise<PipelineResult<TState>> {
         this.currentState = initialState
-        let error: any = undefined
+        let error: PipelineError | undefined = undefined
 
         for (const stage of this.stages) {
             if (this.isCanceled) { break }
 
-            const { cancel, result } = stage.execute(this.currentState)
+            const { cancel, result } = stage.execute(this.currentState, progressCallback)
             this.currentExecution = {
                 stage,
                 cancel,
@@ -42,19 +45,19 @@ export class SharedStatePipeline<TState extends { [k: string]: any, [k: number]:
                 this.currentState = { ...(this.currentState || {}), ...(output || {}) }
                 this.completedExecutions.push({ ...this.currentExecution, output })
             } catch (err) {
-                error = err
+                error = { error: err, stageName: stage.name }
                 break
             } finally {
                 this.currentExecution = undefined
             }
         }
 
-        if ((this.isCanceled || error) && this.rollbackOnFail) {
+        if (this.isCanceled || error) {
             await this.rollback()
         }
         return Promise.resolve({
             result: this.currentState,
-            canceled: this.isCanceled,
+            isCanceled: this.isCanceled,
             error
         })
     }
