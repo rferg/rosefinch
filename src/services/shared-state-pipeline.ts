@@ -42,7 +42,6 @@ export class SharedStatePipeline<TState extends { [k: string]: any, [k: number]:
             }
 
             try {
-                console.log(this.currentExecution.stage.name)
                 const output = await result
                 this.currentState = { ...(this.currentState || {}), ...(output || {}) }
                 this.completedExecutions.push({ ...this.currentExecution, output })
@@ -65,7 +64,6 @@ export class SharedStatePipeline<TState extends { [k: string]: any, [k: number]:
 
     async cancel(): Promise<void> {
         this.isCanceled = true
-        console.log('in cancel()', this.currentExecution?.stage.name)
         if (this.currentExecution) {
             await this.currentExecution.cancel()
             await this.currentExecution.stage.rollback(this.currentState)
