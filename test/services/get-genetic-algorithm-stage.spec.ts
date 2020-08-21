@@ -63,6 +63,16 @@ describe('GetGeneticAlgorithmStage', () => {
                 .toBeRejectedWithError(Error, `No Genetic Algorithm found with id ${state.geneticAlgorithmId}!`)
         })
 
+        it('result should not call repo.get if geneticAlgorithm is already in state', async () => {
+            const newState = { ...state, geneticAlgorithm: { id: state.geneticAlgorithmId } as GeneticAlgorithmStore }
+            const { result } = stage.execute(newState)
+
+            const returned = await result
+
+            expect(returned).toEqual(newState)
+            expect(repoSpy.get).not.toHaveBeenCalled()
+        })
+
         it('cancel should resolve', async () => {
             const { cancel } = stage.execute(state)
 

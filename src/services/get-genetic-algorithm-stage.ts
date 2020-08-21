@@ -15,25 +15,28 @@ export class GetGeneticAlgorithmStage implements PipelineStage<PipelineState> {
             if (progressCallback) {
                 progressCallback({ stageName: this.name, detail: { message: `Retrieving Genetic Algorithm...` } })
             }
-            return {
-                cancel: () => Promise.resolve(),
-                result: this.repo.get(state?.geneticAlgorithmId || '')
-                    .then(geneticAlgorithm => {
-                        if (!geneticAlgorithm) {
-                            throw new Error(`No Genetic Algorithm found with id ${state?.geneticAlgorithmId}!`)
-                        }
-                        return {
-                            geneticAlgorithmId: state?.geneticAlgorithmId || '',
-                            numberOfGenerations: state?.numberOfGenerations || 0,
-                            geneticAlgorithm: geneticAlgorithm
-                        }
-                    })
-            }
+            const cancel = () => Promise.resolve()
+            const result = state?.geneticAlgorithm ? Promise.resolve(state) : this.getQueryPromise(state)
+            return { cancel, result }
     }
 
     async rollback(_?: PipelineState, __?: PipelineState): Promise<void> {
         // Procedure does not alter anything, so nothing to roll back.
         return
+    }
+
+    private getQueryPromise(state?: PipelineState): Promise<PipelineState> {
+        return this.repo.get(state?.geneticAlgorithmId || '')
+            .then(geneticAlgorithm => {
+                if (!geneticAlgorithm) {
+                    throw new Error(`No Genetic Algorithm found with id ${state?.geneticAlgorithmId}!`)
+                }
+                return {
+                    geneticAlgorithmId: state?.geneticAlgorithmId || '',
+                    numberOfGenerations: state?.numberOfGenerations || 0,
+                    geneticAlgorithm: geneticAlgorithm
+                }
+            })
     }
 
 }
