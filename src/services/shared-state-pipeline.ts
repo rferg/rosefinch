@@ -27,7 +27,8 @@ export class SharedStatePipeline<TState extends { [k: string]: any, [k: number]:
         initialState: TState,
         progressCallback?: PipelineProgressCallback): Promise<PipelineResult<TState>> {
         this.currentState = initialState
-        let error: PipelineError | undefined = undefined
+        let error: PipelineError<TState> | undefined = undefined
+        this.isCanceled = false
 
         for (const stage of this.stages) {
             if (this.isCanceled) { break }
@@ -41,14 +42,14 @@ export class SharedStatePipeline<TState extends { [k: string]: any, [k: number]:
             }
 
             try {
+                console.log(this.currentExecution.stage.name)
                 const output = await result
                 this.currentState = { ...(this.currentState || {}), ...(output || {}) }
                 this.completedExecutions.push({ ...this.currentExecution, output })
-            } catch (err) {
-                error = { error: err, stageName: stage.name }
-                break
-            } finally {
                 this.currentExecution = undefined
+            } catch (err) {
+                error = { error: err, stageName: stage.name, input: this.currentState }
+                break
             }
         }
 
@@ -64,8 +65,10 @@ export class SharedStatePipeline<TState extends { [k: string]: any, [k: number]:
 
     async cancel(): Promise<void> {
         this.isCanceled = true
+        console.log('in cancel()', this.currentExecution?.stage.name)
         if (this.currentExecution) {
             await this.currentExecution.cancel()
+            await this.currentExecution.stage.rollback(this.currentState)
             this.currentExecution = undefined
         }
         return Promise.resolve()
@@ -73,7 +76,7 @@ export class SharedStatePipeline<TState extends { [k: string]: any, [k: number]:
 
     private async rollback(): Promise<void> {
         if (this.currentExecution) {
-            await this.cancel()
+            await this.currentExecution.stage.rollback()
         }
         for (let index = this.completedExecutions.length - 1; index >= 0; index--) {
             const { input, output, stage: { rollback } } = this.completedExecutions[index]
