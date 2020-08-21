@@ -1,4 +1,5 @@
 export enum PipelineStageName {
+    RunGeneticAlgorithmWorker = 'RunGeneticAlgorithmWorker',
     GetGeneticAlgorithm = 'GetGeneticAlgorithm',
     GetClusterResult = 'GetClusterResult',
     RunUserRatedFitnessWorker = 'RunUserRatedFitnessWorker',
