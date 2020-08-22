@@ -66,7 +66,7 @@ export class SharedStatePipeline<TState extends { [k: string]: any, [k: number]:
         this.isCanceled = true
         if (this.currentExecution) {
             await this.currentExecution.cancel()
-            await this.currentExecution.stage.rollback(this.currentState)
+            await this.currentExecution.stage.rollback(this.currentExecution.input)
             this.currentExecution = undefined
         }
         return Promise.resolve()
@@ -74,7 +74,7 @@ export class SharedStatePipeline<TState extends { [k: string]: any, [k: number]:
 
     private async rollback(): Promise<void> {
         if (this.currentExecution) {
-            await this.currentExecution.stage.rollback()
+            await this.currentExecution.stage.rollback(this.currentExecution.input)
         }
         for (let index = this.completedExecutions.length - 1; index >= 0; index--) {
             const { input, output, stage: { rollback } } = this.completedExecutions[index]
