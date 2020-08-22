@@ -27,7 +27,7 @@ export class DbContextFactory {
                 }
 
                 if (!db.objectStoreNames.contains('geneticAlgorithmSummary')) {
-                    const summaryStore = db.createObjectStore('optionsTemplate', { keyPath: 'id' })
+                    const summaryStore = db.createObjectStore('geneticAlgorithmSummary', { keyPath: 'id' })
 
                     // Seems to be sum bug with idb types, where index names in
                     // the Schema are not parsed correctly.
