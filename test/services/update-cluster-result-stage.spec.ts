@@ -1,24 +1,35 @@
-import { UpdateGeneticAlgorithmStage } from '../../src/services/update-genetic-algorithm-stage'
-import { GeneticAlgorithmRepository, GeneticAlgorithmStore } from '../../src/storage'
+import { UpdateClusterResultStage } from '../../src/services/update-cluster-result-stage'
+import { ClusterResultRepository, ClusterResultStore } from '../../src/storage'
 import { PipelineState } from '../../src/services/pipeline-state'
 import { PipelineStageName } from '../../src/services/pipeline-stage-name'
 
-describe('UpdateGeneticAlgorithmStage', () => {
-    let stage: UpdateGeneticAlgorithmStage
-    let repoSpy: jasmine.SpyObj<GeneticAlgorithmRepository>
+describe('UpdateClusterResultStage', () => {
+    let stage: UpdateClusterResultStage
+    let repoSpy: jasmine.SpyObj<ClusterResultRepository>
+    const clusterResult = {
+        assignments: [ { clusterIndex: 0, distanceToCentroid: 0 } ],
+        representativeIndexes: [ 0 ]
+    }
     const state: PipelineState = {
         geneticAlgorithmId: '1',
         numberOfGenerations: 1,
         geneticAlgorithm: {
             id: '1',
             generation: 1
-        }
+        },
+        clusterResult
     } as PipelineState
+    const clusterResultStore: ClusterResultStore = {
+        ...clusterResult,
+        id: state.geneticAlgorithmId,
+        generation: state.geneticAlgorithm?.generation ?? 0,
+        storeName: 'clusterResult'
+    }
 
     beforeEach(() => {
-        repoSpy = jasmine.createSpyObj('GeneticAlgorithmRepository', [ 'get', 'put', 'add', 'delete' ])
+        repoSpy = jasmine.createSpyObj('ClusterResultRepository', [ 'get', 'put', 'add', 'delete' ])
         repoSpy.get.and.returnValue(Promise.resolve(undefined))
-        stage = new UpdateGeneticAlgorithmStage(repoSpy)
+        stage = new UpdateClusterResultStage(repoSpy)
     })
 
     describe('execute', () => {
@@ -28,8 +39,8 @@ describe('UpdateGeneticAlgorithmStage', () => {
             stage.execute(state, progressSpy)
 
             expect(progressSpy).toHaveBeenCalledWith({
-                stageName: PipelineStageName.UpdateGeneticAlgorithm,
-                detail: { message: 'Updating Genetic Algorithm...' }
+                stageName: PipelineStageName.UpdateClusterResult,
+                detail: { message: 'Updating Cluster Result...' }
             })
         })
 
@@ -45,34 +56,32 @@ describe('UpdateGeneticAlgorithmStage', () => {
             await expectAsync(result).toBeRejectedWithError('State is missing.')
         })
 
-        it('result should reject if state.geneticAlgorithm is undefined', async () => {
+        it('result should reject if state.clusterResult is undefined', async () => {
             const { result } = stage.execute({} as PipelineState)
 
-            await expectAsync(result).toBeRejectedWithError('State is missing geneticAlgorithm.')
+            await expectAsync(result).toBeRejectedWithError('State is missing clusterResult.')
         })
 
-        it('result should add genetic algorithm if repo.get returns undefined', async () => {
+        it('result should add cluster result if repo.get returns undefined', async () => {
             const { result } = stage.execute(state)
 
             const resolved = await result
 
-            expect(repoSpy.get).toHaveBeenCalledWith(state.geneticAlgorithm?.id || '')
-            expect(repoSpy.add).toHaveBeenCalledWith(state.geneticAlgorithm || {} as GeneticAlgorithmStore)
-            expect(resolved).toEqual(state)
+            expect(repoSpy.get).toHaveBeenCalledWith(state.geneticAlgorithmId)
+            expect(repoSpy.add).toHaveBeenCalledWith(clusterResultStore)
+            expect(resolved).toEqual({ ...state, clusterResult: clusterResultStore })
         })
 
-        it('should update genetic algorithm if repo.get returns existing record', async () => {
-            const existing = { ...state.geneticAlgorithm, generation: 0 } as GeneticAlgorithmStore
+        it('should update cluster result if repo.get returns existing record', async () => {
+            const existing = { ...clusterResultStore, generation: 0 }
             repoSpy.get.and.returnValue(Promise.resolve(existing))
             const { result } = stage.execute(state)
 
             const resolved = await result
 
-            expect(repoSpy.get).toHaveBeenCalledWith(state.geneticAlgorithm?.id || '')
-            expect(repoSpy.put).toHaveBeenCalledWith(
-                state.geneticAlgorithm || {} as GeneticAlgorithmStore,
-                state.geneticAlgorithm?.id || '')
-            expect(resolved).toEqual(state)
+            expect(repoSpy.get).toHaveBeenCalledWith(state.geneticAlgorithmId)
+            expect(repoSpy.put).toHaveBeenCalledWith(clusterResultStore, state.geneticAlgorithmId)
+            expect(resolved).toEqual({ ...state, clusterResult: clusterResultStore })
         })
     })
 
@@ -91,31 +100,31 @@ describe('UpdateGeneticAlgorithmStage', () => {
             await expectAsync(stage.rollback(undefined)).toBeRejectedWithError(/no input state/i)
         })
 
-        it('should reject if no geneticAlgorithm in input provided', async () => {
+        it('should reject if no clusterResult in input provided', async () => {
             await stage.execute(state).result
 
-            await expectAsync(stage.rollback({} as PipelineState)).toBeRejectedWithError(/missing geneticAlgorithm/i)
+            await expectAsync(stage.rollback({} as PipelineState)).toBeRejectedWithError(/missing clusterResult/i)
         })
 
         it('should delete record if new record was added', async () => {
             await stage.execute(state).result
-            repoSpy.get.and.returnValue(Promise.resolve(state.geneticAlgorithm))
+            repoSpy.get.and.returnValue(Promise.resolve(clusterResultStore))
 
             await stage.rollback(state)
 
-            expect(repoSpy.get).toHaveBeenCalledWith(state.geneticAlgorithm?.id ?? '')
-            expect(repoSpy.delete).toHaveBeenCalledWith(state.geneticAlgorithm?.id ?? '')
+            expect(repoSpy.get).toHaveBeenCalledWith(state.geneticAlgorithmId)
+            expect(repoSpy.delete).toHaveBeenCalledWith(state.geneticAlgorithmId)
         })
 
         it('should update record with original', async () => {
-            const existing = { ...state.geneticAlgorithm, generation: 0 } as GeneticAlgorithmStore
+            const existing = { ...clusterResultStore, generation: 0 }
             repoSpy.get.and.returnValue(Promise.resolve(existing))
             await stage.execute(state).result
-            repoSpy.get.and.returnValue(Promise.resolve(state.geneticAlgorithm))
+            repoSpy.get.and.returnValue(Promise.resolve(clusterResultStore))
 
             await stage.rollback(state)
 
-            expect(repoSpy.get).toHaveBeenCalledWith(state.geneticAlgorithm?.id ?? '')
+            expect(repoSpy.get).toHaveBeenCalledWith(state.geneticAlgorithmId)
             expect(repoSpy.put).toHaveBeenCalledWith(existing, existing.id)
         })
     })
