@@ -1,7 +1,7 @@
-import { UpdateGeneticAlgorithmStage } from '../../src/services/update-genetic-algorithm-stage'
+import { UpdateGeneticAlgorithmStage } from '../../src/services/pipeline/update-genetic-algorithm-stage'
 import { GeneticAlgorithmRepository, GeneticAlgorithmStore } from '../../src/storage'
-import { PipelineState } from '../../src/services/pipeline-state'
-import { PipelineStageName } from '../../src/services/pipeline-stage-name'
+import { PipelineState } from '../../src/services/pipeline/pipeline-state'
+import { PipelineStageName } from '../../src/services/pipeline/pipeline-stage-name'
 
 describe('UpdateGeneticAlgorithmStage', () => {
     let stage: UpdateGeneticAlgorithmStage

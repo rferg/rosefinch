@@ -1,6 +1,6 @@
 import { PipelineStageName } from './pipeline-stage-name'
-import { ProgressMessage } from '../genetic-algorithm'
-import { ClusterProgressMessage } from '../clustering'
+import { ProgressMessage } from '../../genetic-algorithm'
+import { ClusterProgressMessage } from '../../clustering'
 
 export type PipelineProgressCallback = (report: {
     stageName: PipelineStageName,

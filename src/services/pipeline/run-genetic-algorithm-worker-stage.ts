@@ -1,9 +1,9 @@
 import { PipelineStage } from './pipeline-stage'
 import { PipelineState } from './pipeline-state'
 import { PipelineStageName } from './pipeline-stage-name'
-import { GeneticAlgorithmWorkerService } from './genetic-algorithm-worker-service'
+import { GeneticAlgorithmWorkerService } from '../genetic-algorithm-worker-service'
 import { PipelineProgressCallback } from './pipeline-progress-callback'
-import { GeneticAlgorithmWorkerMessageType, ProgressMessage, RunMessage } from '../genetic-algorithm'
+import { GeneticAlgorithmWorkerMessageType, ProgressMessage, RunMessage } from '../../genetic-algorithm'
 
 export class RunGeneticAlgorithmWorkerStage implements PipelineStage<PipelineState> {
     readonly name: PipelineStageName = PipelineStageName.RunGeneticAlgorithmWorker

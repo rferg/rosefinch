@@ -1,5 +1,5 @@
-import { ClusterResultStore, GeneticAlgorithmStore } from '../storage'
-import { ClusterResult } from '../clustering'
+import { ClusterResultStore, GeneticAlgorithmStore } from '../../storage'
+import { ClusterResult } from '../../clustering'
 
 export interface PipelineState {
     geneticAlgorithmId: string

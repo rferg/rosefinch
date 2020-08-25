@@ -1,4 +1,4 @@
-import { PipelineFactory } from '../../src/services/pipeline-factory'
+import { PipelineFactory } from '../../src/services/pipeline/pipeline-factory'
 import {
     ClusterResultRepository,
     GeneticAlgorithmRepository,
@@ -8,7 +8,7 @@ import { GeneticAlgorithmWorkerService } from '../../src/services/genetic-algori
 import { ClusterConfigProvider } from '../../src/services/cluster-config-provider'
 import { ClusterWorkerService } from '../../src/services/cluster-worker-service'
 import { UserRatedFitnessWorkerService } from '../../src/services/user-rated-fitness-worker-service'
-import { PipelineStageName } from '../../src/services/pipeline-stage-name'
+import { PipelineStageName } from '../../src/services/pipeline/pipeline-stage-name'
 
 describe('PipelineFactoryService', () => {
     let factory: PipelineFactory

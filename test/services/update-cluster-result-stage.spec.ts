@@ -1,7 +1,7 @@
-import { UpdateClusterResultStage } from '../../src/services/update-cluster-result-stage'
+import { UpdateClusterResultStage } from '../../src/services/pipeline/update-cluster-result-stage'
 import { ClusterResultRepository, ClusterResultStore } from '../../src/storage'
-import { PipelineState } from '../../src/services/pipeline-state'
-import { PipelineStageName } from '../../src/services/pipeline-stage-name'
+import { PipelineState } from '../../src/services/pipeline/pipeline-state'
+import { PipelineStageName } from '../../src/services/pipeline/pipeline-stage-name'
 
 describe('UpdateClusterResultStage', () => {
     let stage: UpdateClusterResultStage

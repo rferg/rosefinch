@@ -1,9 +1,9 @@
-import { RunClusterWorkerStage } from '../../src/services/run-cluster-worker-stage'
+import { RunClusterWorkerStage } from '../../src/services/pipeline/run-cluster-worker-stage'
 import { ClusterWorkerService } from '../../src/services/cluster-worker-service'
 import { ClusterConfigProvider } from '../../src/services/cluster-config-provider'
-import { PipelineState } from '../../src/services/pipeline-state'
+import { PipelineState } from '../../src/services/pipeline/pipeline-state'
 import { ClusterMessage, ClusterProgressMessage, ClusterResult, ClusterWorkerMessageType } from '../../src/clustering'
-import { PipelineStageName } from '../../src/services/pipeline-stage-name'
+import { PipelineStageName } from '../../src/services/pipeline/pipeline-stage-name'
 import { ClusterConfig } from '../../src/services/cluster-config'
 
 describe('RunClusterWorkerStage', () => {

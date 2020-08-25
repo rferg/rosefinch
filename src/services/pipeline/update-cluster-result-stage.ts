@@ -1,6 +1,6 @@
 import { PipelineState } from './pipeline-state'
-import { ClusterResultRepository, ClusterResultStore } from '../storage'
-import { ClusterResult } from '../clustering'
+import { ClusterResultRepository, ClusterResultStore } from '../../storage'
+import { ClusterResult } from '../../clustering'
 import { PipelineStage } from './pipeline-stage'
 import { PipelineStageName } from './pipeline-stage-name'
 import { PipelineProgressCallback } from './pipeline-progress-callback'

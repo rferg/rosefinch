@@ -1,8 +1,8 @@
-import { RunGeneticAlgorithmWorkerStage } from '../../src/services/run-genetic-algorithm-worker-stage'
+import { RunGeneticAlgorithmWorkerStage } from '../../src/services/pipeline/run-genetic-algorithm-worker-stage'
 import { GeneticAlgorithmWorkerService } from '../../src/services/genetic-algorithm-worker-service'
-import { PipelineState } from '../../src/services/pipeline-state'
+import { PipelineState } from '../../src/services/pipeline/pipeline-state'
 import { GeneticAlgorithmWorkerMessageType, ProgressMessage, ResultMessage, RunMessage } from '../../src/genetic-algorithm'
-import { PipelineStageName } from '../../src/services/pipeline-stage-name'
+import { PipelineStageName } from '../../src/services/pipeline/pipeline-stage-name'
 import { GeneticAlgorithmStore } from '../../src/storage'
 
 describe('RunGeneticAlgorithmWorkerStage', () => {

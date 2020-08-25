@@ -1,22 +1,22 @@
-import { PipelineState } from './pipeline-state'
 import { PipelineStage } from './pipeline-stage'
 import { PipelineStageName } from './pipeline-stage-name'
+import { ClusterResultRepository } from '../../storage'
+import { PipelineState } from './pipeline-state'
 import { PipelineProgressCallback } from './pipeline-progress-callback'
-import { GeneticAlgorithmRepository } from '../storage'
 
-export class GetGeneticAlgorithmStage implements PipelineStage<PipelineState> {
-    readonly name: PipelineStageName = PipelineStageName.GetGeneticAlgorithm
+export class GetClusterResultStage implements PipelineStage<PipelineState> {
+    readonly name: PipelineStageName = PipelineStageName.GetClusterResult
 
-    constructor(private readonly repo: GeneticAlgorithmRepository) { }
+    constructor(private readonly repo: ClusterResultRepository) {}
 
     execute(
         state?: PipelineState,
         progressCallback?: PipelineProgressCallback): { cancel: () => Promise<void>; result: Promise<PipelineState> } {
             if (progressCallback) {
-                progressCallback({ stageName: this.name, detail: { message: `Retrieving Genetic Algorithm...` } })
+                progressCallback({ stageName: this.name, detail: { message: `Retrieving Cluster Result...` } })
             }
             const cancel = () => Promise.resolve()
-            const result = state?.geneticAlgorithm ? Promise.resolve(state) : this.getQueryPromise(state)
+            const result = state?.clusterResult ? Promise.resolve(state) : this.getQueryPromise(state)
             return { cancel, result }
     }
 
@@ -27,16 +27,15 @@ export class GetGeneticAlgorithmStage implements PipelineStage<PipelineState> {
 
     private getQueryPromise(state?: PipelineState): Promise<PipelineState> {
         return this.repo.get(state?.geneticAlgorithmId || '')
-            .then(geneticAlgorithm => {
-                if (!geneticAlgorithm) {
-                    throw new Error(`No Genetic Algorithm found with id ${state?.geneticAlgorithmId}!`)
+            .then(clusterResult => {
+                if (!clusterResult) {
+                    throw new Error(`No Cluster Result found with id ${state?.geneticAlgorithmId}!`)
                 }
                 return {
                     geneticAlgorithmId: state?.geneticAlgorithmId || '',
                     numberOfGenerations: state?.numberOfGenerations || 0,
-                    geneticAlgorithm: geneticAlgorithm
+                    clusterResult
                 }
             })
     }
-
 }
