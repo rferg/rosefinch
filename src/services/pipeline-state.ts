@@ -7,5 +7,5 @@ export interface PipelineState {
     userRepresentativeRatings?: number[]
     geneticAlgorithm?: GeneticAlgorithmStore
     clusterResult?: ClusterResultStore | ClusterResult
-    representativeGenes?: number[][]
+    representativeGenes?: (number[] | undefined)[]
 }

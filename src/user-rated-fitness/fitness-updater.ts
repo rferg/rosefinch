@@ -24,20 +24,23 @@ export class FitnessUpdater {
         const newFitnessValues = new Int16Array(fitnessValues)
         userRepresentativeRatings.forEach((rating, ratingIndex) => {
             if (rating !== undefined) {
-                const {
-                    clusterIndex: currentClusterIndex,
-                    distanceToCentroid: representativeDistance
-                } = assignments[representativeIndexes[ratingIndex]]
+                const representativeIndex = representativeIndexes[ratingIndex]
+                if (representativeIndex !== undefined) {
+                    const {
+                        clusterIndex: currentClusterIndex,
+                        distanceToCentroid: representativeDistance
+                    } = assignments[representativeIndex]
 
-                const referenceDistance = Math.max(representativeDistance, 1)
-                assignments.forEach(({ clusterIndex, distanceToCentroid }, assignmentIndex) => {
-                    if (clusterIndex === currentClusterIndex) {
-                        distanceToCentroid = Math.max(distanceToCentroid, 1)
-                        const distanceWeight = referenceDistance / distanceToCentroid
-                        newFitnessValues[assignmentIndex] = fitnessValues[assignmentIndex] + Math.round(
-                            distanceWeight * ratingWeight * rating)
-                    }
-                })
+                    const referenceDistance = Math.max(representativeDistance, 1)
+                    assignments.forEach(({ clusterIndex, distanceToCentroid }, assignmentIndex) => {
+                        if (clusterIndex === currentClusterIndex) {
+                            distanceToCentroid = Math.max(distanceToCentroid, 1)
+                            const distanceWeight = referenceDistance / distanceToCentroid
+                            newFitnessValues[assignmentIndex] = fitnessValues[assignmentIndex] + Math.round(
+                                distanceWeight * ratingWeight * rating)
+                        }
+                    })
+                }
             }
         })
 
@@ -45,7 +48,7 @@ export class FitnessUpdater {
     }
 
     private someRepresentativesWereRated(
-        representativeIndexes: number[],
+        representativeIndexes: (number | undefined)[],
         userRepresentativeRatings: (number | undefined)[]): boolean {
         return !!(representativeIndexes.filter((index?: number) => index !== undefined).length
             && userRepresentativeRatings.filter((rating?: number) => rating !== undefined).length)

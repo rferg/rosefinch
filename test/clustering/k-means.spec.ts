@@ -84,7 +84,7 @@ describe('KMeans', () => {
 
         expect(representativeIndexes.length).toBe(k)
         representativeIndexes.forEach(repIdx => {
-            const { clusterIndex, distanceToCentroid } = assignments[repIdx]
+            const { clusterIndex, distanceToCentroid } = assignments[repIdx || 0]
             assignments
                 .filter((assignment, i) => assignment.clusterIndex === clusterIndex && i !== repIdx)
                 .forEach(({ distanceToCentroid: otherDistance }) =>

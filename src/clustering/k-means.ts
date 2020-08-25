@@ -110,7 +110,7 @@ export class KMeans {
         currentResult: ClusterResult,
         { clusterIndex, distanceToCentroid }: ClusterAssignment,
         pointIndex: number): void {
-            const currentRepresentativeIndex = currentResult.representativeIndexes[clusterIndex] as number | undefined
+            const currentRepresentativeIndex = currentResult.representativeIndexes[clusterIndex]
             let currentSmallestDistance: number
             if (currentRepresentativeIndex === undefined) {
                 currentSmallestDistance = Number.POSITIVE_INFINITY

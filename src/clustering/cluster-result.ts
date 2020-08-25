@@ -2,5 +2,5 @@ import { ClusterAssignment } from './cluster-assignment'
 
 export interface ClusterResult {
     assignments: ClusterAssignment[],
-    representativeIndexes: number[]
+    representativeIndexes: (number | undefined)[]
 }
