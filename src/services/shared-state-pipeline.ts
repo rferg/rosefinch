@@ -2,6 +2,7 @@ import { PipelineStage } from './pipeline-stage'
 import { PipelineProgressCallback } from './pipeline-progress-callback'
 import { PipelineError } from './pipeline-error'
 import { PipelineResult } from './pipeline-result'
+import { PipelineStageName } from './pipeline-stage-name'
 
 interface Execution<TState extends { [k: string]: any, [k: number]: any }> {
     stage: PipelineStage<TState>
@@ -19,6 +20,10 @@ export class SharedStatePipeline<TState extends { [k: string]: any, [k: number]:
     private currentExecution?: Execution<TState>
     private currentState?: TState
     private isCanceled = false
+
+    get stageNames(): PipelineStageName[] {
+        return this.stages.map(stage => stage.name)
+    }
 
     constructor(private readonly stages: PipelineStage<TState>[]) {
     }
