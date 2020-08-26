@@ -2,7 +2,12 @@ import { PipelineState } from './pipeline-state'
 import { SharedStatePipeline } from './shared-state-pipeline'
 import { PipelineStage } from './pipeline-stage'
 import { Injectable } from 'cewdi'
-import { ClusterResultRepository, GeneticAlgorithmRepository, GeneticAlgorithmSummaryRepository } from '../../storage'
+import {
+    ClusterResultRepository,
+    GeneticAlgorithmOptionsRepository,
+    GeneticAlgorithmRepository,
+    GeneticAlgorithmSummaryRepository
+} from '../../storage'
 import { GeneticAlgorithmWorkerService } from '../genetic-algorithm-worker-service'
 import { ClusterWorkerService } from '../cluster-worker-service'
 import { UserRatedFitnessWorkerService } from '../user-rated-fitness-worker-service'
@@ -27,7 +32,8 @@ export class PipelineFactory {
         private readonly gaWorker: GeneticAlgorithmWorkerService,
         private readonly clusterConfig: ClusterConfigProvider,
         private readonly clusterWorker: ClusterWorkerService,
-        private readonly urfWorker: UserRatedFitnessWorkerService) {}
+        private readonly urfWorker: UserRatedFitnessWorkerService,
+        private readonly gaOptionsRepo: GeneticAlgorithmOptionsRepository) {}
 
     getPipeline({
         userRepresentativeRatings
@@ -49,7 +55,7 @@ export class PipelineFactory {
 
     private getUserRatedFitnessStages(): PipelineStage<PipelineState>[] {
         return [
-            new GetGeneticAlgorithmStage(this.gaRepo),
+            new GetGeneticAlgorithmStage(this.gaRepo, this.gaOptionsRepo),
             new GetClusterResultStage(this.clusterRepo),
             new RunUserRatedFitnessWorkerStage(this.urfWorker),
             new UpdateGeneticAlgorithmStage(this.gaRepo)
@@ -58,7 +64,7 @@ export class PipelineFactory {
 
     private getBaseStages(): PipelineStage<PipelineState>[] {
         return [
-            new GetGeneticAlgorithmStage(this.gaRepo),
+            new GetGeneticAlgorithmStage(this.gaRepo, this.gaOptionsRepo),
             new RunGeneticAlgorithmWorkerStage(this.gaWorker),
             new UpdateGeneticAlgorithmStage(this.gaRepo),
             new UpdateGeneticAlgorithmSummaryStage(this.gaSummaryRepo),

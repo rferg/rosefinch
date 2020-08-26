@@ -10,7 +10,8 @@ import { RandomGenerator } from './random-generator'
 import { CrossoverMethod } from './crossover/crossover-method'
 import { RandomIntegerGenerator } from './random-integer-generator'
 import { SelectionConfig } from './selection/selection-config'
-import { FitnessConfig } from '.'
+import { SerializedGeneticAlgorithmOptions } from './serialized-genetic-algorithm-options'
+import { FitnessConfig } from './fitness/fitness-config'
 import { Normalizer } from '../common/normalizer'
 
 type GeneFactoryFactory = (config: {
@@ -54,14 +55,14 @@ export class GeneticAlgorithmDeserializer {
 
     deserialize(serialized: SerializedGeneticAlgorithm): DeserializedGeneticAlgorithm {
         const geneFactory = this.geneFactoryFactory({
-            options: serialized.geneFactoryOptions,
+            options: serialized.options.geneFactoryOptions,
             randomIntegerGenerator: this.randomInteger
         })
 
         return {
             id: serialized.id,
             runData: this.getRunData(serialized, geneFactory),
-            runnerOptions: this.getRunnerOptions(serialized, geneFactory)
+            runnerOptions: this.getRunnerOptions(serialized.options, geneFactory)
         }
     }
 
@@ -86,7 +87,7 @@ export class GeneticAlgorithmDeserializer {
         selectionConfig,
         fitnessConfigs,
         crossoverMethod
-    }: SerializedGeneticAlgorithm,
+    }: SerializedGeneticAlgorithmOptions,
     geneFactory: (i: number) => Uint8): GeneticAlgorithmRunnerOptions {
         return {
             mutationFunction: this.mutationFunctionFactory({

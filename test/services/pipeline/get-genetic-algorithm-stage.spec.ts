@@ -1,20 +1,28 @@
 import { GetGeneticAlgorithmStage } from '../../../src/services/pipeline/get-genetic-algorithm-stage'
-import { GeneticAlgorithmRepository, GeneticAlgorithmStore } from '../../../src/storage'
+import {
+    GeneticAlgorithmOptionsRepository,
+    GeneticAlgorithmOptionsStore,
+    GeneticAlgorithmRepository,
+    GeneticAlgorithmStore
+} from '../../../src/storage'
 import { PipelineState } from '../../../src/services/pipeline/pipeline-state'
 import { PipelineStageName } from '../../../src/services/pipeline/pipeline-stage-name'
 
 describe('GetGeneticAlgorithmStage', () => {
     let stage: GetGeneticAlgorithmStage
-    let repoSpy: jasmine.SpyObj<GeneticAlgorithmRepository>
+    let gaRepoSpy: jasmine.SpyObj<GeneticAlgorithmRepository>
+    let optionsRepoSpy: jasmine.SpyObj<GeneticAlgorithmOptionsRepository>
     const state: PipelineState = {
         geneticAlgorithmId: '1',
         numberOfGenerations: 1
     }
 
     beforeEach(() => {
-        repoSpy = jasmine.createSpyObj<GeneticAlgorithmRepository>('GeneticAlgorithmRepository', [ 'get' ])
-        repoSpy.get.and.returnValue(Promise.resolve({} as GeneticAlgorithmStore))
-        stage = new GetGeneticAlgorithmStage(repoSpy)
+        gaRepoSpy = jasmine.createSpyObj<GeneticAlgorithmRepository>('GeneticAlgorithmRepository', [ 'get' ])
+        gaRepoSpy.get.and.returnValue(Promise.resolve({} as GeneticAlgorithmStore))
+        optionsRepoSpy = jasmine.createSpyObj<GeneticAlgorithmOptionsRepository>('GeneticAlgorithmOptionsRepository', [ 'get' ])
+        optionsRepoSpy.get.and.returnValue(Promise.resolve({} as GeneticAlgorithmOptionsStore))
+        stage = new GetGeneticAlgorithmStage(gaRepoSpy, optionsRepoSpy)
     })
 
     it('should have name PipelineStageName.GetGeneticAlgorithm', () => {
@@ -34,20 +42,25 @@ describe('GetGeneticAlgorithmStage', () => {
             })
         })
 
-        it('result should call repo.get', async () => {
+        it('result should call get GA and options', async () => {
             const { result } = stage.execute(state)
 
             await result
 
-            expect(repoSpy.get).toHaveBeenCalledWith(state.geneticAlgorithmId)
+            expect(gaRepoSpy.get).toHaveBeenCalledWith(state.geneticAlgorithmId)
+            expect(optionsRepoSpy.get).toHaveBeenCalledWith(state.geneticAlgorithmId)
         })
 
-        it('result should return state with geneticAlgorithm', async () => {
+        it('result should return state with geneticAlgorithm and options', async () => {
             const ga = {
                 id: state.geneticAlgorithmId
             } as GeneticAlgorithmStore
-            repoSpy.get.and.returnValue(Promise.resolve(ga))
-            const expected = { ...state, geneticAlgorithm: ga }
+            const options = {
+                id: state.geneticAlgorithmId
+            } as GeneticAlgorithmOptionsStore
+            gaRepoSpy.get.and.returnValue(Promise.resolve(ga))
+            optionsRepoSpy.get.and.returnValue(Promise.resolve(options))
+            const expected = { ...state, geneticAlgorithm: ga, geneticAlgorithmOptions: options }
 
             const { result } = stage.execute(state)
             const returned = await result
@@ -55,12 +68,20 @@ describe('GetGeneticAlgorithmStage', () => {
             expect(returned).toEqual(expected)
         })
 
-        it('result should fail if repo does not return record', async () => {
-            repoSpy.get.and.returnValue(Promise.resolve(undefined))
+        it('result should fail if repo does not return GA record', async () => {
+            gaRepoSpy.get.and.returnValue(Promise.resolve(undefined))
             const { result } = stage.execute(state)
 
             await expectAsync(result)
                 .toBeRejectedWithError(Error, `No Genetic Algorithm found with id ${state.geneticAlgorithmId}!`)
+        })
+
+        it('result should fail if repo does not return options record', async () => {
+            optionsRepoSpy.get.and.returnValue(Promise.resolve(undefined))
+            const { result } = stage.execute(state)
+
+            await expectAsync(result)
+                .toBeRejectedWithError(Error, `No Genetic Algorithm Options found with id ${state.geneticAlgorithmId}!`)
         })
 
         it('result should not call repo.get if geneticAlgorithm is already in state', async () => {
@@ -70,7 +91,7 @@ describe('GetGeneticAlgorithmStage', () => {
             const returned = await result
 
             expect(returned).toEqual(newState)
-            expect(repoSpy.get).not.toHaveBeenCalled()
+            expect(gaRepoSpy.get).not.toHaveBeenCalled()
         })
 
         it('cancel should resolve', async () => {

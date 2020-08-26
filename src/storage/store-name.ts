@@ -1,1 +1,1 @@
-export type StoreName = 'geneticAlgorithm' | 'optionsTemplate' | 'geneticAlgorithmSummary' | 'clusterResult'
+export type StoreName = 'geneticAlgorithm' | 'optionsTemplate' | 'geneticAlgorithmSummary' | 'clusterResult' | 'geneticAlgorithmOptions'

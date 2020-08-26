@@ -1,6 +1,7 @@
 import { PipelineFactory } from '../../../src/services/pipeline/pipeline-factory'
 import {
     ClusterResultRepository,
+    GeneticAlgorithmOptionsRepository,
     GeneticAlgorithmRepository,
     GeneticAlgorithmSummaryRepository
 } from '../../../src/storage'
@@ -36,7 +37,8 @@ describe('PipelineFactoryService', () => {
             jasmine.createSpyObj<GeneticAlgorithmWorkerService>('GAWorker', [ 'run' ]),
             jasmine.createSpyObj<ClusterConfigProvider>('ClusterConfigProvider', [ 'getConfig' ]),
             jasmine.createSpyObj<ClusterWorkerService>('ClusterWorker', [ 'run' ]),
-            jasmine.createSpyObj<UserRatedFitnessWorkerService>('URFWorker', [ 'run' ]))
+            jasmine.createSpyObj<UserRatedFitnessWorkerService>('URFWorker', [ 'run' ]),
+            jasmine.createSpyObj<GeneticAlgorithmOptionsRepository>('GAOptionsRepo', [ 'get' ]))
     })
 
     it('should return base pipeline with base stages if userRepresentativeRatings is undefined', () => {

@@ -34,9 +34,15 @@ export class RunGeneticAlgorithmWorkerStage implements PipelineStage<PipelineSta
                 reject('State is missing.')
             } else if (!state.geneticAlgorithm) {
                 reject('State is missing geneticAlgorithm.')
+            } else if (!state.geneticAlgorithmOptions) {
+                reject('State is missing geneticAlgorithmOptions.')
             } else {
                 const message: RunMessage = {
-                    geneticAlgorithm: state.geneticAlgorithm,
+                    geneticAlgorithm: {
+                        ...state.geneticAlgorithm,
+                        options: state.geneticAlgorithmOptions,
+                        kind: 'SerializedGeneticAlgorithm'
+                    },
                     numberOfGenerations: state.numberOfGenerations
                 }
 

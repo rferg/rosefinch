@@ -1,18 +1,50 @@
 import { RunGeneticAlgorithmWorkerStage } from '../../../src/services/pipeline/run-genetic-algorithm-worker-stage'
 import { GeneticAlgorithmWorkerService } from '../../../src/services/genetic-algorithm-worker-service'
 import { PipelineState } from '../../../src/services/pipeline/pipeline-state'
-import { GeneticAlgorithmWorkerMessageType, ProgressMessage, ResultMessage, RunMessage } from '../../../src/genetic-algorithm'
+import {
+    CrossoverMethod,
+    FitnessMethod,
+    GeneticAlgorithmWorkerMessageType,
+    MutationMethod,
+    ProgressMessage,
+    ResultMessage,
+    RunMessage,
+    SelectionMethod,
+    SerializedGeneticAlgorithm
+} from '../../../src/genetic-algorithm'
 import { PipelineStageName } from '../../../src/services/pipeline/pipeline-stage-name'
 import { GeneticAlgorithmStore } from '../../../src/storage'
 
 describe('RunGeneticAlgorithmWorkerStage', () => {
     let stage: RunGeneticAlgorithmWorkerStage
     let serviceSpy: jasmine.SpyObj<GeneticAlgorithmWorkerService>
-    const state = {
+    const state: PipelineState = {
         geneticAlgorithmId: '1',
         numberOfGenerations: 1,
-        geneticAlgorithm: { }
-    } as PipelineState
+        geneticAlgorithm: {
+            population: { size: 1, genomeSize: 1 },
+            id: '1',
+            generation: 0,
+            storeName: 'geneticAlgorithm'
+        },
+        geneticAlgorithmOptions: {
+            id: '1',
+            storeName: 'geneticAlgorithmOptions',
+            geneFactoryOptions: {
+                excludedPitches: [],
+                octaveRange: [ 1, 1 ]
+            },
+            fitnessConfigs: [
+                {
+                    method: FitnessMethod.RestProportion,
+                    options: { targetProportion: 0.1 }
+                }
+            ],
+            crossoverMethod: CrossoverMethod.HybridPoint,
+            mutationConfig: { mutationRate: 1, method: MutationMethod.Point },
+            selectionConfig: { method: SelectionMethod.Tournament }
+        }
+    }
 
     beforeEach(() => {
         serviceSpy = jasmine.createSpyObj<GeneticAlgorithmWorkerService>(
@@ -59,6 +91,12 @@ describe('RunGeneticAlgorithmWorkerStage', () => {
             await expectAsync(result).toBeRejectedWith('State is missing geneticAlgorithm.')
         })
 
+        it('result should reject if state.geneticAlgorithmOptions is falsy', async () => {
+            const { result } = stage.execute({ ...state, geneticAlgorithmOptions: undefined })
+
+            await expectAsync(result).toBeRejectedWith('State is missing geneticAlgorithmOptions.')
+        })
+
         it('result should call service.run and resolve to state with updated geneticAlgorithm values', async () => {
             const expected: ResultMessage = {
                 type: GeneticAlgorithmWorkerMessageType.Results,
@@ -85,7 +123,11 @@ describe('RunGeneticAlgorithmWorkerStage', () => {
                 fitnessValues: expected.fitnessValues,
                 generation: expected.generation
             } as GeneticAlgorithmStore)
-            expect(calledMessage?.geneticAlgorithm).toEqual(state.geneticAlgorithm)
+            expect(calledMessage?.geneticAlgorithm).toEqual({
+                ...state.geneticAlgorithm,
+                options: state.geneticAlgorithmOptions,
+                kind: 'SerializedGeneticAlgorithm'
+            } as SerializedGeneticAlgorithm)
             expect(calledMessage?.numberOfGenerations).toEqual(state.numberOfGenerations)
         })
 

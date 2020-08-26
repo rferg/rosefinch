@@ -1,4 +1,4 @@
-import { ClusterResultStore, GeneticAlgorithmStore } from '../../storage'
+import { ClusterResultStore, GeneticAlgorithmOptionsStore, GeneticAlgorithmStore } from '../../storage'
 import { ClusterResult } from '../../clustering'
 
 export interface PipelineState {
@@ -6,6 +6,7 @@ export interface PipelineState {
     numberOfGenerations: number
     userRepresentativeRatings?: (number | undefined)[]
     geneticAlgorithm?: GeneticAlgorithmStore
+    geneticAlgorithmOptions?: GeneticAlgorithmOptionsStore
     clusterResult?: ClusterResultStore | ClusterResult
     representativeGenes?: (number[] | undefined)[]
 }

@@ -50,12 +50,14 @@ describe('messageHandler', () => {
         id: '',
         population: { size: 1, genomeSize: 1, array: new Uint8Array(1) },
         fitnessValues: new Int8Array(1),
-        fitnessConfigs: [],
-        mutationConfig: { method: MutationMethod.Point, mutationRate: 0.1 },
-        crossoverMethod: CrossoverMethod.HybridPoint,
-        selectionConfig: { method: SelectionMethod.Tournament },
         generation: 0,
-        geneFactoryOptions: { octaveRange: [ 1, 1 ], excludedPitches: [] }
+        options: {
+            fitnessConfigs: [],
+            mutationConfig: { method: MutationMethod.Point, mutationRate: 0.1 },
+            crossoverMethod: CrossoverMethod.HybridPoint,
+            selectionConfig: { method: SelectionMethod.Tournament },
+            geneFactoryOptions: { octaveRange: [ 1, 1 ], excludedPitches: [] }
+        }
     }
     const numberOfGenerations = 5
 

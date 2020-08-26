@@ -26,6 +26,10 @@ export class DbContextFactory {
                     db.createObjectStore('optionsTemplate', { keyPath: 'id' })
                 }
 
+                if (!db.objectStoreNames.contains('geneticAlgorithmOptions')) {
+                    db.createObjectStore('geneticAlgorithmOptions', { keyPath: 'id' })
+                }
+
                 if (!db.objectStoreNames.contains('geneticAlgorithmSummary')) {
                     const summaryStore = db.createObjectStore('geneticAlgorithmSummary', { keyPath: 'id' })
 
