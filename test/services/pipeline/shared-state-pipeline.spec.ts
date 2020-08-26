@@ -1,6 +1,6 @@
-import { SharedStatePipeline } from '../../src/services/pipeline/shared-state-pipeline'
-import { PipelineStageName } from '../../src/services/pipeline/pipeline-stage-name'
-import { PipelineStage } from '../../src/services/pipeline/pipeline-stage'
+import { SharedStatePipeline } from '../../../src/services/pipeline/shared-state-pipeline'
+import { PipelineStageName } from '../../../src/services/pipeline/pipeline-stage-name'
+import { PipelineStage } from '../../../src/services/pipeline/pipeline-stage'
 
 const getStageSpy = <T>(name: PipelineStageName) => {
     const stage = jasmine.createSpyObj<PipelineStage<T>>('PipelineStage', [ 'execute', 'rollback' ], { name })

@@ -1,7 +1,7 @@
-import { StateMediatorService, StateTopic, UpdateStateEvent } from '../../src/services/state'
-import { updateStateEventType } from '../../src/services/state/update-state-event-type'
-import { UserRatingsState } from '../../src/services/state/user-ratings-state'
-import { ClusterConfig } from '../../src/services/cluster-config'
+import { StateMediatorService, StateTopic, UpdateStateEvent } from '../../../src/services/state'
+import { updateStateEventType } from '../../../src/services/state/update-state-event-type'
+import { UserRatingsState } from '../../../src/services/state/user-ratings-state'
+import { ClusterConfig } from '../../../src/services/cluster-config'
 
 describe('StateMediatorService', () => {
     let service: StateMediatorService

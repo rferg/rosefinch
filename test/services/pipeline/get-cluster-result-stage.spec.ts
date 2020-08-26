@@ -1,7 +1,7 @@
-import { GetClusterResultStage } from '../../src/services/pipeline/get-cluster-result-stage'
-import { ClusterResultRepository, ClusterResultStore } from '../../src/storage'
-import { PipelineState } from '../../src/services/pipeline/pipeline-state'
-import { PipelineStageName } from '../../src/services/pipeline/pipeline-stage-name'
+import { GetClusterResultStage } from '../../../src/services/pipeline/get-cluster-result-stage'
+import { ClusterResultRepository, ClusterResultStore } from '../../../src/storage'
+import { PipelineState } from '../../../src/services/pipeline/pipeline-state'
+import { PipelineStageName } from '../../../src/services/pipeline/pipeline-stage-name'
 
 describe('GetClusterResultStage', () => {
     let stage: GetClusterResultStage

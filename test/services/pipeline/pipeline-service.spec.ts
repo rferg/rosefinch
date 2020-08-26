@@ -1,9 +1,9 @@
-import { PipelineService } from '../../src/services/pipeline/pipeline-service'
-import { PipelineFactory } from '../../src/services/pipeline/pipeline-factory'
-import { UuidService } from '../../src/services/uuid-service'
-import { PipelineState } from '../../src/services/pipeline/pipeline-state'
-import { SharedStatePipeline } from '../../src/services/pipeline/shared-state-pipeline'
-import { PipelineResult } from '../../src/services/pipeline/pipeline-result'
+import { PipelineService } from '../../../src/services/pipeline/pipeline-service'
+import { PipelineFactory } from '../../../src/services/pipeline/pipeline-factory'
+import { UuidService } from '../../../src/services/uuid-service'
+import { PipelineState } from '../../../src/services/pipeline/pipeline-state'
+import { SharedStatePipeline } from '../../../src/services/pipeline/shared-state-pipeline'
+import { PipelineResult } from '../../../src/services/pipeline/pipeline-result'
 
 describe('PipelineService', () => {
     let service: PipelineService

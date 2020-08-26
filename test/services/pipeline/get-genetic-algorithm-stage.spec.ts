@@ -1,7 +1,7 @@
-import { GetGeneticAlgorithmStage } from '../../src/services/pipeline/get-genetic-algorithm-stage'
-import { GeneticAlgorithmRepository, GeneticAlgorithmStore } from '../../src/storage'
-import { PipelineState } from '../../src/services/pipeline/pipeline-state'
-import { PipelineStageName } from '../../src/services/pipeline/pipeline-stage-name'
+import { GetGeneticAlgorithmStage } from '../../../src/services/pipeline/get-genetic-algorithm-stage'
+import { GeneticAlgorithmRepository, GeneticAlgorithmStore } from '../../../src/storage'
+import { PipelineState } from '../../../src/services/pipeline/pipeline-state'
+import { PipelineStageName } from '../../../src/services/pipeline/pipeline-stage-name'
 
 describe('GetGeneticAlgorithmStage', () => {
     let stage: GetGeneticAlgorithmStage

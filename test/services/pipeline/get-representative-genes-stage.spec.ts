@@ -1,9 +1,9 @@
-import { GetRepresentativeGenesStage } from '../../src/services/pipeline/get-representative-genes-stage'
-import { PipelineState } from '../../src/services/pipeline/pipeline-state'
-import { PipelineStageName } from '../../src/services/pipeline/pipeline-stage-name'
-import { ClusterResultStore, GeneticAlgorithmStore } from '../../src/storage'
-import { ClusterResult } from '../../src/clustering'
-import { SerializedPopulation } from '../../src/genetic-algorithm'
+import { GetRepresentativeGenesStage } from '../../../src/services/pipeline/get-representative-genes-stage'
+import { PipelineState } from '../../../src/services/pipeline/pipeline-state'
+import { PipelineStageName } from '../../../src/services/pipeline/pipeline-stage-name'
+import { ClusterResultStore, GeneticAlgorithmStore } from '../../../src/storage'
+import { ClusterResult } from '../../../src/clustering'
+import { SerializedPopulation } from '../../../src/genetic-algorithm'
 
 describe('GetRepresentativeGenesStage', () => {
     let stage: GetRepresentativeGenesStage
