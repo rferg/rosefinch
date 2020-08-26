@@ -1,4 +1,4 @@
-import { StateService } from '../../src/services/state-service'
+import { StateService } from '../../src/services/state/state-service'
 
 type TestState = { prop: number }
 

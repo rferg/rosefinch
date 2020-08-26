@@ -1,14 +1,12 @@
 import { ClusterConfigProvider } from '../../src/services/cluster-config-provider'
-import { StateService } from '../../src/services/state-service'
 import { ClusterConfig } from '../../src/services/cluster-config'
+import { StateMediatorService } from '../../src/services/state'
 
 describe('ClusterConfigProvider', () => {
-    let provider: ClusterConfigProvider
-    let stateSpy: jasmine.SpyObj<StateService<ClusterConfig>>
+    let stateSpy: jasmine.SpyObj<StateMediatorService>
 
     beforeEach(() => {
-        stateSpy = jasmine.createSpyObj<StateService<ClusterConfig>>('StateService', [ 'getCurrent' ])
-        provider = new ClusterConfigProvider(stateSpy)
+        stateSpy = jasmine.createSpyObj('StateMediatorService', [ 'subscribe' ])
     })
 
     it('should return default config if state returns nothing', () => {
@@ -17,6 +15,7 @@ describe('ClusterConfigProvider', () => {
             stopThreshold: 1,
             numberOfRepresentatives: 10
         }
+        const provider = new ClusterConfigProvider(stateSpy)
 
         const config = provider.getConfig()
 
@@ -29,7 +28,9 @@ describe('ClusterConfigProvider', () => {
             stopThreshold: 2,
             numberOfRepresentatives: 2
         }
-        stateSpy.getCurrent.and.returnValue(expected)
+        const provider = new ClusterConfigProvider(stateSpy)
+        const listener = stateSpy.subscribe.calls.mostRecent().args[1]
+        listener(expected)
 
         const config = provider.getConfig()
 

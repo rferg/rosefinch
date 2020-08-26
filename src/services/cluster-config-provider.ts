@@ -1,6 +1,6 @@
-import { StateService } from './state-service'
 import { ClusterConfig } from './cluster-config'
 import { Injectable } from 'cewdi'
+import { StateMediatorService, StateTopic } from './state'
 
 @Injectable()
 export class ClusterConfigProvider {
@@ -9,10 +9,13 @@ export class ClusterConfigProvider {
         stopThreshold: 1,
         numberOfRepresentatives: 10
     }
+    private config?: ClusterConfig
 
-    constructor(private readonly state: StateService<ClusterConfig>) { }
+    constructor(private readonly state: StateMediatorService) {
+        this.state.subscribe(StateTopic.ClusterConfig, config => this.config = config)
+    }
 
     getConfig(): ClusterConfig {
-        return this.state.getCurrent() || { ...this.defaultConfig }
+        return this.config || { ...this.defaultConfig }
     }
 }

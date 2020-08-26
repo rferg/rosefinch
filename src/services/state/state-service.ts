@@ -1,6 +1,3 @@
-import { Injectable } from 'cewdi'
-
-@Injectable()
 export class StateService<TState extends { [key: string]: any, [key: number]: any }> {
     private current?: TState
     private readonly listeners: ((state: TState | undefined) => void)[] = []
