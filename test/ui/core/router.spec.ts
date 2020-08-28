@@ -40,7 +40,7 @@ describe('Router', () => {
             expect(pageSpy.start).toHaveBeenCalled()
         })
 
-        it('should register routes with callback that dispatches RouteEvent', async () => {
+        it('should register routes with callback that dispatches RouteEvent', () => {
             const route: Route = {
                 elementName: 'test-el',
                 path: '*'
@@ -48,12 +48,12 @@ describe('Router', () => {
 
             router.registerRoutes([ route ])
             const callback = pageSpy.register.calls.mostRecent().args[1]
-            await callback({} as PageJS.Context, jasmine.createSpy())
+            callback({} as PageJS.Context, jasmine.createSpy())
 
             expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(new RouteEvent({ elementName: route.elementName }))
         })
 
-        it('should register routes with callback that dispatches UpdateStateEvent with params', async () => {
+        it('should register routes with callback that dispatches UpdateStateEvent with params', () => {
             const expectedParams = {
                 id: 1,
                 prop: 'abc'
@@ -65,7 +65,7 @@ describe('Router', () => {
 
             router.registerRoutes([ route ])
             const callback = pageSpy.register.calls.mostRecent().args[1]
-            await callback({ params: expectedParams } as PageJS.Context, jasmine.createSpy())
+            callback({ params: expectedParams } as PageJS.Context, jasmine.createSpy())
 
             expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(
                 new UpdateStateEvent(StateTopic.RouteParams, { params: expectedParams }))

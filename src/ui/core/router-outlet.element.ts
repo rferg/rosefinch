@@ -1,17 +1,14 @@
-import { BaseElement } from './base-element'
 import { Inject, Injectable } from 'cewdi'
 import { globalEventTargetToken } from '../../common/global-event-target-token'
 import { routeEventType } from './route-event-type'
 import { RouteEvent } from './route-event'
-import { html, internalProperty } from 'lit-element'
 
 @Injectable()
-export class RouterOutletElement extends BaseElement {
-
-    @internalProperty()
-    private currentElement?: string
+export class RouterOutletElement extends HTMLElement {
 
     private readonly routeListener: EventListener
+    private currentElementName?: string
+    private currentElement?: HTMLElement
 
     constructor(@Inject(globalEventTargetToken) private readonly eventTarget: EventTarget) {
         super()
@@ -24,15 +21,16 @@ export class RouterOutletElement extends BaseElement {
         this.eventTarget.removeEventListener(routeEventType, this.routeListener)
     }
 
-    render() {
-        return this.currentElement ? html`<${this.currentElement}></${this.currentElement}>` : html``
-    }
-
     private onRouteChange(event: Event): void {
         if (this.isRouteEvent(event)) {
             const { elementName } = event
-            if (elementName !== this.currentElement) {
-                this.currentElement = elementName
+            if (elementName !== this.currentElementName) {
+                if (this.currentElement) {
+                    this.removeChild(this.currentElement)
+                }
+                this.currentElement = document.createElement(elementName)
+                this.appendChild(this.currentElement)
+                this.currentElementName = elementName
             }
         }
     }

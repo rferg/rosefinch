@@ -23,6 +23,7 @@
     "uuid": "^8.3.0"
   },
   "devDependencies": {
+    "@open-wc/testing-helpers": "^1.8.9",
     "@types/jasmine": "^3.5.12",
     "@types/page": "^1.8.0",
     "@types/uuid": "^8.3.0",
