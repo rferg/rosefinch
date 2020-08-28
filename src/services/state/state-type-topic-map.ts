@@ -9,4 +9,5 @@ export type StateTypeTopicMap<T extends StateTopic> =
     T extends StateTopic.UserRatings ? UserRatingsState :
     T extends StateTopic.RepresentativeGenes ? RepresentativeGenesState :
     T extends StateTopic.ClusterConfig ? ClusterConfig :
+    T extends StateTopic.RouteParams ? { params: { [key: string]: string | number } } :
     never

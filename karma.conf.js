@@ -8,7 +8,20 @@ module.exports = (config) => {
         'karma-spec-reporter'
       ],
       karmaTypescriptConfig: {
-        tsconfig: "./tsconfig.json",
+        tsconfig: './tsconfig.json',
+        bundlerOptions: {
+          transforms: [
+            require('karma-typescript-es6-transform')({
+              presets: [
+                ['@babel/env', {
+                  targets: {
+                    browsers: ['last 2 Chrome versions']
+                  }
+               }]
+              ]
+             })
+          ]
+        }
       },
       client: {
         // leave Jasmine Spec Runner output visible in browser
