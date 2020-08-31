@@ -2,10 +2,119 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="theme-color" content="#91C7B1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>rosefinch</title>
+    <base href="/">
+    <style>
+        :root {
+            --blue: hsl(201, 58%, 22%);
+            --red: hsl(328, 29%, 34%);
+            --teal: hsl(185, 84%, 38%);
+            --medium-blue: hsl(201, 58%, 44%);
+            --light-blue: hsl(201, 58%, 88%);
+            --light-red: hsl(328, 29%, 80%);
+            --light-teal: hsl(185, 84%, 80%);
+            --cream: hsl(45, 20%, 96%);
+            --white: hsl(45, 20%, 99%);
+            --black: hsl(135, 20%, 4%);
+            --lighter-black: hsl(135, 20%, 7%);
+            --dark-shadow-color: rgba(24, 67, 90, 0.3);
+            --light-shadow-color: rgba(207, 230, 242, 0.3);
+            --shadow-color: var(--dark-shadow-color);
+
+            --primary-shadow: 2px 4px 4px 2px var(--shadow-color);
+            --secondary-shadow: 1px 2px 2px 1px var(--shadow-color);
+
+            --border-radius: 5px;
+            --button-border-radius: 50%;
+
+            --font: 'Poppins', sans-serif;
+            --font-size: 1.35em;
+            --line-height: 1.65;
+            --regular-weight: 400;
+            --bold-weight: 800;
+
+            --padding: 1rem;
+            --small-padding: 0.5rem;
+
+            --logo-height: 3rem;
+        }
+        *, html, body {
+            box-sizing: border-box;
+        }
+        html {
+            -webkit-text-size-adjust: 100%;
+            font-size: 100%;
+            min-height: 100vh;
+
+            --primary-color: var(--blue);
+            --medium-primary-color: var(--medium-blue);
+            --light-primary-color: var(--light-blue);
+            --danger-color: var(--red);
+            --light-danger-color: var(--light-red);
+            --success-color: var(--teal);
+            --background-color: var(--cream);
+            --container-background-color: var(--white);
+            --overlay-color: rgba(8, 12, 9, 0.9);
+            --mask-color: rgba(8, 12, 9, 0.3);
+            --font-color: var(--primary-color);
+
+        }
+        body {
+            margin: 0;
+            font-size: var(--font-size);
+            line-height: var(--line-height);
+            font-weight: var(--regular-weight);
+            font-family: var(--font);
+            background-color: var(--background-color);
+            color: var(--font-color);
+            min-height: 100vh;
+            background-image: url('../assets/images/background-lines.svg');
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: var(--padding) var(--small-padding);
+            box-shadow: var(--primary-shadow);
+            background-color: var(--background-color);
+        }
+        #logo {
+            height: var(--logo-height);
+        }
+        nav::before {
+            content: '';
+            position: absolute;
+            top: 0.25rem;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: var(--red);
+        }
+        main {
+            display: block;
+            width: 100%;
+            padding: var(--padding);
+            padding-top: calc(var(--logo-height) + var(--padding) * 2)
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <script src="./index.ts"></script>
+    <nav>
+        <img alt="rosefinch logo" id="logo" src="../assets/images/logo.svg">
+    </nav>
+    <main>
+        <!-- <rf-app></rf-app> -->
+    </main>
+    <noscript>JavaScript is required.</noscript>
+    <script defer src="./index.ts"></script>
 </body>
 </html>
