@@ -8,7 +8,7 @@ module.exports = (config) => {
         'karma-spec-reporter'
       ],
       karmaTypescriptConfig: {
-        tsconfig: './tsconfig.json',
+        tsconfig: './tsconfig.test.json',
         bundlerOptions: {
           transforms: [
             require('karma-typescript-es6-transform')({
