@@ -39,6 +39,10 @@
             --small-padding: 0.5rem;
 
             --logo-height: 3rem;
+
+            --animation-duration: 300ms;
+            --short-animation-duration: calc(var(--animation-duration) / 2);
+            --easing: cubic-bezier(1,.16,.65,.65);
         }
         *, html, body {
             box-sizing: border-box;
@@ -60,6 +64,7 @@
             --mask-color: rgba(8, 12, 9, 0.3);
             --font-color: var(--primary-color);
             --inverse-font-color: var(--cream);
+            --focus-shadow: 0px 0px 0px 2px var(--medium-primary-color);
 
         }
         body {
@@ -113,7 +118,6 @@
         <img alt="rosefinch logo" id="logo" src="../assets/images/logo.svg">
     </nav>
     <main>
-        <a href="/abc">link</a>
         <rf-app></rf-app>
     </main>
     <noscript>JavaScript is required.</noscript>

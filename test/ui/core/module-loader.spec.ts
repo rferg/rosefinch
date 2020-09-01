@@ -61,6 +61,9 @@ describe('ModuleLoader', () => {
                 [ModuleName.Common]: {
                     loader: jasmine.createSpy('CommonLoader')
                 },
+                [ModuleName.NewSession]: {
+                    loader: jasmine.createSpy('CommonLoader')
+                },
                 [ModuleName.RepresentativeDisplay]: {
                     parentModule: ModuleName.Common,
                     loader: jasmine.createSpy('RepresentativeDisplayLoader')

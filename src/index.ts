@@ -7,8 +7,8 @@ import { ModuleName } from './ui/core/module-name'
 const routes: Route[] = [
     {
         path: '/',
-        elementName: 'div',
-        moduleName: ModuleName.Common
+        elementName: 'rf-new-session',
+        moduleName: ModuleName.NewSession
     },
     {
         path: '*',

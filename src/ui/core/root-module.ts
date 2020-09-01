@@ -16,6 +16,10 @@ const moduleLoadConfig: ModuleLoadConfig = {
     [ModuleName.Common]: {
         loader: () => import('../common/common.module')
     },
+    [ModuleName.NewSession]: {
+        loader: () => import('../new-session/new-session.module'),
+        parentModule: ModuleName.Common
+    },
     // TODO: Replace placeholders.
     [ModuleName.Options]: {
         loader: () => Promise.resolve({ default: { elements: [], providers: [] } })
