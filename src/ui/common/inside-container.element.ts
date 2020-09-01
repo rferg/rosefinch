@@ -1,7 +1,6 @@
-import { css, customElement, html } from 'lit-element'
+import { css, html } from 'lit-element'
 import { BaseElement } from '../core/base-element'
 
-@customElement('rf-inside-container')
 export class InsideContainerElement extends BaseElement {
     static get styles() {
         return css`
