@@ -1,7 +1,7 @@
 import { ModuleLoader } from '../../../src/ui/core/module-loader'
 import { ModuleLoadConfig } from '../../../src/ui/core/module-load-config'
 import { Module } from '../../../src/ui/core/module'
-import { ElementRegistration, Injectable } from 'cewdi'
+import { ElementRegistration, Injectable, InjectionContainer } from 'cewdi'
 import { ModuleName } from '../../../src/ui/core/module-name'
 
 @Injectable()
@@ -12,9 +12,12 @@ class CustomEl extends HTMLElement {
 describe('ModuleLoader', () => {
     let loader: ModuleLoader
     let registrySpy: jasmine.SpyObj<CustomElementRegistry>
+    let containerSpy: jasmine.SpyObj<InjectionContainer>
 
     beforeEach(() => {
         registrySpy = jasmine.createSpyObj<CustomElementRegistry>('CustomElementRegistry', [ 'define' ])
+        containerSpy = jasmine.createSpyObj<InjectionContainer>('InjectionContainer', [ 'createChildContainer' ])
+        containerSpy.createChildContainer.and.returnValue(containerSpy)
     })
 
     describe('registerRoot', () => {
@@ -25,9 +28,9 @@ describe('ModuleLoader', () => {
         it('should throw if called twice', () => {
             const module: Module = { providers: [], elements: [] }
 
-            loader.registerRoot(module)
+            loader.registerRoot(module, containerSpy)
 
-            expect(() => loader.registerRoot(module))
+            expect(() => loader.registerRoot(module, containerSpy))
                 .toThrowError(/already registered/i)
         })
 
@@ -41,7 +44,7 @@ describe('ModuleLoader', () => {
                 elements: [ element ]
             }
 
-            loader.registerRoot(module)
+            loader.registerRoot(module, containerSpy)
 
             expect(registrySpy.define).toHaveBeenCalledWith(
                 element.name,
@@ -83,7 +86,7 @@ describe('ModuleLoader', () => {
         })
 
         it('should throw if config loader returns nothing', async () => {
-            loader.registerRoot({ providers: [], elements: [] })
+            loader.registerRoot({ providers: [], elements: [] }, containerSpy)
 
             await expectAsync(loader.load(ModuleName.Common))
                 .toBeRejectedWithError(/failed to load module/i)
@@ -91,7 +94,7 @@ describe('ModuleLoader', () => {
 
         it('should throw if config loader returns no default property', async () => {
             (config.Common.loader as jasmine.Spy).and.returnValue(Promise.resolve({ prop: 1 }))
-            loader.registerRoot({ providers: [], elements: [] })
+            loader.registerRoot({ providers: [], elements: [] }, containerSpy)
 
             await expectAsync(loader.load(ModuleName.Common))
                 .toBeRejectedWithError(/failed to load module/i)
@@ -99,14 +102,14 @@ describe('ModuleLoader', () => {
 
         it('should throw if config loader returns no default property that is not Module', async () => {
             (config.Common.loader as jasmine.Spy).and.returnValue(Promise.resolve({ default: { prop: 1 } }))
-            loader.registerRoot({ providers: [], elements: [] })
+            loader.registerRoot({ providers: [], elements: [] }, containerSpy)
 
             await expectAsync(loader.load(ModuleName.Common))
                 .toBeRejectedWithError(/failed to load module/i)
         })
 
         it('should load and register elements', async () => {
-            loader.registerRoot({ providers: [], elements: [] })
+            loader.registerRoot({ providers: [], elements: [] }, containerSpy)
             const module: Module = {
                 providers: [],
                 elements: [
@@ -122,10 +125,11 @@ describe('ModuleLoader', () => {
             await loader.load(ModuleName.Common)
 
             expect(registrySpy.define).toHaveBeenCalledWith(CustomEl.is, jasmine.any(Function), undefined)
+            expect(containerSpy.createChildContainer).toHaveBeenCalledWith(module.providers)
         })
 
         it('should load and register elements if parent already loaded', async () => {
-            loader.registerRoot({ providers: [], elements: [] })
+            loader.registerRoot({ providers: [], elements: [] }, containerSpy)
             const commonModule: Module = {
                 providers: [],
                 elements: [
@@ -160,7 +164,7 @@ describe('ModuleLoader', () => {
         })
 
         it('should load all parents that have not been loaded yet', async () => {
-            loader.registerRoot({ providers: [], elements: [] })
+            loader.registerRoot({ providers: [], elements: [] }, containerSpy)
             const commonModule: Module = {
                 providers: [],
                 elements: [
@@ -206,7 +210,7 @@ describe('ModuleLoader', () => {
         })
 
         it('should load and register elements once', async () => {
-            loader.registerRoot({ providers: [], elements: [] })
+            loader.registerRoot({ providers: [], elements: [] }, containerSpy)
             const module: Module = {
                 providers: [],
                 elements: [

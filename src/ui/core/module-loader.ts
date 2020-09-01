@@ -14,11 +14,11 @@ export class ModuleLoader {
         @Inject(customElementRegistryToken) private readonly customElementRegistry: CustomElementRegistry,
         @Inject(moduleLoadConfigToken) private readonly config: ModuleLoadConfig) {}
 
-    registerRoot(module: Module): void {
+    registerRoot(module: Module, injectionContainer: InjectionContainer): void {
         if (this.rootContainer) {
             throw new Error('Attempted to register root module, but one is already registered.')
         }
-        this.rootContainer = InjectionContainer.create(module.providers)
+        this.rootContainer = injectionContainer
         if (module.elements.length) {
             const registrar = new ElementRegistrar(this.rootContainer, this.customElementRegistry)
             registrar.register(...module.elements)
