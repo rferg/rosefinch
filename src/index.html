@@ -35,16 +35,16 @@
             --regular-weight: 400;
             --bold-weight: 800;
 
-            --padding: 1rem;
-            --small-padding: 0.5rem;
+            --padding: 2rem;
+            --small-padding: 1rem;
 
             --logo-height: 3rem;
 
             --animation-duration: 300ms;
             --short-animation-duration: calc(var(--animation-duration) / 2);
-            --easing: cubic-bezier(1,.16,.65,.65);
+            --easing: cubic-bezier(0.33, 1, 0.68, 1);
         }
-        *, html, body {
+        * {
             box-sizing: border-box;
         }
         html {
@@ -88,9 +88,10 @@
             position: absolute;
             top: 0;
             left: 0;
-            padding: var(--padding) var(--small-padding);
+            padding: var(--small-padding) calc(var(--small-padding) / 2);
             box-shadow: var(--primary-shadow);
             background-color: var(--background-color);
+            z-index: 1;
         }
         #logo {
             height: var(--logo-height);
@@ -108,8 +109,17 @@
             display: block;
             width: 100%;
             padding: var(--padding);
-            padding-top: calc(var(--logo-height) + var(--padding) * 2)
+            padding-top: calc(var(--logo-height) + var(--small-padding) * 2);
+            min-height: 100vh;
         }
+        @media screen and (max-width: 768px) and (orientation: portrait),
+            screen and (max-width: 1024px) and (orientation: landscape) {
+                main {
+                    padding-left: 0;
+                    padding-right: 0;
+                    --padding: 1rem;
+                }
+            }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;800&display=swap" rel="stylesheet">
 </head>

@@ -15,11 +15,17 @@ import volume from '../../../assets/images/icons/volume.svg'
 
 export class IconElement extends BaseElement {
     static get styles() {
-        return css`
-            img {
-                height: var(--font-size);
-            }
-        `
+        return [
+            super.styles,
+            css`
+                :host {
+                    display: flex;
+                }
+                img {
+                    height: var(--font-size);
+                }
+            `
+        ]
     }
 
     @property()

@@ -1,5 +1,13 @@
-import { LitElement } from 'lit-element'
+import { css, CSSResultArray, CSSResultOrNative, LitElement } from 'lit-element'
 import { Injectable } from 'cewdi'
 
 @Injectable()
-export class BaseElement extends LitElement {}
+export class BaseElement extends LitElement {
+    static get styles(): CSSResultOrNative | CSSResultArray {
+        return css`
+                :host, * {
+                    box-sizing: border-box;
+                }
+            `
+    }
+}
