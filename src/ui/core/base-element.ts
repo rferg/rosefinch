@@ -7,6 +7,8 @@ export class BaseElement extends LitElement {
         return css`
                 :host, * {
                     box-sizing: border-box;
+                    font-family: var(--font-family);
+                    color: var(--font-color);
                 }
             `
     }
