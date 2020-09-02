@@ -39,20 +39,19 @@ export class NewSessionElement extends BaseElement {
             `
         ]
     }
+
     render() {
         return html`
         <rf-container>
             <rf-inside-container>
-                <rf-button buttonRole="${'success'}" @click=${this.onClick} title="Create a new session">
-                    <rf-icon icon="${Icon.Plus}"></rf-icon>
-                </rf-button>
+                <a href="/options">
+                    <rf-button buttonRole="${'success'}" title="Create a new session">
+                        <rf-icon icon="${Icon.Plus}"></rf-icon>
+                    </rf-button>
+                </a>
                 <h3>New Session</h3>
             </rf-inside-container>
         </rf-container>
         `
-    }
-
-    private onClick(ev: Event) {
-        console.log(ev)
     }
 }

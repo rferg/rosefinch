@@ -20,9 +20,9 @@ const moduleLoadConfig: ModuleLoadConfig = {
         loader: () => import('../new-session/new-session.module'),
         parentModule: ModuleName.Common
     },
-    // TODO: Replace placeholders.
     [ModuleName.Options]: {
-        loader: () => Promise.resolve({ default: { elements: [], providers: [] } })
+        loader: () => import('../options/options.module'),
+        parentModule: ModuleName.Common
     },
     [ModuleName.Pipeline]: {
         loader: () => Promise.resolve({ default: { elements: [], providers: [] } })
