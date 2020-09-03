@@ -1,8 +1,7 @@
 import { BaseElement } from '../core/base-element'
 import { css, html, internalProperty, property, query, TemplateResult } from 'lit-element'
 import { assertUnreachable } from '../../common/assert-unreachable'
-import { FormErrorEvent } from './form-error-event'
-import { FormChangeEvent } from './form-change-event'
+import { FormFieldChangeEvent } from './form-field-change-event'
 import { animationsStyles } from '../common/animations.styles'
 
 export class EditableTextInputElement extends BaseElement {
@@ -48,7 +47,7 @@ export class EditableTextInputElement extends BaseElement {
                 button:hover, select:hover  {
                     background-color: var(--light-primary-color);
                 }
-                :host([invalid="true"]) button, :host([invalid="true"]) input, :host([invalid="true"]) select {
+                :host([invalid]) button, :host([invalid]) input, :host([invalid]) select {
                     color: var(--danger-color);
                     border-color: var(--danger-color);
                     background-color: var(--light-danger-color);
@@ -62,18 +61,18 @@ export class EditableTextInputElement extends BaseElement {
     }
 
     @property()
+    name?: string
+
+    @property()
     inputType: 'text' | 'number' | 'select' = 'text'
 
     @property()
     value?: string | number
 
-    @property({ reflect: false })
-    validator?: (value?: string | number) => { isValid: boolean, errors: string[] }
-
-    @property({ reflect: false })
+    @property({ attribute: false })
     options?: { label: string, value: string | number }[]
 
-    @property({ reflect: true })
+    @property({ reflect: true, type: Boolean })
     invalid = false
 
     @query('input, select')
@@ -81,6 +80,11 @@ export class EditableTextInputElement extends BaseElement {
 
     @internalProperty()
     private isEditing = false
+
+    @property()
+    validator: (value?: string | number) => { isValid: boolean, errors?: string[] } = (_?: string | number) => {
+        return { isValid: true }
+    }
 
     @property({ reflect: false })
     formatter: (value?: string | number) => string = value => {
@@ -147,19 +151,21 @@ export class EditableTextInputElement extends BaseElement {
     }
 
     private onChange(event: Event): void {
+        if (!this.name) {
+            throw new Error(`EditableTextInput must have a name, but none was given.`)
+        }
         const inputValue = (event.target as HTMLInputElement | HTMLSelectElement)?.value
         const value = this.valueIsNumber(this.value)
             ? (inputValue && Number.parseFloat(inputValue)) || 0
             : inputValue
-        if (this.validator) {
-            const { isValid, errors } = this.validator(value)
-            this.invalid = !isValid
-            if (errors && errors.length) {
-                this.dispatchEvent(new FormErrorEvent({ errors }))
-            }
-        }
         this.value = value
-        this.dispatchEvent(new FormChangeEvent({ value: this.value }))
+        const { isValid, errors } = this.validator(this.value)
+        this.invalid = !isValid
+        this.dispatchEvent(new FormFieldChangeEvent({
+            value: { [this.name]: this.value },
+            isValid,
+            errors
+        }))
     }
 
     private valueIsNumber(value: any): value is number {

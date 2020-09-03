@@ -1,7 +1,6 @@
 import { elementUpdated, fixture, html, oneEvent } from '@open-wc/testing-helpers'
 import { EditableTextInputElement } from '../../../src/ui/options/editable-text-input.element'
-import { FormChangeEvent } from '../../../src/ui/options/form-change-event'
-import { FormErrorEvent } from '../../../src/ui/options/form-error-event'
+import { FormFieldChangeEvent } from '../../../src/ui/options/form-field-change-event'
 
 describe('EditableTextInputElement', () => {
 
@@ -97,10 +96,22 @@ describe('EditableTextInputElement', () => {
         await checkOnAndOff({ inputType: 'number', value: 4, action: 'click' })
     })
 
-    it('should dispatch change event on text input change', async () => {
-        const newValue = 'abc'
+    const changeInput = async ({
+        inputType,
+        value,
+        name,
+        validator = () => ({ isValid: true })
+    }: {
+        inputType: 'number' | 'text',
+        value: number | string,
+        name: string,
+        validator?: (value?: string | number) => { isValid: boolean, errors?: string[] }
+    }): Promise<Element> => {
         const el = await fixture(
-            html`<rf-editable-text-input></rf-editable-text-input>`)
+            html`<rf-editable-text-input
+                .validator=${validator}
+                name="${name}"
+                inputType="${inputType}"></rf-editable-text-input>`)
         const button = el.shadowRoot?.querySelector('button')
         if (!button) { throw new Error('button is missing') }
         button.click()
@@ -109,76 +120,55 @@ describe('EditableTextInputElement', () => {
         const input = el.shadowRoot?.querySelector('input')
         if (!input) { throw new Error('input is missing') }
         setTimeout(() => {
-            input.value = newValue
+            input.value = value.toString()
             input.dispatchEvent(new Event('change'))
         }, 0)
 
-        const { value } = (await oneEvent(el, FormChangeEvent.eventType) as FormChangeEvent)
-        expect(value).toEqual(newValue)
-        expect(el.getAttribute('invalid')).toBe('false')
+        return el
+    }
+
+    it('should dispatch change event on text input change', async () => {
+        const newValue = 'abc'
+        const name = 'test'
+        const el = await changeInput({ inputType: 'text', value: newValue, name })
+
+        const { value, isValid } = (await oneEvent(el, FormFieldChangeEvent.eventType) as FormFieldChangeEvent)
+        expect(value).toEqual({ [name]: newValue })
+        expect(isValid).toBeTrue()
+        expect(el.getAttribute('invalid')).toBeNull()
     })
 
     it('should dispatch change event on number input change', async () => {
         const newValue = 5
-        const el = await fixture(
-            html`<rf-editable-text-input inputType="number"></rf-editable-text-input>`)
-        const button = el.shadowRoot?.querySelector('button')
-        if (!button) { throw new Error('button is missing') }
-        button.click()
-        button.dispatchEvent(new Event('click'))
-        await elementUpdated(el)
-        const input = el.shadowRoot?.querySelector('input')
-        if (!input) { throw new Error('input is missing') }
-        setTimeout(() => {
-            input.value = newValue.toString()
-            input.dispatchEvent(new Event('change'))
-        }, 0)
+        const name = 'test'
+        const el = await changeInput({ inputType: 'number', value: newValue, name })
 
-        const { value } = (await oneEvent(el, FormChangeEvent.eventType) as FormChangeEvent)
-        expect(value).toEqual(newValue)
-        expect(el.getAttribute('invalid')).toBe('false')
+        const { value, isValid } = (await oneEvent(el, FormFieldChangeEvent.eventType) as FormFieldChangeEvent)
+        expect(value).toEqual({ [name]: newValue })
+        expect(isValid).toBeTrue()
+        expect(el.getAttribute('invalid')).toBeNull()
     })
 
-    it('should dispatch error event if validator fails on text input', async () => {
+    it('should dispatch change event with error if validator fails on text input', async () => {
         const expectedErrors = [ 'test error' ]
         const validator = (_?: string | number) => ({ isValid: false, errors: expectedErrors })
-        const el = await fixture(html`<rf-editable-text-input .validator=${validator}></rf-editable-text-input>`)
-        const button = el.shadowRoot?.querySelector('button')
-        if (!button) { throw new Error('button is missing') }
-        button.click()
-        button.dispatchEvent(new Event('click'))
-        await elementUpdated(el)
-        const input = el.shadowRoot?.querySelector('input')
-        if (!input) { throw new Error('input is missing') }
-        setTimeout(() => {
-            input.value = 'abc'
-            input.dispatchEvent(new Event('change'))
-        }, 0)
+        const el = await changeInput({ inputType: 'text', value: 'a', name: 't', validator })
 
-        const { errors } = (await oneEvent(el, FormErrorEvent.eventType) as FormErrorEvent)
+        const { errors, isValid } = (await oneEvent(el, FormFieldChangeEvent.eventType) as FormFieldChangeEvent)
         expect(errors).toEqual(expectedErrors)
-        expect(el.getAttribute('invalid')).toBe('true')
+        expect(isValid).toBeFalse()
+        expect(el.getAttribute('invalid')).not.toBeNull()
     })
 
     it('should dispatch error event if validator fails on number input', async () => {
         const expectedErrors = [ 'test error' ]
         const validator = (_?: string | number) => ({ isValid: false, errors: expectedErrors })
-        const el = await fixture(html`<rf-editable-text-input inputType="number" .validator=${validator}></rf-editable-text-input>`)
-        const button = el.shadowRoot?.querySelector('button')
-        if (!button) { throw new Error('button is missing') }
-        button.click()
-        button.dispatchEvent(new Event('click'))
-        await elementUpdated(el)
-        const input = el.shadowRoot?.querySelector('input')
-        if (!input) { throw new Error('input is missing') }
-        setTimeout(() => {
-            input.value = '5'
-            input.dispatchEvent(new Event('change'))
-        }, 0)
+        const el = await changeInput({ inputType: 'number', value: 5, name: 't', validator })
 
-        const { errors } = (await oneEvent(el, FormErrorEvent.eventType) as FormErrorEvent)
+        const { errors, isValid } = (await oneEvent(el, FormFieldChangeEvent.eventType) as FormFieldChangeEvent)
         expect(errors).toEqual(expectedErrors)
-        expect(el.getAttribute('invalid')).toBe('true')
+        expect(isValid).toBeFalse()
+        expect(el.getAttribute('invalid')).not.toBeNull()
     })
 
     it('should show select with options if inputType="select"', async () => {
@@ -203,8 +193,9 @@ describe('EditableTextInputElement', () => {
             { label: 'b', value: 1 }
         ]
         const selectedIndex = options.length - 1
+        const name = 'test'
         const el = await fixture(
-            html`<rf-editable-text-input .value=${0} .options=${options}  inputType="select"></rf-editable-text-input>`)
+            html`<rf-editable-text-input name="${name}" .value=${0} .options=${options}  inputType="select"></rf-editable-text-input>`)
         const select = el.shadowRoot?.querySelector('select') as HTMLSelectElement
         if (!select) { throw new Error('select is missing') }
 
@@ -213,7 +204,8 @@ describe('EditableTextInputElement', () => {
             select.dispatchEvent(new Event('change'))
         })
 
-        const { value } = await oneEvent(el, FormChangeEvent.eventType) as FormChangeEvent
-        expect(value).toEqual(options[selectedIndex].value)
+        const { value, isValid } = await oneEvent(el, FormFieldChangeEvent.eventType) as FormFieldChangeEvent
+        expect(value).toEqual({ [name]: options[selectedIndex].value })
+        expect(isValid).toBeTrue()
     })
 })
