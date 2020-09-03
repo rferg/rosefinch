@@ -30,13 +30,15 @@ module.exports = (config) => {
       files: [
         'test/setup.ts',
         { pattern: 'src/**/*.ts' },
-        { pattern: 'test/**/*.spec.ts' }
+        { pattern: 'test/**/*.spec.ts' },
+        { pattern: 'test/helpers/**/*.ts'}
       ],
       exclude: [ 'src/index.ts' ],
       preprocessors: {
         'test/setup.ts': [ 'karma-typescript' ],
         'src/**/*.ts': [ 'karma-typescript' ],
-        'test/**/*.spec.ts': [ 'karma-typescript' ]
+        'test/**/*.spec.ts': [ 'karma-typescript' ],
+        'test/helpers/**/*.ts': [ 'karma-typescript' ]
       },
       reporters: [ 'spec', 'karma-typescript' ],
       colors: true,

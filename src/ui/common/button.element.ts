@@ -48,7 +48,7 @@ export class ButtonElement extends BaseElement {
     @property()
     buttonRole: 'primary' | 'success' | 'danger' = 'primary'
 
-    @property()
+    @property({ type: Boolean })
     disabled = false
 
     render() {

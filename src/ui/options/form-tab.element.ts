@@ -2,7 +2,6 @@ import { BaseElement } from '../core/base-element'
 import { css, html, property, queryAssignedNodes, TemplateResult } from 'lit-element'
 import { FormElement } from './form.element'
 import { Icon } from '../common/icon'
-import { animationsStyles } from '../common/animations.styles'
 import { FormStatusEvent } from './form-status-event'
 import { tabBackEventType } from './tab-back-event-type'
 import { FormSubmitEvent } from './form-submit-event'
@@ -16,14 +15,12 @@ export class FormTabElement<T extends { [key: string]: any}> extends BaseElement
     static get styles() {
         return [
             super.styles,
-            animationsStyles,
             css`
                 :host {
                     display: flex;
                     flex-flow: column nowrap;
                     justify-content: space-between;
                     align-items: center;
-                    animation: slideInFromRight var(--animation-duration) var(--easing);
                 }
                 div {
                     display: flex;
@@ -36,17 +33,21 @@ export class FormTabElement<T extends { [key: string]: any}> extends BaseElement
         ]
     }
 
-    @queryAssignedNodes('form')
-    formElement?: FormElement<T>
+    @queryAssignedNodes('form', true)
+    formElements?: NodeListOf<FormElement<T>>
 
-    @property()
+    @property({ attribute: false })
     submitButton: ButtonConfig = { icon: Icon.Check, role: 'success' }
 
-    @property()
+    @property({ attribute: false })
     backButton?: ButtonConfig
 
-    @property()
+    @property({ type: Boolean, attribute: true })
     valid = true
+
+    private get formElement(): FormElement<T> | undefined {
+        return Array.from(this.formElements || [])[0]
+    }
 
     render() {
         return html`
