@@ -48,9 +48,7 @@ export class FormElement<T extends { [key: string]: any }> extends BaseElement {
             if (Object.keys(ev.value).length) {
                 const propertyKey = Object.keys(ev.value)[0]
                 this.validMap[propertyKey] = ev.isValid
-                if (ev.errors?.length) {
-                    this.errors = { ...this.errors, [propertyKey]: ev.errors }
-                }
+                this.errors = { ...this.errors, [propertyKey]: ev.errors || [] }
                 this.isValid = Object.keys(this.validMap).map(key => this.validMap[key]).every(value => value)
             }
         }
