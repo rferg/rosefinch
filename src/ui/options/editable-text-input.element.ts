@@ -35,7 +35,7 @@ export class EditableTextInputElement extends BaseElement {
                     text-overflow: ellipsis;
                 }
                 input {
-                    max-width: 10rem;
+                    max-width: 7rem;
                 }
                 input[type=number]::-webkit-outer-spin-button,
                 input[type=number]::-webkit-inner-spin-button {
@@ -45,7 +45,7 @@ export class EditableTextInputElement extends BaseElement {
                 input[type=number] {
                     -moz-appearance: textfield;
                 }
-                button:hover, select:hover  {
+                button:hover, input:focus, select:hover, select:focus  {
                     background-color: var(--light-primary-color);
                 }
                 :host([invalid]) button, :host([invalid]) input, :host([invalid]) select {
@@ -55,7 +55,6 @@ export class EditableTextInputElement extends BaseElement {
                 }
                 select {
                     -moz-appearance: none;
-                    -webkit-appearance: none;
                 }
             `
         ]
@@ -130,7 +129,8 @@ export class EditableTextInputElement extends BaseElement {
                         @change=${this.onChange}
                         @blur=${this.onBlur}>
                         ${(this.options || [])
-                            .map(({ label, value }) => html`<option value=${value}>${label}</option>`)}
+                            .map(({ label, value }) =>
+                                html`<option value=${value} ?selected=${value === this.value}>${label}</option>`)}
                     </select>
                 `
             default:

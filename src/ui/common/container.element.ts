@@ -20,6 +20,13 @@ export class ContainerElement extends BaseElement {
                     margin: var(--padding);
                     animation: fadeIn var(--animation-duration) var(--easing);
                 }
+                @media screen and (max-width: 768px) and (orientation: portrait),
+                screen and (max-width: 1024px) and (orientation: landscape) {
+                    :host {
+                        margin-left: 0;
+                        margin-right: 0;
+                    }
+                }
             `
         ]
     }

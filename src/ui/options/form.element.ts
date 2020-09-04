@@ -1,7 +1,7 @@
 import { BaseElement } from '../core/base-element'
 import { FormStatusEvent } from './form-status-event'
 import { FormFieldChangeEvent } from './form-field-change-event'
-import { internalProperty } from 'lit-element'
+import { internalProperty, property } from 'lit-element'
 
 export class FormElement<T extends { [key: string]: any }> extends BaseElement {
     static get styles() {
@@ -10,18 +10,11 @@ export class FormElement<T extends { [key: string]: any }> extends BaseElement {
         ]
     }
 
+    @property()
+    value?: T
+
     @internalProperty()
     protected errors: { [key: string]: string[] } = {}
-
-    private _value?: T
-    get value(): T | undefined {
-        return this._value
-    }
-    set value(val: T | undefined) {
-        if (val !== this._value) {
-            this._value = val
-        }
-    }
 
     private _isValid = true
     private get isValid() {

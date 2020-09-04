@@ -29,13 +29,6 @@ export class NewSessionElement extends BaseElement {
                 rf-inside-container > * {
                     margin: 1rem;
                 }
-                @media screen and (max-width: 768px) and (orientation: portrait),
-                screen and (max-width: 1024px) and (orientation: landscape) {
-                    rf-container {
-                        margin-left: 0;
-                        margin-right: 0;
-                    }
-                }
             `
         ]
     }

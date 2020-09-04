@@ -1,7 +1,8 @@
 import { BaseElement } from '../core/base-element'
 import { css, html } from 'lit-element'
 import { headingsStyles } from '../common/headings.styles'
-import { FormFieldChangeEvent } from './form-field-change-event'
+import { Icon } from '../common/icon'
+import { SizeForm } from './size-form'
 
 export class OptionsElement extends BaseElement {
     static get styles() {
@@ -21,21 +22,32 @@ export class OptionsElement extends BaseElement {
                     width: 960px;
                     max-width: 100vw;
                 }
+                rf-form-tab {
+                    width: 100%;
+                }
+                rf-size-form {
+                    width: 100%;
+                }
             `
         ]
+    }
+
+    private readonly sizeForm: SizeForm = {
+        populationSize: 5000,
+        timeSignatureTop: 4,
+        timeSignatureBottom: 4,
+        octaveMax: 6,
+        octaveMin: 3,
+        shortestNoteDuration: 8,
+        measures: 8
     }
 
     render() {
         return html`
             <rf-container>
-                <h3>Setup New Session</h3>
-                <rf-editable-text-input
-                    .value=${4}
-                    inputType="number"
-                    name="test"
-                    .validator=${(value?: string | number) => ({ isValid: (value as number) > 4, errors: [] })}
-                    @form-field-change=${(ev: FormFieldChangeEvent) => console.log(ev)}>
-                </rf-editable-text-input>
+                <rf-form-tab .submitButton=${{ role: 'primary' as 'primary', icon: Icon.RightArrow }}>
+                    <rf-size-form .value=${this.sizeForm} slot="form"></rf-size-form>
+                </rf-form-tab>
             </rf-container>
         `
     }

@@ -7,7 +7,7 @@ export class InsideContainerElement extends BaseElement {
             super.styles,
             css`
                 :host {
-                    padding: var(--small-padding);
+                    padding: calc(var(--small-padding) / 2);
                     display: flex;
                     flex-flow: row wrap;
                     justify-content: center;
@@ -15,7 +15,7 @@ export class InsideContainerElement extends BaseElement {
                     box-shadow: var(--secondary-shadow);
                     border-radius: var(--border-radius);
                     background-color: var(--container-background-color);
-                    margin: var(--padding);
+                    margin: var(--small-padding);
                     width: 100%;
                 }
             `
