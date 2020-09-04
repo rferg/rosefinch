@@ -3,6 +3,7 @@ import { css, html, internalProperty, property, query, TemplateResult } from 'li
 import { assertUnreachable } from '../../common/assert-unreachable'
 import { FormFieldChangeEvent } from './form-field-change-event'
 import { animationsStyles } from '../common/animations.styles'
+import { FieldValidator } from './field-validator'
 
 export class EditableTextInputElement extends BaseElement {
     static get styles() {
@@ -82,7 +83,7 @@ export class EditableTextInputElement extends BaseElement {
     private isEditing = false
 
     @property()
-    validator: (value?: string | number) => { isValid: boolean, errors?: string[] } = (_?: string | number) => {
+    validator: FieldValidator = (_?: string | number) => {
         return { isValid: true }
     }
 
