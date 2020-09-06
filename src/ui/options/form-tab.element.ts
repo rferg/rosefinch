@@ -28,6 +28,10 @@ export class FormTabElement<T extends { [key: string]: any}> extends BaseElement
                     justify-content: space-between;
                     align-items: center;
                     margin-top: var(--small-padding);
+                    width: 100%;
+                }
+                div rf-button:last-child {
+                    margin-left: auto;
                 }
             `
         ]

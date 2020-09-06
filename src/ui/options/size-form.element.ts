@@ -1,6 +1,6 @@
 import { FormElement } from './form.element'
 import { SizeForm } from './size-form'
-import { css, html, internalProperty, TemplateResult } from 'lit-element'
+import { css, html, TemplateResult } from 'lit-element'
 import { FieldValidator } from './field-validator'
 import { GeneUtil } from '../../common/gene-util'
 import { numberRangeFieldValidatorFactory } from './number-range-field-validator-factory'
@@ -57,7 +57,7 @@ export class SizeFormElement extends FormElement<SizeForm> {
                 }
                 ul.errors li {
                     color: var(--danger-color);
-                    font-size: var(--small-font-size);
+                    font-size: var(--font-size);
                     list-style: none;
                 }
             `
@@ -88,7 +88,6 @@ export class SizeFormElement extends FormElement<SizeForm> {
         }
     }
 
-    @internalProperty()
     private readonly fieldGroups: {
         label: string,
         joinTemplate: TemplateResult
@@ -115,7 +114,7 @@ export class SizeFormElement extends FormElement<SizeForm> {
                 {
                     name: 'timeSignatureTop',
                     inputType: 'number',
-                    validator: numberRangeFieldValidatorFactory(1, 16, 'Time Signature Upper Number')
+                    validator: numberRangeFieldValidatorFactory(1, 16, 'Time Signature Top Number')
                 },
                 {
                     name: 'timeSignatureBottom',
