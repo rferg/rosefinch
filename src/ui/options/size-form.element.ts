@@ -38,6 +38,9 @@ export class SizeFormElement extends FormElement<SizeForm> {
                     align-items: center;
                     text-align: center;
                 }
+                .join {
+                    margin: 0 var(--small-padding);
+                }
                 ul.errors {
                     background-color: var(--danger-container-color);
                     position: fixed;
@@ -109,7 +112,7 @@ export class SizeFormElement extends FormElement<SizeForm> {
         },
         {
             label: 'Time Signature',
-            joinTemplate: html`<span>/</span>`,
+            joinTemplate: html`<span class="join">/</span>`,
             fields: [
                 {
                     name: 'timeSignatureTop',
@@ -157,7 +160,7 @@ export class SizeFormElement extends FormElement<SizeForm> {
         },
         {
             label: 'Octave Range',
-            joinTemplate: html`<span>to</span>`,
+            joinTemplate: html`<span class="join">to</span>`,
             fields: [
                 {
                     name: 'octaveMin',
@@ -190,15 +193,15 @@ export class SizeFormElement extends FormElement<SizeForm> {
                     <div>
                     ${fields.map(({ name, inputType, validator, options }, i) => {
                         const template = html`
-                            <rf-editable-text-input
+                            <rf-input
                                 name=${name}
                                 inputType=${inputType}
                                 .value=${this.value?.[name]}
                                 .validator=${validator}
                                 .options=${options ? options() : []}>
-                            </rf-editable-text-input>
+                            </rf-input>
                         `
-                        return i ? html`&nbsp;${joinTemplate}&nbsp;${template}` : template
+                        return i ? html`${joinTemplate}${template}` : template
                     })}
                     </div>
                 </rf-inside-container>

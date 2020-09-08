@@ -1,21 +1,21 @@
 import { fixture, html, oneEvent } from '@open-wc/testing-helpers'
-import { EditableTextInputElement } from '../../../src/ui/options/editable-text-input.element'
+import { InputElement } from '../../../src/ui/options/input.element'
 import { FormFieldChangeEvent } from '../../../src/ui/options/form-field-change-event'
 
-describe('EditableTextInputElement', () => {
+describe('InputElement', () => {
 
     beforeAll(() => {
-        window.customElements.define('rf-editable-text-input', EditableTextInputElement)
+        window.customElements.define('rf-input', InputElement)
     })
 
     it('should render', async () => {
-        const el = await fixture(html`<rf-editable-text-input></rf-editable-text-input>`)
+        const el = await fixture(html`<rf-input></rf-input>`)
         expect(el).toBeTruthy()
     })
 
     it('should set initial text value', async () => {
         const val = 'test'
-        const el = await fixture(html`<rf-editable-text-input .value=${val}></rf-editable-text-input>`)
+        const el = await fixture(html`<rf-input .value=${val}></rf-input>`)
 
         expect((el.shadowRoot?.querySelector('input') as HTMLInputElement)?.value).toEqual(val)
     })
@@ -23,7 +23,7 @@ describe('EditableTextInputElement', () => {
     it('should set initial number value', async () => {
         const val = 44
         const el = await fixture(
-            html`<rf-editable-text-input inputType="number" .value=${val}></rf-editable-text-input>`)
+            html`<rf-input inputType="number" .value=${val}></rf-input>`)
 
         expect((el.shadowRoot?.querySelector('input') as HTMLInputElement)?.value).toEqual(val.toString())
     })
@@ -40,10 +40,10 @@ describe('EditableTextInputElement', () => {
         validator?: (value?: string | number) => { isValid: boolean, errors?: string[] }
     }): Promise<Element> => {
         const el = await fixture(
-            html`<rf-editable-text-input
+            html`<rf-input
                 .validator=${validator}
                 name="${name}"
-                inputType="${inputType}"></rf-editable-text-input>`)
+                inputType="${inputType}"></rf-input>`)
         const input = el.shadowRoot?.querySelector('input')
         if (!input) { throw new Error('input is missing') }
         setTimeout(() => {
@@ -104,7 +104,7 @@ describe('EditableTextInputElement', () => {
             { label: 'b', value: 1 }
         ]
         const el = await fixture(
-            html`<rf-editable-text-input .options=${options}  inputType="select"></rf-editable-text-input>`)
+            html`<rf-input .options=${options}  inputType="select"></rf-input>`)
 
         expect(el.shadowRoot?.querySelector('select')).toBeTruthy()
         options.forEach(({ label, value }) => {
@@ -122,7 +122,7 @@ describe('EditableTextInputElement', () => {
         const selectedIndex = options.length - 1
         const name = 'test'
         const el = await fixture(
-            html`<rf-editable-text-input name="${name}" .value=${0} .options=${options}  inputType="select"></rf-editable-text-input>`)
+            html`<rf-input name="${name}" .value=${0} .options=${options}  inputType="select"></rf-input>`)
         const select = el.shadowRoot?.querySelector('select') as HTMLSelectElement
         if (!select) { throw new Error('select is missing') }
 

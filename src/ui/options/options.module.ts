@@ -1,6 +1,6 @@
 import { Module } from '../core/module'
 import { OptionsElement } from './options.element'
-import { EditableTextInputElement } from './editable-text-input.element'
+import { InputElement } from './input.element'
 import { FormTabElement } from './form-tab.element'
 import { SizeFormElement } from './size-form.element'
 
@@ -12,8 +12,8 @@ export default {
             name: 'rf-options'
         },
         {
-            element: EditableTextInputElement,
-            name: 'rf-editable-text-input'
+            element: InputElement,
+            name: 'rf-input'
         },
         {
             element: FormTabElement,

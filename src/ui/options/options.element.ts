@@ -3,6 +3,7 @@ import { css, html } from 'lit-element'
 import { headingsStyles } from '../common/headings.styles'
 import { Icon } from '../common/icon'
 import { SizeForm } from './size-form'
+import { FormSubmitEvent } from './form-submit-event'
 
 export class OptionsElement extends BaseElement {
     static get styles() {
@@ -45,7 +46,8 @@ export class OptionsElement extends BaseElement {
     render() {
         return html`
             <rf-container>
-                <rf-form-tab .submitButton=${{ role: 'primary' as 'primary', icon: Icon.RightArrow }}>
+                <rf-form-tab .submitButton=${{ role: 'primary' as 'primary', icon: Icon.RightArrow }}
+                    @form-submit=${ (ev: FormSubmitEvent<SizeForm>) => console.log(ev) }>
                     <rf-size-form .value=${this.sizeForm} slot="form"></rf-size-form>
                 </rf-form-tab>
             </rf-container>

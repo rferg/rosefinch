@@ -5,7 +5,7 @@ import { FormFieldChangeEvent } from './form-field-change-event'
 import { animationsStyles } from '../common/animations.styles'
 import { FieldValidator } from './field-validator'
 
-export class EditableTextInputElement extends BaseElement {
+export class InputElement extends BaseElement {
     static get styles() {
         return [
             super.styles,
