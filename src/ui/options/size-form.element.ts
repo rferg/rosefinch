@@ -26,6 +26,7 @@ export class SizeFormElement extends FormElement<SizeForm> {
                     flex-wrap: wrap;
                     width: 100%;
                     margin: 1rem;
+                    position: relative;
                 }
                 label {
                     margin: var(--small-padding);
@@ -63,6 +64,11 @@ export class SizeFormElement extends FormElement<SizeForm> {
                     font-size: var(--font-size);
                     list-style: none;
                 }
+                rf-tooltip {
+                    top: 0;
+                    left: 0.5rem;
+                    position: absolute;
+                }
             `
         ]
     }
@@ -93,7 +99,8 @@ export class SizeFormElement extends FormElement<SizeForm> {
 
     private readonly fieldGroups: {
         label: string,
-        joinTemplate: TemplateResult
+        joinTemplate: TemplateResult,
+        tooltip?: string,
         fields: {
             name: keyof SizeForm,
             inputType: 'text' | 'number' | 'select',
@@ -103,6 +110,9 @@ export class SizeFormElement extends FormElement<SizeForm> {
     }[] = [
         {
             label: 'Population Size',
+            tooltip: 'This is the total number of sequences used in the genetic algorithm.  ' +
+                'A larger number will increase the diversity of sequences, but may also increase the run time.  ' +
+                'The minimum is 100 and the maximum is 10,000.',
             joinTemplate: html``,
             fields: [ {
                 name: 'populationSize',
@@ -136,6 +146,7 @@ export class SizeFormElement extends FormElement<SizeForm> {
         {
             label: 'Measures',
             joinTemplate: html``,
+            tooltip: 'The length of each sequence.  The minimum is 1 and the maximum is 10.',
             fields: [ {
                 name: 'measures',
                 inputType: 'number',
@@ -160,6 +171,8 @@ export class SizeFormElement extends FormElement<SizeForm> {
         },
         {
             label: 'Octave Range',
+            tooltip: 'Octaves are numbered according to scientific pitch notation.  ' +
+                'For reference, octave 4 contains Middle C (on a standard 88-key piano).',
             joinTemplate: html`<span class="join">to</span>`,
             fields: [
                 {
@@ -179,7 +192,7 @@ export class SizeFormElement extends FormElement<SizeForm> {
     ]
 
     render() {
-        return html`${this.fieldGroups.map(({ label, joinTemplate, fields }) => {
+        return html`${this.fieldGroups.map(({ label, tooltip, joinTemplate, fields }) => {
             const errors = Object.keys(this.errors)
                 .map(key => this.errors[key])
                 .filter(err => !!(err?.length))
@@ -189,6 +202,7 @@ export class SizeFormElement extends FormElement<SizeForm> {
                     ? html`<ul class="errors">${errors.map(err => html`<li>${err}</li>`)}</ul>`
                     : html``}
                 <rf-inside-container>
+                    ${ tooltip ? html`<rf-tooltip .text=${tooltip || ''}></rf-tooltip>` : html`` }
                     <label>${label}</label>
                     <div>
                     ${fields.map(({ name, inputType, validator, options }, i) => {
