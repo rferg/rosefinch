@@ -139,7 +139,7 @@ export class SizeFormElement extends FormElement<SizeForm> {
             fields: [ {
                 name: 'measures',
                 inputType: 'number',
-                validator: numberRangeFieldValidatorFactory(1, 8, 'Measures')
+                validator: numberRangeFieldValidatorFactory(1, 10, 'Measures')
             } ]
         },
         {

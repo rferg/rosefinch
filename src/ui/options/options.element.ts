@@ -48,7 +48,7 @@ export class OptionsElement extends BaseElement {
             <rf-container>
                 <rf-form-tab .submitButton=${{ role: 'primary' as 'primary', icon: Icon.RightArrow }}
                     @form-submit=${ (ev: FormSubmitEvent<SizeForm>) => console.log(ev) }>
-                    <rf-size-form .value=${this.sizeForm} slot="form"></rf-size-form>
+                    <rf-size-form .value=${this.sizeForm as any} slot="form"></rf-size-form>
                 </rf-form-tab>
             </rf-container>
         `

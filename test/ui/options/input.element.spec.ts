@@ -5,17 +5,17 @@ import { FormFieldChangeEvent } from '../../../src/ui/options/form-field-change-
 describe('InputElement', () => {
 
     beforeAll(() => {
-        window.customElements.define('rf-input', InputElement)
+        window.customElements.define('rf-input-test', InputElement)
     })
 
     it('should render', async () => {
-        const el = await fixture(html`<rf-input></rf-input>`)
+        const el = await fixture(html`<rf-input-test></rf-input-test>`)
         expect(el).toBeTruthy()
     })
 
     it('should set initial text value', async () => {
         const val = 'test'
-        const el = await fixture(html`<rf-input .value=${val}></rf-input>`)
+        const el = await fixture(html`<rf-input-test .value=${val}></rf-input-test>`)
 
         expect((el.shadowRoot?.querySelector('input') as HTMLInputElement)?.value).toEqual(val)
     })
@@ -23,7 +23,7 @@ describe('InputElement', () => {
     it('should set initial number value', async () => {
         const val = 44
         const el = await fixture(
-            html`<rf-input inputType="number" .value=${val}></rf-input>`)
+            html`<rf-input-test inputType="number" .value=${val}></rf-input-test>`)
 
         expect((el.shadowRoot?.querySelector('input') as HTMLInputElement)?.value).toEqual(val.toString())
     })
@@ -40,10 +40,10 @@ describe('InputElement', () => {
         validator?: (value?: string | number) => { isValid: boolean, errors?: string[] }
     }): Promise<Element> => {
         const el = await fixture(
-            html`<rf-input
+            html`<rf-input-test
                 .validator=${validator}
                 name="${name}"
-                inputType="${inputType}"></rf-input>`)
+                inputType="${inputType}"></rf-input-test>`)
         const input = el.shadowRoot?.querySelector('input')
         if (!input) { throw new Error('input is missing') }
         setTimeout(() => {
@@ -104,7 +104,7 @@ describe('InputElement', () => {
             { label: 'b', value: 1 }
         ]
         const el = await fixture(
-            html`<rf-input .options=${options}  inputType="select"></rf-input>`)
+            html`<rf-input-test .options=${options}  inputType="select"></rf-input-test>`)
 
         expect(el.shadowRoot?.querySelector('select')).toBeTruthy()
         options.forEach(({ label, value }) => {
@@ -122,7 +122,7 @@ describe('InputElement', () => {
         const selectedIndex = options.length - 1
         const name = 'test'
         const el = await fixture(
-            html`<rf-input name="${name}" .value=${0} .options=${options}  inputType="select"></rf-input>`)
+            html`<rf-input-test name="${name}" .value=${0} .options=${options}  inputType="select"></rf-input-test>`)
         const select = el.shadowRoot?.querySelector('select') as HTMLSelectElement
         if (!select) { throw new Error('select is missing') }
 

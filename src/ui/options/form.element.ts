@@ -10,7 +10,7 @@ export class FormElement<T extends { [key: string]: any }> extends BaseElement {
         ]
     }
 
-    @property()
+    @property({ attribute: false })
     value?: T
 
     @internalProperty()
