@@ -3,6 +3,7 @@ import { OptionsElement } from './options.element'
 import { InputElement } from './input.element'
 import { FormTabElement } from './form-tab.element'
 import { SizeFormElement } from './size-form.element'
+import { FitnessFormElement } from './fitness-form.element'
 
 export default {
     providers: [],
@@ -22,6 +23,10 @@ export default {
         {
             element: SizeFormElement,
             name: 'rf-size-form'
+        },
+        {
+            element: FitnessFormElement,
+            name: 'rf-fitness-form'
         }
     ]
 } as Module

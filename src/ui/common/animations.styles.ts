@@ -8,7 +8,7 @@ export const animationsStyles = css`
     @keyframes slideInFromRight {
         0% {
             opacity: 0;
-            transform: translateX(5%);
+            transform: translateX(2%);
         }
         100% {
             opacity: 1;
@@ -18,7 +18,7 @@ export const animationsStyles = css`
     @keyframes slideInFromBottom {
         0% {
             opacity: 0;
-            transform: translateY(5%);
+            transform: translateY(2%);
         }
         100% {
             opacity: 1;
