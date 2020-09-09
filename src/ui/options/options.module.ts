@@ -4,6 +4,7 @@ import { InputElement } from './input.element'
 import { FormTabElement } from './form-tab.element'
 import { SizeFormElement } from './size-form.element'
 import { FitnessFormElement } from './fitness-form.element'
+import { PopupElement } from './popup.element'
 
 export default {
     providers: [],
@@ -27,6 +28,10 @@ export default {
         {
             element: FitnessFormElement,
             name: 'rf-fitness-form'
+        },
+        {
+            element: PopupElement,
+            name: 'rf-popup'
         }
     ]
 } as Module
