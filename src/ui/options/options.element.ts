@@ -90,7 +90,13 @@ export class OptionsElement extends BaseElement {
         measures: 8
     }
 
-    private readonly fitnessForm: FitnessForm = {}
+    private readonly fitnessForm: FitnessForm = {
+        chords: { weight: 1 },
+        scale: { weight: 1 },
+        restProportion: { weight: 1 },
+        pitchSequence: { weight: 1 },
+        rhythmicDispersion: { weight: 1 }
+    }
 
     render() {
         return html`
