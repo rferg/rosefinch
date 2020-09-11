@@ -6,7 +6,9 @@ import { SizeForm } from './size-form'
 import { FormSubmitEvent } from './form-submit-event'
 import { FitnessForm } from './fitness-form'
 import { animationsStyles } from '../common/animations.styles'
+import { Injectable } from 'cewdi'
 
+@Injectable()
 export class OptionsElement extends BaseElement {
     static get styles() {
         return [
@@ -80,6 +82,9 @@ export class OptionsElement extends BaseElement {
     @property({ reflect: true, type: String })
     activeTab: 'size' | 'fitness' = 'size'
 
+    @property({ reflect: false })
+    showConfirm = false
+
     private readonly sizeForm: SizeForm = {
         populationSize: 5000,
         timeSignatureTop: 4,
@@ -121,11 +126,14 @@ export class OptionsElement extends BaseElement {
                     </rf-form-tab>
                 </div>
             </rf-container>
+            <rf-popup ?show=${this.showConfirm}>
+                <rf-run-confirm-form @cancel=${() => this.showConfirm = false} @form-submit=${this.onRunConfirmed}>
+                </rf-run-confirm-form>
+            </rf-popup>
         `
     }
 
-    private onSizeSubmit(ev: FormSubmitEvent<SizeForm>) {
-        console.log(ev)
+    private onSizeSubmit() {
         this.activeTab = 'fitness'
     }
 
@@ -135,5 +143,12 @@ export class OptionsElement extends BaseElement {
 
     private onFitnessSubmit(ev: FormSubmitEvent<FitnessForm>) {
         console.log(ev)
+        this.showConfirm = true
     }
+
+    private onRunConfirmed(ev: FormSubmitEvent<{ numberOfGenerations: number }>) {
+        console.log(ev)
+        this.showConfirm = false
+    }
+
 }

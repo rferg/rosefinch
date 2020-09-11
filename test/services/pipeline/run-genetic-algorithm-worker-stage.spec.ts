@@ -42,7 +42,10 @@ describe('RunGeneticAlgorithmWorkerStage', () => {
             ],
             crossoverMethod: CrossoverMethod.HybridPoint,
             mutationConfig: { mutationRate: 1, method: MutationMethod.Point },
-            selectionConfig: { method: SelectionMethod.Tournament }
+            selectionConfig: { method: SelectionMethod.Tournament },
+            timeSignature: [ 1, 1 ],
+            shortestNoteDuration: 1,
+            measures: 1
         }
     }
 

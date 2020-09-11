@@ -1,11 +1,12 @@
 import { fixture, html, oneEvent } from '@open-wc/testing-helpers'
 import { InputElement } from '../../../src/ui/options/input.element'
 import { FormFieldChangeEvent } from '../../../src/ui/options/form-field-change-event'
+import { CustomElementRegistrar } from '../../helpers/custom-element-registrar'
 
 describe('InputElement', () => {
 
     beforeAll(() => {
-        window.customElements.define('rf-input-test', InputElement)
+        CustomElementRegistrar.instance.register('rf-input-test', InputElement)
     })
 
     it('should render', async () => {

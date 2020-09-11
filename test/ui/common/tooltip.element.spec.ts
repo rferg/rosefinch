@@ -1,11 +1,13 @@
 import { TooltipElement } from '../../../src/ui/common/tooltip.element'
 import { elementUpdated, fixture } from '@open-wc/testing-helpers'
 import { html } from 'lit-element'
+import { CustomElementRegistrar } from '../../helpers/custom-element-registrar'
 
 describe('TooltipElement', () => {
 
     beforeAll(() => {
-        customElements.define('rf-tooltip-test', TooltipElement)
+        CustomElementRegistrar.instance
+            .register('rf-tooltip-test', TooltipElement)
     })
 
     it('should not display text initially', async () => {

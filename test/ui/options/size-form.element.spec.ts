@@ -7,6 +7,7 @@ import { html } from 'lit-element'
 import { GeneUtil } from '../../../src/common/gene-util'
 import { FormFieldChangeEvent } from '../../../src/ui/options/form-field-change-event'
 import { TooltipElementStub } from '../../helpers/tooltip-element-stub'
+import { CustomElementRegistrar } from '../../helpers/custom-element-registrar'
 
 describe('SizeFormElement', () => {
     interface IndexableSizeForm extends SizeForm {
@@ -23,10 +24,10 @@ describe('SizeFormElement', () => {
     }
 
     beforeAll(() => {
-        customElements.define(InsideContainerElementStub.is, InsideContainerElementStub)
-        customElements.define(InputElementStub.is, InputElementStub)
-        customElements.define(TooltipElementStub.is, TooltipElementStub)
-        customElements.define('rf-size-form-test', SizeFormElement)
+        CustomElementRegistrar.instance.register(InsideContainerElementStub.is, InsideContainerElementStub)
+        CustomElementRegistrar.instance.register(InputElementStub.is, InputElementStub)
+        CustomElementRegistrar.instance.register(TooltipElementStub.is, TooltipElementStub)
+        CustomElementRegistrar.instance.register('rf-size-form-test', SizeFormElement)
     })
 
     it('should render all input fields', async () => {

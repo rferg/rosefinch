@@ -56,7 +56,10 @@ describe('messageHandler', () => {
             mutationConfig: { method: MutationMethod.Point, mutationRate: 0.1 },
             crossoverMethod: CrossoverMethod.HybridPoint,
             selectionConfig: { method: SelectionMethod.Tournament },
-            geneFactoryOptions: { octaveRange: [ 1, 1 ], excludedPitches: [] }
+            geneFactoryOptions: { octaveRange: [ 1, 1 ], excludedPitches: [] },
+            timeSignature: [ 1, 1 ],
+            measures: 1,
+            shortestNoteDuration: 1
         }
     }
     const numberOfGenerations = 5

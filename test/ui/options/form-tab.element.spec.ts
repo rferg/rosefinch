@@ -7,6 +7,7 @@ import { Icon } from '../../../src/ui/common/icon'
 import { tabBackEventType } from '../../../src/ui/options/tab-back-event-type'
 import { FormSubmitEvent } from '../../../src/ui/options/form-submit-event'
 import { FormStatusEvent } from '../../../src/ui/options/form-status-event'
+import { CustomElementRegistrar } from '../../helpers/custom-element-registrar'
 
 type FormValue = { a: number, b: string }
 class TestFormElement extends HTMLElement {
@@ -16,10 +17,10 @@ class TestFormElement extends HTMLElement {
 
 describe('FormTabElement', () => {
     beforeAll(() => {
-        customElements.define(ButtonElementStub.is, ButtonElementStub)
-        customElements.define(IconElementStub.is, IconElementStub)
-        customElements.define(TestFormElement.is, TestFormElement)
-        customElements.define('rf-form-tab', FormTabElement)
+        CustomElementRegistrar.instance.register(ButtonElementStub.is, ButtonElementStub)
+        CustomElementRegistrar.instance.register(IconElementStub.is, IconElementStub)
+        CustomElementRegistrar.instance.register(TestFormElement.is, TestFormElement)
+        CustomElementRegistrar.instance.register('rf-form-tab', FormTabElement)
     })
 
     it('should render form element', async () => {

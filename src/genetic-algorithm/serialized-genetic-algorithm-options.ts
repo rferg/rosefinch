@@ -10,4 +10,7 @@ export interface SerializedGeneticAlgorithmOptions {
     selectionConfig: SelectionConfig
     fitnessConfigs: FitnessConfig[]
     geneFactoryOptions: GeneFactoryOptions
+    timeSignature: [ number, 1 | 2 | 4 | 8 | 16 ]
+    measures: number
+    shortestNoteDuration: 1 | 2 | 4 | 8 | 16
 }

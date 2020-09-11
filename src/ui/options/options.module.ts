@@ -5,6 +5,7 @@ import { FormTabElement } from './form-tab.element'
 import { SizeFormElement } from './size-form.element'
 import { FitnessFormElement } from './fitness-form.element'
 import { PopupElement } from './popup.element'
+import { RunConfirmFormElement } from './run-confirm-form.element'
 
 export default {
     providers: [],
@@ -32,6 +33,10 @@ export default {
         {
             element: PopupElement,
             name: 'rf-popup'
+        },
+        {
+            element: RunConfirmFormElement,
+            name: 'rf-run-confirm-form'
         }
     ]
 } as Module
