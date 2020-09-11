@@ -12,7 +12,9 @@ import plus from '../../../assets/images/icons/plus.svg'
 import rightArrow from '../../../assets/images/icons/right-arrow.svg'
 import sliders from '../../../assets/images/icons/sliders.svg'
 import volume from '../../../assets/images/icons/volume.svg'
+import { Injectable } from 'cewdi'
 
+@Injectable()
 export class IconElement extends BaseElement {
     static get styles() {
         return [

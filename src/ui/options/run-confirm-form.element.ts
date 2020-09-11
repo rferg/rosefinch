@@ -1,9 +1,11 @@
+import { Injectable } from 'cewdi'
 import { css, html, internalProperty } from 'lit-element'
 import { Icon } from '../common/icon'
 import { BaseElement } from '../core/base-element'
 import { cancelEventType } from './cancel-event-type'
 import { FormSubmitEvent } from './form-submit-event'
 
+@Injectable()
 export class RunConfirmFormElement extends BaseElement {
     static get styles() {
         return [

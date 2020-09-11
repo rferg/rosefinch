@@ -4,11 +4,10 @@ import {
     GeneticAlgorithmRepository
 } from '../storage'
 import { Inject, Injectable } from 'cewdi'
-import { StateMediatorService, StateTopic, UpdateStateEvent } from './state'
+import { ExistingPipelineRunParams, NewPipelineRunParams, StateMediatorService, StateTopic, UpdateStateEvent } from './state'
 import { globalEventTargetToken } from '../common/global-event-target-token'
 import { UuidService } from './uuid-service'
 import { PipelineError, PipelineProgressReport, PipelineService, PipelineState } from './pipeline'
-import { SerializedGeneticAlgorithmOptions } from '../genetic-algorithm'
 import { PipelineProgressEvent } from './pipeline-progress-event'
 import { cancelPipelineEventType } from './cancel-pipeline-event-type'
 
@@ -38,12 +37,7 @@ export class GeneticAlgorithmService {
         genomeSize,
         numberOfGenerations,
         options
-    }: {
-        size: number,
-        genomeSize: number,
-        numberOfGenerations: number,
-        options: SerializedGeneticAlgorithmOptions
-    }): Promise<RunResult> {
+    }: NewPipelineRunParams): Promise<RunResult> {
         const id = this.uuid.getUuid()
         await this.gaRepo.add({
             storeName: 'geneticAlgorithm',
@@ -62,7 +56,7 @@ export class GeneticAlgorithmService {
         return this.run({ geneticAlgorithmId: id, numberOfGenerations })
     }
 
-    async run(options: { geneticAlgorithmId: string, numberOfGenerations: number }): Promise<RunResult> {
+    async run(options: ExistingPipelineRunParams): Promise<RunResult> {
         try {
             const { result, error, isCanceled } = await this.pipelineService.run(
                 options,

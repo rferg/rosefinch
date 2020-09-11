@@ -2,7 +2,9 @@ import { BaseElement } from '../core/base-element'
 import { css, html } from 'lit-element'
 import { Icon } from '../common/icon'
 import { headingsStyles } from '../common/headings.styles'
+import { Injectable } from 'cewdi'
 
+@Injectable()
 export class NewSessionElement extends BaseElement {
     static get styles() {
         return [

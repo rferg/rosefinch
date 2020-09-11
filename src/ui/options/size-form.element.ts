@@ -5,7 +5,9 @@ import { FieldValidator } from './field-validator'
 import { GeneUtil } from '../../common/gene-util'
 import { numberRangeFieldValidatorFactory } from './number-range-field-validator-factory'
 import { animationsStyles } from '../common/animations.styles'
+import { Injectable } from 'cewdi'
 
+@Injectable()
 export class SizeFormElement extends FormElement<SizeForm> {
     static get styles() {
         return [

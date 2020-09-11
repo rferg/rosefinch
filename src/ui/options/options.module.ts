@@ -6,9 +6,12 @@ import { SizeFormElement } from './size-form.element'
 import { FitnessFormElement } from './fitness-form.element'
 import { PopupElement } from './popup.element'
 import { RunConfirmFormElement } from './run-confirm-form.element'
+import { OptionsFormMapperService } from '../../services/options-form-mapper-service'
 
 export default {
-    providers: [],
+    providers: [
+        OptionsFormMapperService
+    ],
     elements: [
         {
             element: OptionsElement,

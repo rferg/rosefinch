@@ -1,7 +1,9 @@
+import { Injectable } from 'cewdi'
 import { css, html } from 'lit-element'
 import { BaseElement } from '../core/base-element'
 import { animationsStyles } from './animations.styles'
 
+@Injectable()
 export class ContainerElement extends BaseElement {
     static get styles() {
         return [

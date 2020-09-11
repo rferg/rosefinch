@@ -10,4 +10,8 @@ export class PageWrapper {
     register(path: string, callback: PageJS.Callback): void {
         page(path, callback)
     }
+
+    navigate(path: string): void {
+        page(path)
+    }
 }

@@ -1,7 +1,9 @@
 import { BaseElement } from '../core/base-element'
 import { css, html, property } from 'lit-element'
 import { animationsStyles } from '../common/animations.styles'
+import { Injectable } from 'cewdi'
 
+@Injectable()
 export class PopupElement extends BaseElement {
     static get styles() {
         return [

@@ -16,6 +16,11 @@ const routes: Route[] = [
         moduleName: ModuleName.Options
     },
     {
+        path: '/run',
+        elementName: 'rf-pipeline',
+        moduleName: ModuleName.Pipeline
+    },
+    {
         path: '*',
         elementName: 'rf-404'
     }

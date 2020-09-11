@@ -1,6 +1,8 @@
 import { BaseElement } from '../core/base-element'
 import { css, html, property } from 'lit-element'
+import { Injectable } from 'cewdi'
 
+@Injectable()
 export class ButtonElement extends BaseElement {
     static get styles() {
         return [

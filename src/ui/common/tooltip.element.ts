@@ -1,7 +1,9 @@
 import { BaseElement } from '../core/base-element'
 import { animationsStyles } from './animations.styles'
 import { css, html, property } from 'lit-element'
+import { Injectable } from 'cewdi'
 
+@Injectable()
 export class TooltipElement extends BaseElement {
     static get styles() {
         return [

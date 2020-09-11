@@ -21,6 +21,10 @@ export class Router {
         this.page.start()
     }
 
+    navigate(path: string): void {
+        this.page.navigate(path)
+    }
+
     private routeCallbackFactory({ elementName, moduleName }: Route): PageJS.Callback {
         return async ({ params }) => {
             if (moduleName) { await this.moduleLoader.load(moduleName) }

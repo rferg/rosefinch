@@ -7,6 +7,10 @@ import { FormSubmitEvent } from './form-submit-event'
 import { FitnessForm } from './fitness-form'
 import { animationsStyles } from '../common/animations.styles'
 import { Injectable } from 'cewdi'
+import { FitnessMethod } from '../../genetic-algorithm'
+import { OptionsFormMapperService } from '../../services/options-form-mapper-service'
+import { Router } from '../core/router'
+import { PipelineRunParams, StateTopic, UpdateStateEvent } from '../../services/state'
 
 @Injectable()
 export class OptionsElement extends BaseElement {
@@ -92,15 +96,32 @@ export class OptionsElement extends BaseElement {
         octaveMax: 6,
         octaveMin: 3,
         shortestNoteDuration: 8,
-        measures: 8
+        measures: 4
     }
 
     private readonly fitnessForm: FitnessForm = {
-        chords: { weight: 1 },
-        scale: { weight: 1 },
-        restProportion: { weight: 1 },
-        pitchSequence: { weight: 1 },
-        rhythmicDispersion: { weight: 1 }
+        chords: { weight: 1, method: FitnessMethod.ChordFit, options: { chords: {} } },
+        scale: { weight: 1, method: FitnessMethod.ScaleInterval, options: { scale: [], intervalScores: [] } },
+        restProportion: { weight: 1, method: FitnessMethod.RestProportion, options: { targetProportion: 0.1 } },
+        pitchSequence: {
+            weight: 1,
+            method: FitnessMethod.PitchSequenceDirection,
+            options: {
+                sequenceLength: 3,
+                scores: {
+                    'ascending': 2,
+                    'descending': 2,
+                    'stable': 1
+                }
+            }
+        },
+        rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 1 } }
+    }
+
+    constructor(
+        private readonly mapper: OptionsFormMapperService,
+        private readonly router: Router) {
+        super()
     }
 
     render() {
@@ -141,14 +162,30 @@ export class OptionsElement extends BaseElement {
         this.activeTab = 'size'
     }
 
-    private onFitnessSubmit(ev: FormSubmitEvent<FitnessForm>) {
-        console.log(ev)
+    private onFitnessSubmit() {
         this.showConfirm = true
     }
 
-    private onRunConfirmed(ev: FormSubmitEvent<{ numberOfGenerations: number }>) {
-        console.log(ev)
+    private async onRunConfirmed(
+        { value: { numberOfGenerations } }: FormSubmitEvent<{ numberOfGenerations: number }>) {
         this.showConfirm = false
+        const options = this.mapper.mapFitnessForm(this.fitnessForm, this.mapper.mapSizeForm(this.sizeForm))
+        const params: PipelineRunParams = {
+            size: this.sizeForm.populationSize,
+            genomeSize: this.getGenomeSize(options.measures, options.timeSignature, options.shortestNoteDuration),
+            options,
+            numberOfGenerations
+        }
+        console.log(params)
+        this.dispatchEvent(new UpdateStateEvent(StateTopic.PipelineRunParams, params))
+        this.router.navigate('run')
+    }
+
+    private getGenomeSize(
+        measures: number,
+        [ timeSignatureTop, timeSignatureBottom ]: [number, 1 | 2 | 4 | 8 | 16],
+        shortestNoteDuration: 1 | 2 | 4 | 8 | 16): number {
+            return measures * timeSignatureTop * (shortestNoteDuration / timeSignatureBottom)
     }
 
 }

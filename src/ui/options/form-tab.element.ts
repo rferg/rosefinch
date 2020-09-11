@@ -5,12 +5,14 @@ import { Icon } from '../common/icon'
 import { FormStatusEvent } from './form-status-event'
 import { tabBackEventType } from './tab-back-event-type'
 import { FormSubmitEvent } from './form-submit-event'
+import { Injectable } from 'cewdi'
 
 interface ButtonConfig {
     icon: Icon,
     role: 'primary' | 'success'
 }
 
+@Injectable()
 export class FormTabElement<T extends { [key: string]: any}> extends BaseElement {
     static get styles() {
         return [

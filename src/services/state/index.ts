@@ -1,3 +1,6 @@
+export { ExistingPipelineRunParams } from './existing-pipeline-run-params'
+export { NewPipelineRunParams } from './new-pipeline-run-params'
+export { PipelineRunParams } from './pipeline-run-params'
 export { RepresentativeGenesState } from './representative-genes-state'
 export { StateMediatorService } from './state-mediator-service'
 export { StateSubscription } from './state-subscription'

@@ -4,7 +4,9 @@ import { assertUnreachable } from '../../common/assert-unreachable'
 import { FormFieldChangeEvent } from './form-field-change-event'
 import { animationsStyles } from '../common/animations.styles'
 import { FieldValidator } from './field-validator'
+import { Injectable } from 'cewdi'
 
+@Injectable()
 export class InputElement extends BaseElement {
     static get styles() {
         return [
