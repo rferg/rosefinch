@@ -5,10 +5,10 @@ import {
     GeneticAlgorithmRepository,
     GeneticAlgorithmSummaryRepository
 } from '../../../src/storage'
-import { GeneticAlgorithmWorkerService } from '../../../src/services/genetic-algorithm-worker-service'
-import { ClusterConfigProvider } from '../../../src/services/cluster-config-provider'
-import { ClusterWorkerService } from '../../../src/services/cluster-worker-service'
-import { UserRatedFitnessWorkerService } from '../../../src/services/user-rated-fitness-worker-service'
+import { GeneticAlgorithmWorkerService } from '../../../src/services/pipeline/genetic-algorithm-worker-service'
+import { ClusterConfigProvider } from '../../../src/services/pipeline/cluster-config-provider'
+import { ClusterWorkerService } from '../../../src/services/pipeline/cluster-worker-service'
+import { UserRatedFitnessWorkerService } from '../../../src/services/pipeline/user-rated-fitness-worker-service'
 import { PipelineStageName } from '../../../src/services/pipeline/pipeline-stage-name'
 
 describe('PipelineFactoryService', () => {

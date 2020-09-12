@@ -1,6 +1,6 @@
 import { ClusterConfig } from './cluster-config'
 import { Injectable } from 'cewdi'
-import { StateMediatorService, StateTopic } from './state'
+import { StateMediatorService, StateTopic } from '../state'
 
 @Injectable()
 export class ClusterConfigProvider {

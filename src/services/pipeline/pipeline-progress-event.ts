@@ -1,4 +1,4 @@
-import { PipelineProgressReport } from './pipeline/pipeline-progress-report'
+import { PipelineProgressReport } from './pipeline-progress-report'
 import { pipelineProgressEventType } from './pipeline-progress-event-type'
 
 export class PipelineProgressEvent extends CustomEvent<PipelineProgressReport> {

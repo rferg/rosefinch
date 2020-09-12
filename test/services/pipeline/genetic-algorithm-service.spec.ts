@@ -1,17 +1,17 @@
-import { GeneticAlgorithmService } from '../../src/services/genetic-algorithm-service'
-import { UuidService } from '../../src/services/uuid-service'
-import { PipelineService, PipelineState } from '../../src/services/pipeline'
+import { GeneticAlgorithmService } from '../../../src/services/pipeline/genetic-algorithm-service'
+import { UuidService } from '../../../src/services/pipeline/uuid-service'
+import { PipelineService, PipelineState } from '../../../src/services/pipeline'
 import {
     GeneticAlgorithmOptionsRepository,
     GeneticAlgorithmOptionsStore,
     GeneticAlgorithmRepository
-} from '../../src/storage'
-import { StateMediatorService, StateTopic, UpdateStateEvent } from '../../src/services/state'
-import { cancelPipelineEventType } from '../../src/services/cancel-pipeline-event-type'
-import { CancelPipelineEvent } from '../../src/services/cancel-pipeline-event'
-import { CrossoverMethod, SerializedGeneticAlgorithmOptions } from '../../src/genetic-algorithm'
-import { PipelineProgressEvent } from '../../src/services/pipeline-progress-event'
-import { PipelineStageName } from '../../src/services/pipeline/pipeline-stage-name'
+} from '../../../src/storage'
+import { StateMediatorService, StateTopic, UpdateStateEvent } from '../../../src/services/state'
+import { cancelPipelineEventType } from '../../../src/services/pipeline/cancel-pipeline-event-type'
+import { CancelPipelineEvent } from '../../../src/services/pipeline/cancel-pipeline-event'
+import { CrossoverMethod, SerializedGeneticAlgorithmOptions } from '../../../src/genetic-algorithm'
+import { PipelineProgressEvent } from '../../../src/services/pipeline/pipeline-progress-event'
+import { PipelineStageName } from '../../../src/services/pipeline/pipeline-stage-name'
 
 describe('GeneticAlgorithmService', () => {
     let service: GeneticAlgorithmService

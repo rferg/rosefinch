@@ -1,9 +1,9 @@
 import { PipelineStage } from './pipeline-stage'
 import { PipelineState } from './pipeline-state'
 import { PipelineStageName } from './pipeline-stage-name'
-import { ClusterWorkerService } from '../cluster-worker-service'
+import { ClusterWorkerService } from './cluster-worker-service'
 import { PipelineProgressCallback } from './pipeline-progress-callback'
-import { ClusterConfigProvider } from '../cluster-config-provider'
+import { ClusterConfigProvider } from './cluster-config-provider'
 import { ClusterMessage, ClusterWorkerMessageType } from '../../clustering'
 
 export class RunClusterWorkerStage implements PipelineStage<PipelineState> {

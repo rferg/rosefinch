@@ -3,7 +3,9 @@ import { DbContextFactory } from './db-context-factory'
 import { StoreName } from './store-name'
 import { DbContext } from './db-context'
 import { ClusterResultStore } from './cluster-result-store'
+import { Injectable } from 'cewdi'
 
+@Injectable()
 export class ClusterResultRepository implements Repository<ClusterResultStore> {
     private readonly storeName: StoreName = 'clusterResult'
 

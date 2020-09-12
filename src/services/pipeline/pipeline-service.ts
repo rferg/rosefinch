@@ -1,6 +1,6 @@
 import { Injectable } from 'cewdi'
 import { PipelineFactory } from './pipeline-factory'
-import { UuidService } from '../uuid-service'
+import { UuidService } from './uuid-service'
 import { PipelineState } from './pipeline-state'
 import { PipelineProgressCallback } from './pipeline-progress-callback'
 import { SharedStatePipeline } from './shared-state-pipeline'

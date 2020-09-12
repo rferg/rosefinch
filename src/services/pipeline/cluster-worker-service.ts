@@ -2,14 +2,14 @@ import { Inject, Injectable } from 'cewdi'
 import { WorkerFactory } from './worker-factory'
 import { WorkerService } from './worker-service'
 import { WebWorkerType } from './web-worker-type'
-import { globalEventTargetToken } from '../common/global-event-target-token'
+import { globalEventTargetToken } from '../../common/global-event-target-token'
 import {
     ClusterMessage,
     ClusterProgressMessage,
     ClusterResult,
     ClusterResultMessage,
     ClusterWorkerMessageType
-} from '../clustering'
+} from '../../clustering'
 import { WorkerServiceCallbacks } from './worker-service-callbacks'
 
 interface ClusterCallbacks extends WorkerServiceCallbacks {

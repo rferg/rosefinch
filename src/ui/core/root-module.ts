@@ -25,7 +25,8 @@ const moduleLoadConfig: ModuleLoadConfig = {
         parentModule: ModuleName.Common
     },
     [ModuleName.Pipeline]: {
-        loader: () => import('../pipeline/pipeline.module')
+        loader: () => import('../pipeline/pipeline.module'),
+        parentModule: ModuleName.Common
     },
     [ModuleName.RepresentativeDisplay]: {
         loader: () => Promise.resolve({ default: { elements: [], providers: [] } })

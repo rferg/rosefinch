@@ -2,7 +2,7 @@ import { WebWorkerType } from './web-worker-type'
 import { WorkerFactory } from './worker-factory'
 import { WorkerEventType } from './worker-event-type'
 import { Inject } from 'cewdi'
-import { globalEventTargetToken } from '../common/global-event-target-token'
+import { globalEventTargetToken } from '../../common/global-event-target-token'
 import { WorkerServiceCallbacks } from './worker-service-callbacks'
 
 export abstract class WorkerService {

@@ -1,6 +1,6 @@
-import { ClusterConfigProvider } from '../../src/services/cluster-config-provider'
-import { ClusterConfig } from '../../src/services/cluster-config'
-import { StateMediatorService } from '../../src/services/state'
+import { ClusterConfigProvider } from '../../../src/services/pipeline/cluster-config-provider'
+import { ClusterConfig } from '../../../src/services/pipeline/cluster-config'
+import { StateMediatorService } from '../../../src/services/state'
 
 describe('ClusterConfigProvider', () => {
     let stateSpy: jasmine.SpyObj<StateMediatorService>

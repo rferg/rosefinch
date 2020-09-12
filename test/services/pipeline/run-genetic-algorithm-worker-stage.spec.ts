@@ -1,5 +1,5 @@
 import { RunGeneticAlgorithmWorkerStage } from '../../../src/services/pipeline/run-genetic-algorithm-worker-stage'
-import { GeneticAlgorithmWorkerService } from '../../../src/services/genetic-algorithm-worker-service'
+import { GeneticAlgorithmWorkerService } from '../../../src/services/pipeline/genetic-algorithm-worker-service'
 import { PipelineState } from '../../../src/services/pipeline/pipeline-state'
 import {
     CrossoverMethod,

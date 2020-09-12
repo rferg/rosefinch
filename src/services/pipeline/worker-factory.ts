@@ -1,8 +1,8 @@
 import { Inject, Injectable } from 'cewdi'
 import { WebWorkerType } from './web-worker-type'
-import { assertUnreachable } from '../common/assert-unreachable'
+import { assertUnreachable } from '../../common/assert-unreachable'
 import { WorkerEventType } from './worker-event-type'
-import { globalEventTargetToken } from '../common/global-event-target-token'
+import { globalEventTargetToken } from '../../common/global-event-target-token'
 
 @Injectable()
 export class WorkerFactory {
@@ -26,11 +26,11 @@ export class WorkerFactory {
     private createWorkerByType(type: WebWorkerType): Worker {
         switch (type) {
             case WebWorkerType.GeneticAlgorithm:
-                return new Worker('../genetic-algorithm/worker.ts')
+                return new Worker('../../genetic-algorithm/worker.ts')
             case WebWorkerType.Clustering:
-                return new Worker('../clustering/worker.ts')
+                return new Worker('../../clustering/worker.ts')
             case WebWorkerType.UserRatedFitness:
-                return new Worker('../user-rated-fitness/worker.ts')
+                return new Worker('../../user-rated-fitness/worker.ts')
             default:
                 assertUnreachable(type, `Invalid worker type ${type}.`)
         }

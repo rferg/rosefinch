@@ -1,5 +1,5 @@
 import { StateTopic } from './state-topic'
-import { ClusterConfig } from '../cluster-config'
+import { ClusterConfig } from '../pipeline/cluster-config'
 import { UserRatingsState } from './user-ratings-state'
 import { RepresentativeGenesState } from './representative-genes-state'
 import { GeneticAlgorithmOptionsStore } from '../../storage'

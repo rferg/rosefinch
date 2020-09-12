@@ -4,9 +4,14 @@ import { InsideContainerElement } from './inside-container.element'
 import { IconElement } from './icon.element'
 import { ButtonElement } from './button.element'
 import { TooltipElement } from './tooltip.element'
+import { getProviders as getStorageProviders } from '../../storage'
+import { getProviders as getStateProviders } from '../../services/state'
 
 export default {
-    providers: [],
+    providers: [
+        ...getStateProviders(),
+        ...getStorageProviders()
+    ],
     elements: [
         { name: 'rf-container', element: ContainerElement },
         { name: 'rf-inside-container', element: InsideContainerElement },

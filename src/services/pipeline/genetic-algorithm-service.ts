@@ -2,14 +2,17 @@ import {
     GeneticAlgorithmOptionsRepository,
     GeneticAlgorithmOptionsStore,
     GeneticAlgorithmRepository
-} from '../storage'
+} from '../../storage'
 import { Inject, Injectable } from 'cewdi'
-import { ExistingPipelineRunParams, NewPipelineRunParams, StateMediatorService, StateTopic, UpdateStateEvent } from './state'
-import { globalEventTargetToken } from '../common/global-event-target-token'
+import { ExistingPipelineRunParams, NewPipelineRunParams, StateMediatorService, StateTopic, UpdateStateEvent } from '../state'
+import { globalEventTargetToken } from '../../common/global-event-target-token'
 import { UuidService } from './uuid-service'
-import { PipelineError, PipelineProgressReport, PipelineService, PipelineState } from './pipeline'
 import { PipelineProgressEvent } from './pipeline-progress-event'
 import { cancelPipelineEventType } from './cancel-pipeline-event-type'
+import { PipelineError } from './pipeline-error'
+import { PipelineState } from './pipeline-state'
+import { PipelineService } from './pipeline-service'
+import { PipelineProgressReport } from './pipeline-progress-report'
 
 interface RunResult {
     geneticAlgorithmId: string

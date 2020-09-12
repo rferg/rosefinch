@@ -1,8 +1,8 @@
-import { WorkerService } from '../../src/services/worker-service'
-import { WorkerServiceCallbacks } from '../../src/services/worker-service-callbacks'
-import { WorkerFactory } from '../../src/services/worker-factory'
-import { WebWorkerType } from '../../src/services/web-worker-type'
-import { WorkerEventType } from '../../src/services/worker-event-type'
+import { WorkerService } from '../../../src/services/pipeline/worker-service'
+import { WorkerServiceCallbacks } from '../../../src/services/pipeline/worker-service-callbacks'
+import { WorkerFactory } from '../../../src/services/pipeline/worker-factory'
+import { WebWorkerType } from '../../../src/services/pipeline/web-worker-type'
+import { WorkerEventType } from '../../../src/services/pipeline/worker-event-type'
 
 class TestWorkerService extends WorkerService {
 

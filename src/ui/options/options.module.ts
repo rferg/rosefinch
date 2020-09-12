@@ -7,10 +7,12 @@ import { FitnessFormElement } from './fitness-form.element'
 import { PopupElement } from './popup.element'
 import { RunConfirmFormElement } from './run-confirm-form.element'
 import { OptionsFormMapperService } from '../../services/options-form-mapper-service'
+import { ScaleService } from '../../services'
 
 export default {
     providers: [
-        OptionsFormMapperService
+        OptionsFormMapperService,
+        ScaleService
     ],
     elements: [
         {

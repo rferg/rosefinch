@@ -3,7 +3,9 @@ import { IDBPDatabase, openDB } from 'idb'
 import { Schema } from './schema'
 import { StoreName } from './store-name'
 import { StoreType } from './store-type'
+import { Injectable } from 'cewdi'
 
+@Injectable()
 export class DbContextFactory {
     private context?: DbContext
     private readonly dbName = 'rosefinchDB'

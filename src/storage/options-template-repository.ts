@@ -3,7 +3,9 @@ import { DbContextFactory } from './db-context-factory'
 import { StoreName } from './store-name'
 import { DbContext } from './db-context'
 import { OptionsTemplateStore } from './options-template-store'
+import { Injectable } from 'cewdi'
 
+@Injectable()
 export class OptionsTemplateRepository implements Repository<OptionsTemplateStore> {
     private readonly storeName: StoreName = 'optionsTemplate'
 

@@ -1,9 +1,9 @@
 import { Inject, Injectable } from 'cewdi'
 import { WorkerService } from './worker-service'
-import { GeneticAlgorithmWorkerMessageType, ProgressMessage, ResultMessage, RunMessage } from '../genetic-algorithm'
+import { GeneticAlgorithmWorkerMessageType, ProgressMessage, ResultMessage, RunMessage } from '../../genetic-algorithm'
 import { WebWorkerType } from './web-worker-type'
 import { WorkerFactory } from './worker-factory'
-import { globalEventTargetToken } from '../common/global-event-target-token'
+import { globalEventTargetToken } from '../../common/global-event-target-token'
 import { WorkerServiceCallbacks } from './worker-service-callbacks'
 
 interface GeneticAlgorithmCallbacks extends WorkerServiceCallbacks {

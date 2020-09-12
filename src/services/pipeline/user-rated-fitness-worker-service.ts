@@ -1,9 +1,9 @@
 import { WorkerService } from './worker-service'
 import { WorkerFactory } from './worker-factory'
-import { globalEventTargetToken } from '../common/global-event-target-token'
+import { globalEventTargetToken } from '../../common/global-event-target-token'
 import { WebWorkerType } from './web-worker-type'
 import { Inject, Injectable } from 'cewdi'
-import { UserRatedFitnessMessage, UserRatedFitnessResultMessage } from '../user-rated-fitness'
+import { UserRatedFitnessMessage, UserRatedFitnessResultMessage } from '../../user-rated-fitness'
 import { WorkerServiceCallbacks } from './worker-service-callbacks'
 
 interface UserRatedFitnessCallbacks extends WorkerServiceCallbacks {

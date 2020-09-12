@@ -3,7 +3,9 @@ import { DbContextFactory } from './db-context-factory'
 import { StoreName } from './store-name'
 import { DbContext } from './db-context'
 import { GeneticAlgorithmSummaryStore } from './genetic-algorithm-summary-store'
+import { Injectable } from 'cewdi'
 
+@Injectable()
 export class GeneticAlgorithmSummaryRepository implements Repository<GeneticAlgorithmSummaryStore> {
     private readonly storeName: StoreName = 'geneticAlgorithmSummary'
 

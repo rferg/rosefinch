@@ -1,7 +1,7 @@
 import { PipelineStage } from './pipeline-stage'
 import { PipelineState } from './pipeline-state'
 import { PipelineStageName } from './pipeline-stage-name'
-import { UserRatedFitnessWorkerService } from '../user-rated-fitness-worker-service'
+import { UserRatedFitnessWorkerService } from './user-rated-fitness-worker-service'
 import { PipelineProgressCallback } from './pipeline-progress-callback'
 import { UserRatedFitnessMessage } from '../../user-rated-fitness'
 

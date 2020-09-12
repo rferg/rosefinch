@@ -1,5 +1,5 @@
 import { RunUserRatedFitnessWorkerStage } from '../../../src/services/pipeline/run-user-rated-fitness-worker-stage'
-import { UserRatedFitnessWorkerService } from '../../../src/services/user-rated-fitness-worker-service'
+import { UserRatedFitnessWorkerService } from '../../../src/services/pipeline/user-rated-fitness-worker-service'
 import { PipelineState } from '../../../src/services/pipeline/pipeline-state'
 import { PipelineStageName } from '../../../src/services/pipeline/pipeline-stage-name'
 import { ClusterResult } from '../../../src/clustering'

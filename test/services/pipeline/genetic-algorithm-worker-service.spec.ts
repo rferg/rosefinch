@@ -1,7 +1,7 @@
-import { GeneticAlgorithmWorkerService } from '../../src/services/genetic-algorithm-worker-service'
-import { WorkerFactory } from '../../src/services/worker-factory'
-import { WebWorkerType } from '../../src/services/web-worker-type'
-import { GeneticAlgorithmWorkerMessageType, ProgressMessage, ResultMessage, RunMessage } from '../../src/genetic-algorithm'
+import { GeneticAlgorithmWorkerService } from '../../../src/services/pipeline/genetic-algorithm-worker-service'
+import { WorkerFactory } from '../../../src/services/pipeline/worker-factory'
+import { WebWorkerType } from '../../../src/services/pipeline/web-worker-type'
+import { GeneticAlgorithmWorkerMessageType, ProgressMessage, ResultMessage, RunMessage } from '../../../src/genetic-algorithm'
 
 describe('GeneticAlgorithmWorkerService', () => {
     let service: GeneticAlgorithmWorkerService

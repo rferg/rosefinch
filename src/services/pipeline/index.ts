@@ -1,3 +1,5 @@
+export { GeneticAlgorithmService } from './genetic-algorithm-service'
+export { getProviders } from './get-providers'
 export { PipelineProgressCallback } from './pipeline-progress-callback'
 export { PipelineProgressReport } from './pipeline-progress-report'
 export { PipelineError } from './pipeline-error'
