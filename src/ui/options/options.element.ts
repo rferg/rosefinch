@@ -178,7 +178,7 @@ export class OptionsElement extends BaseElement {
         }
         console.log(params)
         this.dispatchEvent(new UpdateStateEvent(StateTopic.PipelineRunParams, params))
-        this.router.navigate('run')
+        this.router.navigate('/run')
     }
 
     private getGenomeSize(
