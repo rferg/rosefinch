@@ -24,8 +24,8 @@ export class ClusterResultRepository implements Repository<ClusterResultStore> {
         return (await this.getDb()).add(this.storeName, val)
     }
 
-    async put(val: ClusterResultStore, key: string): Promise<string> {
-        return (await this.getDb()).put(this.storeName, val, key)
+    async put(val: ClusterResultStore): Promise<string> {
+        return (await this.getDb()).put(this.storeName, val)
     }
 
     async delete(key: string): Promise<void> {

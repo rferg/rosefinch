@@ -24,8 +24,8 @@ export class GeneticAlgorithmSummaryRepository implements Repository<GeneticAlgo
         return (await this.getDb()).add(this.storeName, val)
     }
 
-    async put(val: GeneticAlgorithmSummaryStore, key: string): Promise<string> {
-        return (await this.getDb()).put(this.storeName, val, key)
+    async put(val: GeneticAlgorithmSummaryStore): Promise<string> {
+        return (await this.getDb()).put(this.storeName, val)
     }
 
     async delete(key: string): Promise<void> {

@@ -94,7 +94,7 @@ describe('GeneticAlgorithmService', () => {
                 await listener(updated)
 
                 expect(optionsRepoSpy.get).toHaveBeenCalledWith(options.id)
-                expect(optionsRepoSpy.put).toHaveBeenCalledWith(updated, options.id)
+                expect(optionsRepoSpy.put).toHaveBeenCalledWith(updated)
             })
 
             it('should do nothing if passed options do not have id', async () => {
@@ -221,7 +221,7 @@ describe('GeneticAlgorithmService', () => {
             })
         })
 
-        it('should dispatch event to update options', async () => {
+        it('should add options in repo', async () => {
             const input = {
                 size: 1,
                 genomeSize: 1,
@@ -231,16 +231,11 @@ describe('GeneticAlgorithmService', () => {
 
             await service.createAndRun(input)
 
-            expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(
-                new UpdateStateEvent(
-                    StateTopic.GeneticAlgorithmOptions,
-                    {
-                        id,
-                        storeName: 'geneticAlgorithmOptions',
-                        ...input.options
-                    }
-                )
-            )
+            expect(optionsRepoSpy.add).toHaveBeenCalledWith({
+                id,
+                storeName: 'geneticAlgorithmOptions',
+                ...input.options
+            })
         })
 
         it('should call run with id and numberOfGenerations', async () => {

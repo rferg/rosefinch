@@ -48,14 +48,11 @@ export class GeneticAlgorithmService {
             population: { size, genomeSize },
             generation: 0
         })
-        this.eventTarget.dispatchEvent(new UpdateStateEvent(
-            StateTopic.GeneticAlgorithmOptions,
-            {
-                id,
-                storeName: 'geneticAlgorithmOptions',
-                ...options
-            }
-        ))
+        await this.onOptionsUpdate({
+            id,
+            storeName: 'geneticAlgorithmOptions',
+            ...options
+        })
         return this.run({ geneticAlgorithmId: id, numberOfGenerations })
     }
 
@@ -109,7 +106,7 @@ export class GeneticAlgorithmService {
             if (!existing) {
                 await this.optionsRepo.add(options)
             } else {
-                await this.optionsRepo.put({ ...existing, ...options }, options.id)
+                await this.optionsRepo.put({ ...existing, ...options })
             }
         }
     }

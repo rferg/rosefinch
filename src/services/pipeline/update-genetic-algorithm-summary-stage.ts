@@ -43,7 +43,7 @@ export class UpdateGeneticAlgorithmSummaryStage implements PipelineStage<Pipelin
         if (!this.original) {
             await this.repo.delete(input.geneticAlgorithmId)
         } else {
-            await this.repo.put(this.original, this.original.id)
+            await this.repo.put(this.original)
         }
     }
 
@@ -60,7 +60,7 @@ export class UpdateGeneticAlgorithmSummaryStage implements PipelineStage<Pipelin
         if (!this.original) {
             await this.repo.add(summary)
         } else {
-            await this.repo.put({ ...this.original, ...summary }, summary.id)
+            await this.repo.put({ ...this.original, ...summary })
         }
         this.didUpdate = true
         return state

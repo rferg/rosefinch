@@ -24,8 +24,8 @@ export class OptionsTemplateRepository implements Repository<OptionsTemplateStor
         return (await this.getDb()).add(this.storeName, val)
     }
 
-    async put(val: OptionsTemplateStore, key: string): Promise<string> {
-        return (await this.getDb()).put(this.storeName, val, key)
+    async put(val: OptionsTemplateStore): Promise<string> {
+        return (await this.getDb()).put(this.storeName, val)
     }
 
     async delete(key: string): Promise<void> {

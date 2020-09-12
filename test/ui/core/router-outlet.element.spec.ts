@@ -2,6 +2,7 @@ import { RouterOutletElement } from '../../../src/ui/core/router-outlet.element'
 import { routeEventType } from '../../../src/ui/core/route-event-type'
 import { RouteEvent } from '../../../src/ui/core/route-event'
 import { defineCE, fixture } from '@open-wc/testing-helpers'
+import { StateMediatorService } from '../../../src/services/state'
 
 describe('RouterOutletElement', () => {
     let eventSpy: jasmine.SpyObj<EventTarget>
@@ -10,7 +11,9 @@ describe('RouterOutletElement', () => {
     beforeAll(() => {
         eventSpy = jasmine.createSpyObj<EventTarget>('EventTarget', [ 'addEventListener', 'removeEventListener' ])
         tag = defineCE(class extends RouterOutletElement {
-            constructor() { super(eventSpy) }
+            constructor() {
+                super(jasmine.createSpyObj<StateMediatorService>('StateMediatorService', [ 'subscribe' ]), eventSpy)
+            }
         })
     })
 

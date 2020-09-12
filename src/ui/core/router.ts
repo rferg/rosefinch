@@ -12,7 +12,8 @@ export class Router {
     constructor(
         private readonly page: PageWrapper,
         private readonly moduleLoader: ModuleLoader,
-        @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget) {}
+        @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget) {
+        }
 
     registerRoutes(routes: Route[]): void {
         routes.forEach(route => {

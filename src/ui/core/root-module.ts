@@ -11,6 +11,7 @@ import { globalEventTargetToken } from '../../common/global-event-target-token'
 import { PageWrapper } from './page-wrapper'
 import { AppElement } from './app.element'
 import { FourOhFourElement } from './404.element'
+import { getProviders as getStateProviders } from '../../services/state'
 
 const moduleLoadConfig: ModuleLoadConfig = {
     [ModuleName.Common]: {
@@ -52,6 +53,7 @@ export const rootModule: Module = {
         }
     ],
     providers: [
+        ...getStateProviders(),
         Router,
         ModuleLoader,
         new ExplicitProvider(moduleLoadConfigToken, moduleLoadConfig),

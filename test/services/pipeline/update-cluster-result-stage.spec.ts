@@ -80,7 +80,7 @@ describe('UpdateClusterResultStage', () => {
             const resolved = await result
 
             expect(repoSpy.get).toHaveBeenCalledWith(state.geneticAlgorithmId)
-            expect(repoSpy.put).toHaveBeenCalledWith(clusterResultStore, state.geneticAlgorithmId)
+            expect(repoSpy.put).toHaveBeenCalledWith(clusterResultStore)
             expect(resolved).toEqual({ ...state, clusterResult: clusterResultStore })
         })
     })
@@ -125,7 +125,7 @@ describe('UpdateClusterResultStage', () => {
             await stage.rollback(state)
 
             expect(repoSpy.get).toHaveBeenCalledWith(state.geneticAlgorithmId)
-            expect(repoSpy.put).toHaveBeenCalledWith(existing, existing.id)
+            expect(repoSpy.put).toHaveBeenCalledWith(existing)
         })
     })
 })

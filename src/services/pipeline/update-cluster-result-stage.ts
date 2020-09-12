@@ -44,7 +44,7 @@ export class UpdateClusterResultStage implements PipelineStage<PipelineState> {
         if (!this.original) {
             await this.repo.delete(input.geneticAlgorithmId)
         } else {
-            await this.repo.put(this.original, this.original.id)
+            await this.repo.put(this.original)
         }
     }
 
@@ -66,7 +66,7 @@ export class UpdateClusterResultStage implements PipelineStage<PipelineState> {
         if (!this.original) {
             await this.repo.add(state.clusterResult as ClusterResultStore)
         } else {
-            await this.repo.put({ ...this.original, ...state.clusterResult }, state.geneticAlgorithmId)
+            await this.repo.put({ ...this.original, ...state.clusterResult })
         }
         this.didUpdate = true
         return state

@@ -6,11 +6,12 @@ import { SizeForm } from './size-form'
 import { FormSubmitEvent } from './form-submit-event'
 import { FitnessForm } from './fitness-form'
 import { animationsStyles } from '../common/animations.styles'
-import { Injectable } from 'cewdi'
+import { Inject, Injectable } from 'cewdi'
 import { FitnessMethod } from '../../genetic-algorithm'
 import { OptionsFormMapperService } from '../../services/options-form-mapper-service'
 import { Router } from '../core/router'
 import { PipelineRunParams, StateTopic, UpdateStateEvent } from '../../services/state'
+import { globalEventTargetToken } from '../../common/global-event-target-token'
 
 @Injectable()
 export class OptionsElement extends BaseElement {
@@ -120,7 +121,8 @@ export class OptionsElement extends BaseElement {
 
     constructor(
         private readonly mapper: OptionsFormMapperService,
-        private readonly router: Router) {
+        private readonly router: Router,
+        @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget) {
         super()
     }
 
@@ -176,8 +178,7 @@ export class OptionsElement extends BaseElement {
             options,
             numberOfGenerations
         }
-        console.log(params)
-        this.dispatchEvent(new UpdateStateEvent(StateTopic.PipelineRunParams, params))
+        this.eventTarget.dispatchEvent(new UpdateStateEvent(StateTopic.PipelineRunParams, params))
         this.router.navigate('/run')
     }
 

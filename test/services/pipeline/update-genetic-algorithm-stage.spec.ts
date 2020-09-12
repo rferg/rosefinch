@@ -70,8 +70,7 @@ describe('UpdateGeneticAlgorithmStage', () => {
 
             expect(repoSpy.get).toHaveBeenCalledWith(state.geneticAlgorithm?.id || '')
             expect(repoSpy.put).toHaveBeenCalledWith(
-                state.geneticAlgorithm || {} as GeneticAlgorithmStore,
-                state.geneticAlgorithm?.id || '')
+                state.geneticAlgorithm || {} as GeneticAlgorithmStore)
             expect(resolved).toEqual(state)
         })
     })
@@ -116,7 +115,7 @@ describe('UpdateGeneticAlgorithmStage', () => {
             await stage.rollback(state)
 
             expect(repoSpy.get).toHaveBeenCalledWith(state.geneticAlgorithm?.id ?? '')
-            expect(repoSpy.put).toHaveBeenCalledWith(existing, existing.id)
+            expect(repoSpy.put).toHaveBeenCalledWith(existing)
         })
     })
 })

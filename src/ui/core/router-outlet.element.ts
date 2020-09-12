@@ -2,6 +2,7 @@ import { Inject, Injectable } from 'cewdi'
 import { globalEventTargetToken } from '../../common/global-event-target-token'
 import { routeEventType } from './route-event-type'
 import { RouteEvent } from './route-event'
+import { StateMediatorService, StateTopic } from '../../services/state'
 
 @Injectable()
 export class RouterOutletElement extends HTMLElement {
@@ -10,11 +11,15 @@ export class RouterOutletElement extends HTMLElement {
     private currentElementName?: string
     private currentElement?: HTMLElement
 
-    constructor(@Inject(globalEventTargetToken) private readonly eventTarget: EventTarget) {
+    constructor(
+        private readonly state: StateMediatorService,
+        @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget) {
         super()
 
         this.routeListener = this.onRouteChange.bind(this)
         this.eventTarget.addEventListener(routeEventType, this.routeListener)
+        // Ensure that StateMediatorService is created with RouteParams topic.
+        this.state.subscribe(StateTopic.RouteParams, () => {})
     }
 
     disconnectedCallback() {
