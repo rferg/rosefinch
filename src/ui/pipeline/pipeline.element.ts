@@ -28,7 +28,23 @@ export class PipelineElement extends BaseElement {
             super.styles,
             headingsStyles,
             animationsStyles,
-            css``
+            css`
+                section {
+                    display: flex;
+                    flex-flow: column nowrap;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                    padding: var(--padding);
+                    min-width: 300px;
+                }
+                rf-button {
+                    margin-top: var(--padding);
+                }
+                h1, p {
+                    color: var(--inverse-font-color);
+                }
+            `
         ]
     }
 
@@ -39,7 +55,7 @@ export class PipelineElement extends BaseElement {
     isCanceling = false
 
     @property({ reflect: false })
-    progressMessage = ''
+    message = ''
 
     @property({ reflect: false })
     progressPercentage = 0
@@ -68,14 +84,16 @@ export class PipelineElement extends BaseElement {
     render() {
         return html`
             <rf-popup ?show=${true}>
-                <h1>${
-                    this.isRunning ? 'Running...' : (this.isCanceling ? 'Canceling...' : '')
-                }</h1>
-                <p>${this.progressMessage}</p>
-                <p>${this.progressPercentage}%</p>
-                <rf-button buttonRole="danger" @click=${this.cancel} ?disabled=${!this.isRunning}>
-                    <rf-icon icon=${Icon.Cross}></rf-icon>
-                </rf-button>
+                <section>
+                    <h1>${
+                        this.isRunning ? 'Running...' : (this.isCanceling ? 'Canceling...' : 'Done!')
+                    }</h1>
+                    <p>${this.message}</p>
+                    <rf-progress-bar percentage="${this.progressPercentage}"></rf-progress-bar>
+                    <rf-button buttonRole="danger" @click=${this.cancel} ?disabled=${!this.isRunning}>
+                        <rf-icon icon=${Icon.Cross}></rf-icon>
+                    </rf-button>
+                </section>
             </rf-popup>`
     }
 
@@ -96,14 +114,13 @@ export class PipelineElement extends BaseElement {
             ev.stopPropagation()
             const { report: { detail } } = ev
             if (this.isClusterProgressMessage(detail)) {
-                console.log(detail.iteration, this.maxClusterIterations)
-                this.progressMessage = 'Clustering population...'
+                this.message = 'Clustering population...'
                 this.progressPercentage = Math.floor((detail.iteration / this.maxClusterIterations) * 100)
             } else if (this.isGAProgressMessage(detail)) {
-                this.progressMessage = 'Running genetic algorithm...'
+                this.message = 'Running genetic algorithm...'
                 this.progressPercentage = detail.percentComplete
             } else {
-                this.progressMessage = detail.message
+                this.message = detail.message
             }
         }
     }
@@ -122,7 +139,8 @@ export class PipelineElement extends BaseElement {
     }) {
         this.isRunning = false
         this.isCanceling = false
-        this.progressMessage = 'Done!'
+        this.message = ''
+        this.progressPercentage = 100
         console.log(result)
     }
 
