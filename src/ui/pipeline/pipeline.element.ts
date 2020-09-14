@@ -1,5 +1,5 @@
 import { Inject, Injectable } from 'cewdi'
-import { css, html, property } from 'lit-element'
+import { css, html, internalProperty } from 'lit-element'
 import { ClusterProgressMessage, ClusterWorkerMessageType } from '../../clustering'
 import { globalEventTargetToken } from '../../common/global-event-target-token'
 import { GeneticAlgorithmWorkerMessageType, ProgressMessage } from '../../genetic-algorithm'
@@ -14,12 +14,23 @@ import {
     PipelineRunParams,
     StateMediatorService,
     StateSubscription,
-    StateTopic
+    StateTopic,
+    UpdateStateEvent
 } from '../../services/state'
-import { animationsStyles } from '../common/animations.styles'
 import { headingsStyles } from '../common/headings.styles'
 import { Icon } from '../common/icon'
 import { BaseElement } from '../core/base-element'
+import { Router } from '../core/router'
+import { Timer } from '../core/timer'
+import { timerToken } from '../core/timer-token'
+
+enum PipelineStatus {
+    None,
+    Running,
+    Canceling,
+    Aborted,
+    Succeeded
+}
 
 @Injectable()
 export class PipelineElement extends BaseElement {
@@ -27,7 +38,6 @@ export class PipelineElement extends BaseElement {
         return [
             super.styles,
             headingsStyles,
-            animationsStyles,
             css`
                 section {
                     display: flex;
@@ -48,64 +58,108 @@ export class PipelineElement extends BaseElement {
         ]
     }
 
-    @property({ reflect: true, type: Boolean })
-    isRunning = false
+    @internalProperty()
+    private progressPercentage = 0
 
-    @property({ reflect: true, type: Boolean })
-    isCanceling = false
+    @internalProperty()
+    private runState: PipelineStatus = PipelineStatus.None
 
-    @property({ reflect: false })
-    message = ''
+    @internalProperty()
+    private message = ''
 
-    @property({ reflect: false })
-    progressPercentage = 0
+    private get header(): string {
+        switch (this.runState) {
+            case PipelineStatus.Running:
+                return 'Running...'
+            case PipelineStatus.Canceling:
+                return 'Canceling...'
+            case PipelineStatus.Aborted:
+                return 'Aborted'
+            case PipelineStatus.Succeeded:
+                return 'Complete'
+            case PipelineStatus.None:
+                return ''
+            default:
+                return ''
+        }
+    }
 
     private readonly paramsSubscription: StateSubscription
     private readonly maxClusterIterations: number
+    private readonly paramsTimeoutDuration = 300
+    private readonly paramsTimeoutId = this.timer.setTimeout(
+        () => this.handleBadParams(`Did not receive params after ${this.paramsTimeoutDuration}ms.`),
+        this.paramsTimeoutDuration)
 
     constructor(
+        private readonly router: Router,
         private readonly state: StateMediatorService,
         private readonly ga: GeneticAlgorithmService,
         private readonly clusterConfig: ClusterConfigProvider,
-        @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget) {
+        @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget,
+        @Inject(timerToken) private readonly timer: Timer) {
         super()
-        this.paramHandler = this.paramHandler.bind(this)
-        this.pipelineProgressHandler = this.pipelineProgressHandler.bind(this)
-        this.paramsSubscription = this.state.subscribe(StateTopic.PipelineRunParams, this.paramHandler)
-        this.eventTarget.addEventListener(pipelineProgressEventType, this.pipelineProgressHandler)
-        this.maxClusterIterations = this.clusterConfig.getConfig().maxIterations
+            this.paramHandler = this.paramHandler.bind(this)
+            this.pipelineProgressHandler = this.pipelineProgressHandler.bind(this)
+            this.paramsSubscription = this.state.subscribe(StateTopic.PipelineRunParams, this.paramHandler)
+            this.eventTarget.addEventListener(pipelineProgressEventType, this.pipelineProgressHandler)
+            this.maxClusterIterations = this.clusterConfig.getConfig()?.maxIterations ?? 100
     }
 
     disconnectedCallback() {
         if (this.paramsSubscription) { this.paramsSubscription.unsubscribe() }
         this.eventTarget.removeEventListener(pipelineProgressEventType, this.pipelineProgressHandler)
+        this.timer.clearTimeout(this.paramsTimeoutId)
     }
 
     render() {
         return html`
             <rf-popup ?show=${true}>
                 <section>
-                    <h1>${
-                        this.isRunning ? 'Running...' : (this.isCanceling ? 'Canceling...' : 'Done!')
-                    }</h1>
+                    <h1>${this.header}</h1>
                     <p>${this.message}</p>
                     <rf-progress-bar percentage="${this.progressPercentage}"></rf-progress-bar>
-                    <rf-button buttonRole="danger" @click=${this.cancel} ?disabled=${!this.isRunning}>
-                        <rf-icon icon=${Icon.Cross}></rf-icon>
-                    </rf-button>
+                    ${
+                        this.runState === PipelineStatus.Running
+                        ? html`
+                            <rf-button title="Cancel" buttonRole="danger" @click=${this.cancel}>
+                                <rf-icon icon=${Icon.Cross}></rf-icon>
+                            </rf-button>`
+                        : html``
+                    }
+                    ${
+                        this.runState === PipelineStatus.Aborted
+                        ? html`
+                            <rf-button title="Start Over" buttonRole="success" @click=${this.startOver}>
+                                <rf-icon icon=${Icon.Plus}></rf-icon>
+                            </rf-button>`
+                        : html``
+                    }
                 </section>
             </rf-popup>`
     }
 
     private async paramHandler(params: PipelineRunParams): Promise<void> {
-        if (this.isNewParams(params)) {
-            this.isRunning = true
-            this.handleResult(await this.ga.createAndRun(params))
-        } else if (this.isExistingParams(params)) {
-            this.isRunning = true
-            this.handleResult(await this.ga.run(params))
-        } else {
-            this.handleBadParams(params)
+        this.timer.clearTimeout(this.paramsTimeoutId)
+        if ((params as { cleared: true })?.cleared) {
+            return this.router.navigate('/')
+        }
+        try {
+            if (this.isNewParams(params)) {
+                this.runState = PipelineStatus.Running
+                this.handleResult(await this.ga.createAndRun(params))
+            } else if (this.isExistingParams(params)) {
+                this.runState = PipelineStatus.Running
+                this.handleResult(await this.ga.run(params))
+            } else {
+                this.handleBadParams(params)
+            }
+        } catch (error) {
+            this.onErredOrCanceled({ error, isCanceled: false })
+        } finally {
+            // Clear run params so pipeline does not run again if user navigates back to /run.
+            this.eventTarget.dispatchEvent(
+                new UpdateStateEvent(StateTopic.PipelineRunParams, { cleared: true }))
         }
     }
 
@@ -126,22 +180,51 @@ export class PipelineElement extends BaseElement {
     }
 
     private cancel() {
-        this.isRunning = false
-        this.isCanceling = true
+        this.runState = PipelineStatus.Canceling
         this.eventTarget.dispatchEvent(new CancelPipelineEvent())
     }
 
-    private handleResult(result: {
+    private startOver() {
+        this.router.navigate('/')
+    }
+
+    private handleResult({
+        geneticAlgorithmId,
+        error,
+        isCanceled
+    }: {
         geneticAlgorithmId: string
         generation?: number
         error?: PipelineError<PipelineState> | Error
         isCanceled: boolean
     }) {
-        this.isRunning = false
-        this.isCanceling = false
+        // Ensure that we do not receive any new run params.
+        this.paramsSubscription?.unsubscribe()
         this.message = ''
         this.progressPercentage = 100
-        console.log(result)
+        if (!(error || isCanceled)) {
+            this.runState = PipelineStatus.Succeeded
+            this.router.navigate(`/representatives/${geneticAlgorithmId}`)
+        } else {
+            this.onErredOrCanceled({ error, isCanceled })
+        }
+    }
+
+    private onErredOrCanceled({
+        error,
+        isCanceled
+    }: {
+        error?: PipelineError<PipelineState> | Error
+        isCanceled: boolean
+    }) {
+        this.runState = PipelineStatus.Aborted
+        const initialMessage = isCanceled ? 'Run canceled.' : 'Uh oh! Something went wrong.'
+        this.message = `${initialMessage}  Click below to start a new session.`
+        if (error) { console.error(error) }
+    }
+
+    private handleBadParams(params: any): void {
+        this.onErredOrCanceled({ error: new Error(`Bad pipeline run params: ${params}`), isCanceled: false })
     }
 
     private isNewParams(params: PipelineRunParams): params is NewPipelineRunParams {
@@ -150,10 +233,6 @@ export class PipelineElement extends BaseElement {
 
     private isExistingParams(params: PipelineRunParams): params is ExistingPipelineRunParams {
         return !!(params as ExistingPipelineRunParams)?.geneticAlgorithmId
-    }
-
-    private handleBadParams(params: any): void {
-        console.error(params)
     }
 
     private isPipelineProgressEvent(ev: Event): ev is PipelineProgressEvent {

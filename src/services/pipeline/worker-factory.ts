@@ -37,7 +37,7 @@ export class WorkerFactory {
     }
 
     private workerTerminatedListener(event: CustomEvent<WebWorkerType | undefined>): void {
-        if (event.detail) {
+        if (event.detail !== undefined) {
             const workerType = event.detail
             this.workerCache.delete(workerType)
             event.stopPropagation()

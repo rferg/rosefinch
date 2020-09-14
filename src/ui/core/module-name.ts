@@ -3,6 +3,6 @@ export enum ModuleName {
     NewSession= 'NewSession',
     Options = 'Options',
     Pipeline = 'Pipeline',
-    RepresentativeDisplay = 'RepresentativeDisplay',
+    Representatives = 'RepresentativeDisplay',
     Audio = 'Audio'
 }

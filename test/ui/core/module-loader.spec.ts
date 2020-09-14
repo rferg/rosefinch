@@ -64,13 +64,13 @@ describe('ModuleLoader', () => {
                 [ModuleName.NewSession]: {
                     loader: jasmine.createSpy('CommonLoader')
                 },
-                [ModuleName.RepresentativeDisplay]: {
+                [ModuleName.Representatives]: {
                     parentModule: ModuleName.Common,
                     loader: jasmine.createSpy('RepresentativeDisplayLoader')
                 },
                 [ModuleName.Audio]: {
                     loader: jasmine.createSpy('AudioLoader'),
-                    parentModule: ModuleName.RepresentativeDisplay
+                    parentModule: ModuleName.Representatives
                 },
                 [ModuleName.Options]: {
                     loader: jasmine.createSpy('OptionsLoader')
@@ -156,7 +156,7 @@ describe('ModuleLoader', () => {
             };
             (config.RepresentativeDisplay.loader as jasmine.Spy).and.returnValue(Promise.resolve({ default: rdModule }))
 
-            await loader.load(ModuleName.RepresentativeDisplay)
+            await loader.load(ModuleName.Representatives)
 
             expect(registrySpy.define).toHaveBeenCalledWith(
                 rdModule.elements[0].name,

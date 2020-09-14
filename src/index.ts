@@ -21,6 +21,11 @@ const routes: Route[] = [
         moduleName: ModuleName.Pipeline
     },
     {
+        path: '/representatives/:id',
+        elementName: 'rf-representatives',
+        moduleName: ModuleName.Representatives
+    },
+    {
         path: '*',
         elementName: 'rf-404'
     }

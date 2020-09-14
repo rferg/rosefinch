@@ -12,6 +12,7 @@ import { PageWrapper } from './page-wrapper'
 import { AppElement } from './app.element'
 import { FourOhFourElement } from './404.element'
 import { getProviders as getStateProviders } from '../../services/state'
+import { timerToken } from './timer-token'
 
 const moduleLoadConfig: ModuleLoadConfig = {
     [ModuleName.Common]: {
@@ -29,8 +30,9 @@ const moduleLoadConfig: ModuleLoadConfig = {
         loader: () => import('../pipeline/pipeline.module'),
         parentModule: ModuleName.Options
     },
-    [ModuleName.RepresentativeDisplay]: {
-        loader: () => Promise.resolve({ default: { elements: [], providers: [] } })
+    [ModuleName.Representatives]: {
+        loader: () => import('../representatives/representatives.module'),
+        parentModule: ModuleName.Options
     },
     [ModuleName.Audio]: {
         loader: () => Promise.resolve({ default: { elements: [], providers: [] } })
@@ -59,6 +61,7 @@ export const rootModule: Module = {
         new ExplicitProvider(moduleLoadConfigToken, moduleLoadConfig),
         new ExplicitProvider(customElementRegistryToken, window.customElements),
         new ExplicitProvider(globalEventTargetToken, window),
+        new ExplicitProvider(timerToken, window),
         PageWrapper
     ]
 }
