@@ -98,7 +98,7 @@ export class PipelineElement extends BaseElement {
         private readonly clusterConfig: ClusterConfigProvider,
         @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget,
         @Inject(timerToken) private readonly timer: Timer) {
-        super()
+            super()
             this.paramHandler = this.paramHandler.bind(this)
             this.pipelineProgressHandler = this.pipelineProgressHandler.bind(this)
             this.paramsSubscription = this.state.subscribe(StateTopic.PipelineRunParams, this.paramHandler)
