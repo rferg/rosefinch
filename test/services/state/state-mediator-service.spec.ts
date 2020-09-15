@@ -91,6 +91,15 @@ describe('StateMediatorService', () => {
             expect(updateSpy).toHaveBeenCalledWith(state)
         })
 
+        it('should call onNotImmediatelyAvailable if no current value', () => {
+            const notAvailableSpy = jasmine.createSpy('onNotImmediatelyAvailable')
+            const updateSpy = jasmine.createSpy('update')
+
+            service.subscribe(StateTopic.UserRatings, updateSpy, { onNotImmediatelyAvailable: notAvailableSpy })
+
+            expect(notAvailableSpy).toHaveBeenCalledTimes(1)
+        })
+
         it('should return unsubscribe function that removes listener', () => {
             const updateSpy = jasmine.createSpy('update')
             const { unsubscribe } = service.subscribe(StateTopic.UserRatings, updateSpy)

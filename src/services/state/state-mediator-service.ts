@@ -17,14 +17,23 @@ export class StateMediatorService {
 
     subscribe<T extends StateTopic>(
         topic: T,
-        listener: (state: StateTypeTopicMap<T>) => any): StateSubscription {
+        listener: (state: StateTypeTopicMap<T>) => any,
+        {
+            onNotImmediatelyAvailable
+        }: {
+            onNotImmediatelyAvailable?: () => any
+        } = {}): StateSubscription {
         const service = this.getOrAddService(topic)
         const serviceListener = (state?: StateTypeTopicMap<StateTopic>) =>
             listener(state as StateTypeTopicMap<T>)
         service.addListener(serviceListener)
 
         const currentValue = service.getCurrent()
-        if (currentValue) { serviceListener(currentValue) }
+        if (currentValue) {
+            serviceListener(currentValue)
+        } else if (onNotImmediatelyAvailable) {
+            onNotImmediatelyAvailable()
+        }
 
         return {
             unsubscribe: () => service.removeListener(serviceListener)
