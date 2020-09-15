@@ -53,7 +53,13 @@ export class GeneticAlgorithmService {
             storeName: 'geneticAlgorithmOptions',
             ...options
         })
-        return this.run({ geneticAlgorithmId: id, numberOfGenerations })
+        const result = await this.run({ geneticAlgorithmId: id, numberOfGenerations })
+
+        if (result?.isCanceled || result?.error) {
+            await this.rollbackCreate(id)
+        }
+
+        return result
     }
 
     async run(options: ExistingPipelineRunParams): Promise<RunResult> {
@@ -109,5 +115,12 @@ export class GeneticAlgorithmService {
                 await this.optionsRepo.put({ ...existing, ...options })
             }
         }
+    }
+
+    private rollbackCreate(geneticAlgorithmId: string): Promise<[void, void]> {
+        return Promise.all([
+            this.gaRepo.delete(geneticAlgorithmId),
+            this.optionsRepo.delete(geneticAlgorithmId)
+        ])
     }
 }

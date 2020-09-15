@@ -1,6 +1,6 @@
 import { GeneticAlgorithmService } from '../../../src/services/pipeline/genetic-algorithm-service'
 import { UuidService } from '../../../src/services/pipeline/uuid-service'
-import { PipelineService, PipelineState } from '../../../src/services/pipeline'
+import { PipelineResult, PipelineService, PipelineState } from '../../../src/services/pipeline'
 import {
     GeneticAlgorithmOptionsRepository,
     GeneticAlgorithmOptionsStore,
@@ -25,11 +25,12 @@ describe('GeneticAlgorithmService', () => {
     beforeEach(() => {
         uuidSpy = jasmine.createSpyObj<UuidService>('UuidService', [ 'getUuid' ])
         pipelineService = jasmine.createSpyObj<PipelineService>('PipelineService', [ 'run', 'cancelCurrent' ])
-        gaRepoSpy = jasmine.createSpyObj<GeneticAlgorithmRepository>('GeneticAlgorithmRepository', [ 'add' ])
+        pipelineService.run.and.returnValue(Promise.resolve({} as PipelineResult<PipelineState>))
+        gaRepoSpy = jasmine.createSpyObj<GeneticAlgorithmRepository>('GeneticAlgorithmRepository', [ 'add', 'delete' ])
         gaRepoSpy.add.and.returnValue(Promise.resolve(''))
         optionsRepoSpy = jasmine.createSpyObj<GeneticAlgorithmOptionsRepository>(
             'GeneticAlgorithmOptionsRepository',
-            [ 'add', 'get', 'put' ])
+            [ 'add', 'get', 'put', 'delete' ])
         optionsRepoSpy.add.and.returnValue(Promise.resolve(''))
         optionsRepoSpy.get.and.returnValue(Promise.resolve(undefined))
         optionsRepoSpy.put.and.returnValue(Promise.resolve(''))
@@ -253,6 +254,47 @@ describe('GeneticAlgorithmService', () => {
                 geneticAlgorithmId: id,
                 numberOfGenerations: input.numberOfGenerations
             })
+        })
+
+        it('should delete ga and options if run is canceled', async () => {
+            pipelineService.run.and.returnValue(Promise.resolve({
+                isCanceled: true,
+                result: {} as PipelineState,
+                error: undefined
+            }))
+            const input = {
+                size: 1,
+                genomeSize: 1,
+                numberOfGenerations: 1,
+                options: {} as SerializedGeneticAlgorithmOptions
+            }
+
+            await service.createAndRun(input)
+
+            expect(gaRepoSpy.delete).toHaveBeenCalledWith(id)
+            expect(optionsRepoSpy.delete).toHaveBeenCalledWith(id)
+        })
+
+        it('should delete ga and options if run returned error', async () => {
+            pipelineService.run.and.returnValue(Promise.resolve({
+                isCanceled: false,
+                result: {} as PipelineState,
+                error: {
+                    stageName: PipelineStageName.GetClusterResult,
+                    error: new Error()
+                }
+            }))
+            const input = {
+                size: 1,
+                genomeSize: 1,
+                numberOfGenerations: 1,
+                options: {} as SerializedGeneticAlgorithmOptions
+            }
+
+            await service.createAndRun(input)
+
+            expect(gaRepoSpy.delete).toHaveBeenCalledWith(id)
+            expect(optionsRepoSpy.delete).toHaveBeenCalledWith(id)
         })
     })
 })
