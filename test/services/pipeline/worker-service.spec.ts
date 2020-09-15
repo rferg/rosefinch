@@ -98,27 +98,6 @@ describe('WorkerService', () => {
         })
     })
 
-    describe('terminate', () => {
-        it('should call worker.terminate', () => {
-            service.terminate()
-
-            expect(workerSpy.terminate).toHaveBeenCalled()
-        })
-
-        it('should request new worker from workerFactory', () => {
-            service.terminate()
-
-            expect(workerFactorySpy.getWorker).toHaveBeenCalledWith(workerType)
-        })
-
-        it('should dispatch terminated event', () => {
-            const expectedEvent = new CustomEvent<WebWorkerType>(WorkerEventType.Terminated, { detail: workerType })
-            service.terminate()
-
-            expect(eventTargetSpy.dispatchEvent).toHaveBeenCalledWith(expectedEvent)
-        })
-    })
-
     describe('postMessage', () => {
         it('should call worker.postMessage with message', () => {
             const message = { data: 1 }

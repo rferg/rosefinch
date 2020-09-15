@@ -18,18 +18,6 @@ export abstract class WorkerService {
             this.worker.onerror = (ev) => this.onError(ev)
     }
 
-    terminate(): void {
-        if (this.worker) {
-            this.worker.terminate()
-            this.eventTarget.dispatchEvent(new CustomEvent<WebWorkerType>(
-                WorkerEventType.Terminated,
-                {
-                    detail: this.workerType
-                }))
-        }
-        this.worker = this.workerFactory.getWorker(this.workerType)
-    }
-
     abstract run({ message, callbacks }: { message: any, callbacks: WorkerServiceCallbacks }): void
 
     protected abstract onMessage(message: MessageEvent): void

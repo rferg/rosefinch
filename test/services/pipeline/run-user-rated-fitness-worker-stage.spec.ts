@@ -19,7 +19,7 @@ describe('RunUserRatedFitnessWorkerStage', () => {
     beforeEach(() => {
         serviceSpy = jasmine.createSpyObj<UserRatedFitnessWorkerService>(
             'UserRatedFitnessWorkerService',
-            [ 'run', 'terminate' ])
+            [ 'run' ])
         serviceSpy.run.and.callFake(({ message, callbacks }) => {
             callbacks.result(message.fitnessValues)
         })
@@ -39,14 +39,6 @@ describe('RunUserRatedFitnessWorkerStage', () => {
                     message: `Starting ${PipelineStageName.RunUserRatedFitnessWorker}...`
                 }
             })
-        })
-
-        it('cancel should call service.terminate', async () => {
-            const { cancel } = stage.execute(state)
-
-            await cancel()
-
-            expect(serviceSpy.terminate).toHaveBeenCalled()
         })
 
         it('result should reject if state is undefined', async () => {

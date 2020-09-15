@@ -17,7 +17,7 @@ export class RunUserRatedFitnessWorkerStage implements PipelineStage<PipelineSta
                 progressCallback({ stageName: this.name, detail: { message: `Starting ${this.name}...` } })
             }
             return {
-                cancel: async () => this.service.terminate(),
+                cancel: async () => {},
                 result: !state || state.userRepresentativeRatings?.length
                     ? this.runWorker(state, progressCallback)
                     : Promise.resolve(state)

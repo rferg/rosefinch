@@ -52,7 +52,7 @@ describe('RunGeneticAlgorithmWorkerStage', () => {
     beforeEach(() => {
         serviceSpy = jasmine.createSpyObj<GeneticAlgorithmWorkerService>(
             'GeneticAlgorithmWorkerService',
-            [ 'run', 'terminate' ])
+            [ 'run' ])
         serviceSpy.run.and.callFake(({ callbacks }) => {
             callbacks[GeneticAlgorithmWorkerMessageType.Results]({ } as ResultMessage)
         })
@@ -72,14 +72,6 @@ describe('RunGeneticAlgorithmWorkerStage', () => {
                     message: `Starting ${PipelineStageName.RunGeneticAlgorithmWorker}...`
                 }
             })
-        })
-
-        it('cancel should call service.terminate', async () => {
-            const { cancel } = stage.execute(state)
-
-            await cancel()
-
-            expect(serviceSpy.terminate).toHaveBeenCalled()
         })
 
         it('result should reject if state is undefined', async () => {

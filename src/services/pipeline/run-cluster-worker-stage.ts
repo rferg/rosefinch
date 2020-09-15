@@ -18,7 +18,7 @@ export class RunClusterWorkerStage implements PipelineStage<PipelineState> {
                 progressCallback({ stageName: this.name, detail: { message: `Starting ${this.name}...` } })
             }
             return {
-                cancel: async () => this.service.terminate(),
+                cancel: async () => {},
                 result: this.runWorker(state, progressCallback)
             }
     }

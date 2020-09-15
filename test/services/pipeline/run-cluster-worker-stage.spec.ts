@@ -20,7 +20,7 @@ describe('RunClusterWorkerStage', () => {
     beforeEach(() => {
         serviceSpy = jasmine.createSpyObj<ClusterWorkerService>(
             'ClusterWorkerService',
-            [ 'run', 'terminate' ])
+            [ 'run' ])
         serviceSpy.run.and.callFake(({ callbacks }) => {
             callbacks[ClusterWorkerMessageType.Result]({
                 assignments: [ { clusterIndex: 0, distanceToCentroid: 0 } ], representativeIndexes: [ 0 ]
@@ -51,14 +51,6 @@ describe('RunClusterWorkerStage', () => {
                     message: `Starting ${PipelineStageName.RunClusterWorker}...`
                 }
             })
-        })
-
-        it('cancel should call service.terminate', async () => {
-            const { cancel } = stage.execute(state)
-
-            await cancel()
-
-            expect(serviceSpy.terminate).toHaveBeenCalled()
         })
 
         it('result should reject if state is undefined', async () => {
