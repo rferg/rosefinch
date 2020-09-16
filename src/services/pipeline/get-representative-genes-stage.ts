@@ -2,9 +2,12 @@ import { PipelineStage } from './pipeline-stage'
 import { PipelineState } from './pipeline-state'
 import { PipelineStageName } from './pipeline-stage-name'
 import { PipelineProgressCallback } from './pipeline-progress-callback'
+import { RepresentativeGenesService } from './representative-genes-service'
 
 export class GetRepresentativeGenesStage implements PipelineStage<PipelineState> {
     readonly name: PipelineStageName = PipelineStageName.GetRepresentativeGenes
+
+    constructor(private readonly representativeGenesService: RepresentativeGenesService) {}
 
     execute(
         state?: PipelineState,
@@ -23,15 +26,9 @@ export class GetRepresentativeGenesStage implements PipelineStage<PipelineState>
                 } else if (!state.geneticAlgorithm?.population.array) {
                     reject('State is missing geneticAlgorithm.population.array.')
                 } else {
-                    const genomeSize = state.geneticAlgorithm.population.genomeSize
-                    const representativeGenes = state.clusterResult.representativeIndexes
-                        .map(repIdx => {
-                            if (repIdx === undefined) { return undefined }
-                            const genes = state.geneticAlgorithm?.population.array
-                                ?.slice(repIdx * genomeSize, (repIdx * genomeSize) + genomeSize)
-                            if (!(genes && genes.length)) { return undefined }
-                            return [ ...genes ]
-                        })
+                    const representativeGenes = this.representativeGenesService.extractGenes(
+                        state.geneticAlgorithm.population,
+                        state.clusterResult.representativeIndexes)
                     resolve({
                         representativeGenes,
                         geneticAlgorithmId: state.geneticAlgorithmId,

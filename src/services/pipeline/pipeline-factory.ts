@@ -21,6 +21,7 @@ import { ClusterConfigProvider } from './cluster-config-provider'
 import { GetRepresentativeGenesStage } from './get-representative-genes-stage'
 import { GetClusterResultStage } from './get-cluster-result-stage'
 import { RunUserRatedFitnessWorkerStage } from './run-user-rated-fitness-worker-stage'
+import { RepresentativeGenesService } from './representative-genes-service'
 
 @Injectable()
 export class PipelineFactory {
@@ -33,7 +34,8 @@ export class PipelineFactory {
         private readonly clusterConfig: ClusterConfigProvider,
         private readonly clusterWorker: ClusterWorkerService,
         private readonly urfWorker: UserRatedFitnessWorkerService,
-        private readonly gaOptionsRepo: GeneticAlgorithmOptionsRepository) {}
+        private readonly gaOptionsRepo: GeneticAlgorithmOptionsRepository,
+        private readonly repGenesService: RepresentativeGenesService) {}
 
     getPipeline({
         userRepresentativeRatings
@@ -70,7 +72,7 @@ export class PipelineFactory {
             new UpdateGeneticAlgorithmSummaryStage(this.gaSummaryRepo),
             new RunClusterWorkerStage(this.clusterWorker, this.clusterConfig),
             new UpdateClusterResultStage(this.clusterRepo),
-            new GetRepresentativeGenesStage()
+            new GetRepresentativeGenesStage(this.repGenesService)
         ]
     }
 }

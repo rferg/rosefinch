@@ -2,11 +2,13 @@ import { GetRepresentativeGenesStage } from '../../../src/services/pipeline/get-
 import { PipelineState } from '../../../src/services/pipeline/pipeline-state'
 import { PipelineStageName } from '../../../src/services/pipeline/pipeline-stage-name'
 import { ClusterResultStore, GeneticAlgorithmStore } from '../../../src/storage'
-import { ClusterResult } from '../../../src/clustering'
 import { SerializedPopulation } from '../../../src/genetic-algorithm'
+import { RepresentativeGenesService } from '../../../src/services/pipeline'
 
 describe('GetRepresentativeGenesStage', () => {
     let stage: GetRepresentativeGenesStage
+    let serviceSpy: jasmine.SpyObj<RepresentativeGenesService>
+
     const state = {
         geneticAlgorithmId: '1',
         numberOfGenerations: 1,
@@ -23,7 +25,8 @@ describe('GetRepresentativeGenesStage', () => {
     } as PipelineState
 
     beforeEach(() => {
-        stage = new GetRepresentativeGenesStage()
+        serviceSpy = jasmine.createSpyObj<RepresentativeGenesService>('RepresentativeGenesService', [ 'extractGenes' ])
+        stage = new GetRepresentativeGenesStage(serviceSpy)
     })
 
     describe('execute', () => {
@@ -73,86 +76,18 @@ describe('GetRepresentativeGenesStage', () => {
             }).result).toBeRejectedWith('State is missing geneticAlgorithm.population.array.')
         })
 
-        it('result should return undefined for undefined representativeIndexes', async () => {
-            const { result } = stage.execute({
-                ...state,
-                clusterResult: { representativeIndexes: [ undefined ] } as ClusterResult
-            })
+       it('should call service.extractGenes and return result', async () => {
+           const expected = [ [ 0 ] ]
+           serviceSpy.extractGenes.and.returnValue(expected)
 
-            const genes = (await result).representativeGenes || []
-            expect(genes.length).toBe(1)
-            expect(genes[0]).toBeUndefined()
-        })
+           const result = await stage.execute({ ...state }).result
 
-        const testCases: {
-            population: SerializedPopulation,
-            representativeIndexes: (number | undefined)[]
-            expected: (number[] | undefined)[]
-        }[] = [
-            {
-                population: {
-                    size: 3,
-                    genomeSize: 3,
-                    array: new Uint8Array([ 0, 0, 0, 1, 1, 1, 2, 2, 2 ])
-                },
-                representativeIndexes: [ 1, 0, 2 ],
-                expected: [
-                    [ 1, 1, 1 ],
-                    [ 0, 0, 0 ],
-                    [ 2, 2, 2 ]
-                ]
-            },
-            {
-                population: {
-                    size: 2,
-                    genomeSize: 4,
-                    array: new Uint8Array([ 0, 0, 0, 0, 1, 1, 1, 1 ])
-                },
-                representativeIndexes: [ 0, 1 ],
-                expected: [
-                    [ 0, 0, 0, 0 ],
-                    [ 1, 1, 1, 1 ]
-                ]
-            },
-            {
-                population: {
-                    size: 3,
-                    genomeSize: 4,
-                    array: new Uint8Array([ 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2 ])
-                },
-                representativeIndexes: [ 2, 0 ],
-                expected: [
-                    [ 2, 2, 2, 2 ],
-                    [ 0, 0, 0, 0 ]
-                ]
-            },
-            {
-                population: {
-                    size: 3,
-                    genomeSize: 4,
-                    array: new Uint8Array([ 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2 ])
-                },
-                representativeIndexes: [ 2, undefined ],
-                expected: [
-                    [ 2, 2, 2, 2 ],
-                    undefined
-                ]
-            }
-        ]
-
-        testCases.forEach(({ population, representativeIndexes, expected }) => {
-            it(`should return ${expected} with ${representativeIndexes}`, async () => {
-                const { result } = stage.execute({
-                    ...state,
-                    geneticAlgorithm: { population } as GeneticAlgorithmStore,
-                    clusterResult: { representativeIndexes } as ClusterResultStore
-                })
-
-                const resolved = await result
-
-                expect(resolved.representativeGenes).toEqual(expected)
-            })
-        })
+           expect(serviceSpy.extractGenes)
+            .toHaveBeenCalledWith(
+                state.geneticAlgorithm?.population ?? {} as SerializedPopulation,
+                state.clusterResult?.representativeIndexes ?? [])
+            expect(result.representativeGenes).toEqual(expected)
+       })
     })
 
     describe('rollback', () => {

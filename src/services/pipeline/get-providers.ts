@@ -5,6 +5,7 @@ import { GeneticAlgorithmService } from './genetic-algorithm-service'
 import { GeneticAlgorithmWorkerService } from './genetic-algorithm-worker-service'
 import { PipelineFactory } from './pipeline-factory'
 import { PipelineService } from './pipeline-service'
+import { RepresentativeGenesService } from './representative-genes-service'
 import { UserRatedFitnessWorkerService } from './user-rated-fitness-worker-service'
 import { UuidService } from './uuid-service'
 import { WorkerFactory } from './worker-factory'
@@ -18,6 +19,7 @@ export function getProviders(): Provider[] {
         GeneticAlgorithmWorkerService,
         PipelineFactory,
         PipelineService,
+        RepresentativeGenesService,
         UserRatedFitnessWorkerService,
         UuidService,
         WorkerFactory
