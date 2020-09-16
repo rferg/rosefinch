@@ -54,6 +54,7 @@ export class RepresentativesElement extends BaseElement {
                     onNotImmediatelyAvailable: async () => {
                         this.genes = this.filterOutUndefinedRepresentatives(
                             await this.genesService.getGenes(this.geneticAlgorithmId || ''))
+                        console.log(this.genes)
                     }
                 }
             )

@@ -32,7 +32,7 @@ const moduleLoadConfig: ModuleLoadConfig = {
     },
     [ModuleName.Representatives]: {
         loader: () => import('../representatives/representatives.module'),
-        parentModule: ModuleName.Options
+        parentModule: ModuleName.Pipeline
     },
     [ModuleName.Audio]: {
         loader: () => Promise.resolve({ default: { elements: [], providers: [] } })
