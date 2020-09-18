@@ -27,7 +27,34 @@ export class RepresentativesElement extends BaseElement {
             super.styles,
             headingsStyles,
             animationsStyles,
-            css``
+            css`
+                :host {
+                    width: 100%;
+                    display: flex;
+                    flex-flow: column nowrap;
+                    justify-content: flex-start;
+                    align-items: center;
+                }
+                :host > * {
+                    flex-grow: 1;
+                }
+                div {
+                    width: 100%;
+                    display: flex;
+                    flex-flow: row wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                rf-container {
+                    margin: var(--small-padding);
+                }
+                div rf-container:first-child {
+                    flex-grow: 4
+                }
+                div rf-container:last-child {
+                    flex-grow: 1;
+                }
+            `
         ]
     }
 
@@ -107,7 +134,6 @@ export class RepresentativesElement extends BaseElement {
     render() {
         return html`
             <rf-representatives-header
-                .options=${this.options}
                 .generation=${this.generation}
                 @show-popup=${this.showPopupHandler}>
             </rf-representatives-header>
@@ -191,7 +217,9 @@ export class RepresentativesElement extends BaseElement {
     private getPopupContent(): TemplateResult {
         switch (this.inPopup) {
             case 'fitness':
-                return html`<rf-fitness-form></rf-fitness-form>`
+                return html`
+                    <rf-representatives-fitness-form .options=${this.options}>
+                    </rf-representatives-fitness-form>`
             case 'playback':
                 return html`<rf-playback-options></rf-playback-options>`
             case 'run':

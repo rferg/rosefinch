@@ -1,6 +1,7 @@
 import { Module } from '../core/module'
 import { EditRepresentativeElement } from './edit-representative.element'
 import { RepresentativeElement } from './representative.element'
+import { RepresentativesFitnessFormElement } from './representatives-fitness-form.element'
 import { RepresentativesHeaderElement } from './representatives-header.element'
 import { RepresentativesElement } from './representatives.element'
 
@@ -24,6 +25,10 @@ export default {
         {
             element: RepresentativeElement,
             name: 'rf-representative'
+        },
+        {
+            element: RepresentativesFitnessFormElement,
+            name: 'rf-representatives-fitness-form'
         }
     ]
 } as Module

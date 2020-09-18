@@ -11,18 +11,17 @@ import {
 } from '../../../src/storage'
 import { BaseElement } from '../../../src/ui/core/base-element'
 import { Router } from '../../../src/ui/core/router'
+import { cancelEventType } from '../../../src/ui/options/cancel-event-type'
+import { FormSubmitEvent } from '../../../src/ui/options/form-submit-event'
 import { RepresentativeElement } from '../../../src/ui/representatives/representative.element'
 import { RepresentativesElement } from '../../../src/ui/representatives/representatives.element'
 import { ContainerElementStub } from '../../helpers/container-element-stub'
 import { CustomElementRegistrar } from '../../helpers/custom-element-registrar'
-import { FitnessFormElementStub } from '../../helpers/fitness-form-element-stub'
 import { PopupElementStub } from '../../helpers/popup-element-stub'
 import { RunConfirmFormElementStub } from '../../helpers/run-confirm-form-element-stub'
 
 class RepresentativesHeaderElementStub extends BaseElement {
     static get is() { return 'rf-representatives-header' }
-    @property()
-    options?: SerializedGeneticAlgorithmOptions
 
     @property()
     generation?: number
@@ -48,6 +47,13 @@ class RepresentativeElementStub extends BaseElement {
 
 class PlaybackOptionsElementStub extends BaseElement {
     static get is() { return 'rf-playback-options' }
+}
+
+class RepresentativesFitnessFormElementStub extends BaseElement {
+    static get is() { return 'rf-representatives-fitness-form' }
+
+    @property()
+    options?: SerializedGeneticAlgorithmOptions
 }
 
 describe('RepresentativesElement', () => {
@@ -77,7 +83,8 @@ describe('RepresentativesElement', () => {
         CustomElementRegistrar.instance.register(ContainerElementStub.is, ContainerElementStub)
         CustomElementRegistrar.instance.register(PopupElementStub.is, PopupElementStub)
         CustomElementRegistrar.instance.register(PlaybackOptionsElementStub.is, PlaybackOptionsElementStub)
-        CustomElementRegistrar.instance.register(FitnessFormElementStub.is, FitnessFormElementStub)
+        CustomElementRegistrar.instance
+            .register(RepresentativesFitnessFormElementStub.is, RepresentativesFitnessFormElementStub)
         CustomElementRegistrar.instance.register(RunConfirmFormElementStub.is, RunConfirmFormElementStub)
         CustomElementRegistrar.instance.register('rf-representatives-test', class extends RepresentativesElement {
             constructor() {
@@ -225,7 +232,6 @@ describe('RepresentativesElement', () => {
             })
 
             describe('options subscription', () => {
-                let optionsHandler: (options: GeneticAlgorithmOptionsStore) => any
                 let onNotImmediatelyAvailable: () => Promise<void>
                 const options = {
                     storeName: 'geneticAlgorithmOptions',
@@ -236,18 +242,7 @@ describe('RepresentativesElement', () => {
                     const args = stateSpy.subscribe.calls.all()
                         .find(call => call.args[0] === StateTopic.GeneticAlgorithmOptions)
                         ?.args ?? []
-                    optionsHandler = args[1] as (state: GeneticAlgorithmOptionsStore) => any
                     onNotImmediatelyAvailable = args[2]?.onNotImmediatelyAvailable || (() => {})
-                })
-
-                it('should set options on RepresentativesHeaderElement', async () => {
-                    optionsHandler(options)
-                    await elementUpdated(el)
-
-                    const headerEl = el.shadowRoot
-                        ?.querySelector('rf-representatives-header') as RepresentativesHeaderElementStub
-                    if (!headerEl) { throw new Error('missing rf-representatives-header') }
-                    expect(headerEl.options).toEqual(options)
                 })
 
                 it('should have onNotImmediatelyAvailable that calls GeneticAlgorithmOptionsRepository', async () => {
@@ -297,7 +292,7 @@ describe('RepresentativesElement', () => {
 
             const popupEl = getPopup()
             expect(popupEl.show).toBeTrue()
-            expect(popupEl.querySelector('rf-fitness-form')).toBeDefined()
+            expect(popupEl.querySelector('rf-representatives-fitness-form')).toBeDefined()
         })
 
         it('should display playback options if emit event with "playback"', async () => {
@@ -318,6 +313,18 @@ describe('RepresentativesElement', () => {
             expect(popupEl.querySelector('rf-run-confirm-form')).toBeDefined()
         })
 
+        it('should close popup on run cancel', async () => {
+            emitEvent('run')
+            await elementUpdated(el)
+
+            const popupEl = getPopup()
+            const runConfirm = popupEl.querySelector('rf-run-confirm-form') as RunConfirmFormElementStub
+            runConfirm.dispatchEvent(new CustomEvent(cancelEventType))
+            await elementUpdated(el)
+
+            expect(popupEl.show).toBeFalse()
+        })
+
         it('should not display popup if emit event with ""', async () => {
             emitEvent('')
             await elementUpdated(el)
@@ -336,9 +343,9 @@ describe('RepresentativesElement', () => {
         })
     })
 
-    const initiateWithGenomes = (genomes: (number[] | undefined)[]) => {
+    const initiateWithGenomes = (genomes: (number[] | undefined)[], id = 'abc') => {
         const routeParamsHandler = stateSpy.subscribe.calls.mostRecent().args[1]
-        routeParamsHandler({ params: { id: 'abc' } })
+        routeParamsHandler({ params: { id } })
         const genesHandler = stateSpy.subscribe.calls.all()
             .find(call => call.args[0] === StateTopic.RepresentativeGenes)
             ?.args[1]
@@ -396,6 +403,32 @@ describe('RepresentativesElement', () => {
                 ?.querySelector('rf-edit-representative') as EditRepresentativeElementStub
             if (!editRepEl) { throw new Error('missing rf-edit-representative') }
             expect(editRepEl.genome).toEqual(genomes[newIndex])
+        })
+    })
+
+    describe('on run confirm', () => {
+
+        it('should run pipeline on confirmed run', async () => {
+            const geneticAlgorithmId = 'xyz'
+            initiateWithGenomes([], geneticAlgorithmId)
+            await elementUpdated(el)
+            const headerEl = el.shadowRoot
+                ?.querySelector('rf-representatives-header') as RepresentativesHeaderElementStub
+            if (!headerEl) { throw new Error('missing rf-representatives-header') }
+            headerEl.dispatchEvent(new CustomEvent<string>('show-popup', { detail: 'run' }))
+            await elementUpdated(el)
+
+            const runConfirm = el.shadowRoot?.querySelector('rf-run-confirm-form')
+            if (!runConfirm) { throw new Error('missing rf-run-confirm-form') }
+            const numberOfGenerations = 5
+            runConfirm.dispatchEvent(new FormSubmitEvent({ value: { numberOfGenerations } }))
+            await elementUpdated(el)
+
+            expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(new UpdateStateEvent(
+                StateTopic.PipelineRunParams,
+                { numberOfGenerations, geneticAlgorithmId }
+            ))
+            expect(routerSpy.navigate).toHaveBeenCalledWith('/run')
         })
     })
 })

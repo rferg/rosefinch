@@ -19,7 +19,7 @@ export class RepresentativeElement extends BaseElement {
     rating = 0
 
     render() {
-        return html`<span>${this.genome}</span><span>${this.rating}</span>`
+        return html``
     }
 
     // TODO
