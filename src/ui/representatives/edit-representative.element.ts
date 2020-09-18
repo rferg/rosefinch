@@ -14,5 +14,8 @@ export class EditRepresentativeElement extends BaseElement {
     @property({ reflect: false })
     genome?: number[]
 
+    @property({ reflect: false })
+    rating?: number
+
     // TODO
 }

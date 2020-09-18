@@ -31,33 +31,51 @@ export class RepresentativesElement extends BaseElement {
         ]
     }
 
-    @internalProperty()
     private geneticAlgorithmId?: string
 
     private _genes?: (number[] | undefined)[]
     @internalProperty()
-    get genes(): (number[] | undefined)[] {
+    private get genes(): (number[] | undefined)[] {
         return this._genes || []
     }
-    set genes(val: (number[] | undefined)[]) {
+    private set genes(val: (number[] | undefined)[]) {
         if (val !== this._genes) {
             const oldVal = this._genes
             this._genes = val
             this.ratings = new Array<number>(this._genes?.length ?? 0)
-            if (this._genes && this._genes.length) { this.activeGeneIndex = 0 }
+            if (this._genes && this._genes.length) { this.activeGenomeIndex = 0 }
+            // Lit-Element documentation recommends this way of calling requestUpdate():
+            // https://lit-element.polymer-project.org/guide/properties#accessors
             // tslint:disable-next-line: no-floating-promises
             this.requestUpdate('genes', oldVal)
         }
     }
 
+    private _ratings?: number[]
     @internalProperty()
-    private ratings?: number[]
+    private get ratings(): number[] {
+        return this._ratings || []
+    }
+    private set ratings(val: number[]) {
+        if (val !== this._ratings) {
+            const oldVal = this._ratings
+            this._ratings = val
+            // Lit-Element documentation recommends this way of calling requestUpdate():
+            // https://lit-element.polymer-project.org/guide/properties#accessors
+            // tslint:disable-next-line: no-floating-promises
+            this.requestUpdate('ratings', oldVal)
+            this.eventTarget.dispatchEvent(new UpdateStateEvent(
+                StateTopic.UserRatings,
+                { userRepresentativeRatings: this._ratings }
+            ))
+        }
+    }
 
     @internalProperty()
     private inPopup: PopupContent = ''
 
     @internalProperty()
-    private activeGeneIndex?: number
+    private activeGenomeIndex?: number
 
     @internalProperty()
     private options?: SerializedGeneticAlgorithmOptions
@@ -86,12 +104,13 @@ export class RepresentativesElement extends BaseElement {
         return html`
             <rf-representatives-header
                 .options=${this.options}
-                @show-popup=${(ev: CustomEvent<PopupContent>) => this.inPopup = ev.detail || ''}>
+                @show-popup=${this.showPopupHandler}>
             </rf-representatives-header>
             <div>
                 <rf-container>
                     <rf-edit-representative
-                        .genome=${this.genes[this.activeGeneIndex || 0]}
+                        .genome=${this.genes[this.activeGenomeIndex || 0]}
+                        .rating=${this.ratings[this.activeGenomeIndex || 0]}
                         @rating-change=${this.onRatingChange}>
                     </rf-edit-representative>
                 </rf-container>
@@ -102,7 +121,7 @@ export class RepresentativesElement extends BaseElement {
                                         index="${i}"
                                         .genome=${genome}
                                         .rating=${(this.ratings || [])[i]}
-                                        @click=${() => this.activeGeneIndex = i}>
+                                        @click=${() => this.activeGenomeIndex = i}>
                                     </rf-representative>`
                                 : html``)}
                 </rf-container>
@@ -153,6 +172,15 @@ export class RepresentativesElement extends BaseElement {
         }
     }
 
+    private showPopupHandler({ detail: popupContent }: CustomEvent<PopupContent>) {
+        const validValues: PopupContent[] = [ 'fitness', 'playback', 'run', '' ]
+        if (validValues.indexOf(popupContent) === -1) {
+            this.inPopup = ''
+        } else {
+            this.inPopup = popupContent
+        }
+    }
+
     private getPopupContent(): TemplateResult {
         switch (this.inPopup) {
             case 'fitness':
@@ -166,7 +194,7 @@ export class RepresentativesElement extends BaseElement {
             case '':
                 return html``
             default:
-                assertUnreachable(this.inPopup, 'Invalid showInPopup value.')
+                assertUnreachable(this.inPopup, 'Invalid show in popup content')
         }
     }
 
@@ -182,8 +210,8 @@ export class RepresentativesElement extends BaseElement {
     }
 
     private onRatingChange({ detail: rating }: CustomEvent<number>) {
-        if (this.ratings && this.activeGeneIndex !== undefined) {
-            this.ratings = Object.assign([], this.ratings, { [this.activeGeneIndex]: rating })
+        if (this.ratings && this.activeGenomeIndex !== undefined) {
+            this.ratings = Object.assign([], this.ratings, { [this.activeGenomeIndex]: rating })
         }
     }
 }
