@@ -146,7 +146,10 @@ describe('GeneticAlgorithmService', () => {
                 expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(
                     new UpdateStateEvent(
                         StateTopic.RepresentativeGenes,
-                        { representativeGenes: result.representativeGenes || [] })
+                        {
+                            representativeGenes: result.representativeGenes || [],
+                            generation: result.geneticAlgorithm?.generation ?? 0
+                        })
                 )
                 expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(
                     new UpdateStateEvent(

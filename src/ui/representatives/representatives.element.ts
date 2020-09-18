@@ -11,7 +11,7 @@ import {
     StateTopic,
     UpdateStateEvent
 } from '../../services/state'
-import { GeneticAlgorithmOptionsRepository } from '../../storage'
+import { GeneticAlgorithmOptionsRepository, GeneticAlgorithmSummaryRepository } from '../../storage'
 import { animationsStyles } from '../common/animations.styles'
 import { headingsStyles } from '../common/headings.styles'
 import { BaseElement } from '../core/base-element'
@@ -80,6 +80,9 @@ export class RepresentativesElement extends BaseElement {
     @internalProperty()
     private options?: SerializedGeneticAlgorithmOptions
 
+    @internalProperty()
+    private generation?: number
+
     private readonly routeParamsSub: StateSubscription
     private representativeGenesSub?: StateSubscription
     private optionsSub?: StateSubscription
@@ -89,6 +92,7 @@ export class RepresentativesElement extends BaseElement {
         private readonly router: Router,
         private readonly genesService: RepresentativeGenesService,
         private readonly optionsRepo: GeneticAlgorithmOptionsRepository,
+        private readonly summaryRepo: GeneticAlgorithmSummaryRepository,
         @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget) {
         super()
         this.routeParamsSub = this.state.subscribe(StateTopic.RouteParams, state => this.onRouteParams(state))
@@ -104,6 +108,7 @@ export class RepresentativesElement extends BaseElement {
         return html`
             <rf-representatives-header
                 .options=${this.options}
+                .generation=${this.generation}
                 @show-popup=${this.showPopupHandler}>
             </rf-representatives-header>
             <div>
@@ -137,15 +142,17 @@ export class RepresentativesElement extends BaseElement {
         if (this.geneticAlgorithmId) {
             this.representativeGenesSub = this.state.subscribe(
                 StateTopic.RepresentativeGenes,
-                ({ representativeGenes }) => {
+                ({ representativeGenes, generation }) => {
                     this.genes = representativeGenes
+                    this.generation = generation
                 },
                 {
                     onNotImmediatelyAvailable: async () => {
                         this.genes = await this.genesService.getGenes(this.geneticAlgorithmId || '')
+                        this.generation = (await this.summaryRepo.get(this.geneticAlgorithmId || ''))?.generation ?? 0
                         this.eventTarget.dispatchEvent(new UpdateStateEvent(
                             StateTopic.RepresentativeGenes,
-                            { representativeGenes: [ ...(this.genes || []) ] }
+                            { representativeGenes: [ ...(this.genes || []) ], generation: this.generation }
                         ))
                     }
                 }

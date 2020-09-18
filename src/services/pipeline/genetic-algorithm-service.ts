@@ -72,7 +72,10 @@ export class GeneticAlgorithmService {
                 this.eventTarget.dispatchEvent(
                     new UpdateStateEvent(
                         StateTopic.RepresentativeGenes,
-                        { representativeGenes: result.representativeGenes }))
+                        {
+                            representativeGenes: result.representativeGenes,
+                            generation: result.geneticAlgorithm?.generation ?? 0
+                        }))
 
                 this.eventTarget.dispatchEvent(
                     new UpdateStateEvent(

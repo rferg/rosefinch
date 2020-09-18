@@ -2,8 +2,13 @@ import { elementUpdated, fixture } from '@open-wc/testing-helpers'
 import { html, property } from 'lit-element'
 import { SerializedGeneticAlgorithmOptions } from '../../../src/genetic-algorithm'
 import { RepresentativeGenesService } from '../../../src/services/pipeline'
-import { StateMediatorService, StateSubscription, StateTopic, UpdateStateEvent } from '../../../src/services/state'
-import { GeneticAlgorithmOptionsRepository, GeneticAlgorithmOptionsStore } from '../../../src/storage'
+import { RepresentativeGenesState, StateMediatorService, StateSubscription, StateTopic, UpdateStateEvent } from '../../../src/services/state'
+import {
+    GeneticAlgorithmOptionsRepository,
+    GeneticAlgorithmOptionsStore,
+    GeneticAlgorithmSummaryRepository,
+    GeneticAlgorithmSummaryStore
+} from '../../../src/storage'
 import { BaseElement } from '../../../src/ui/core/base-element'
 import { Router } from '../../../src/ui/core/router'
 import { RepresentativeElement } from '../../../src/ui/representatives/representative.element'
@@ -18,6 +23,9 @@ class RepresentativesHeaderElementStub extends BaseElement {
     static get is() { return 'rf-representatives-header' }
     @property()
     options?: SerializedGeneticAlgorithmOptions
+
+    @property()
+    generation?: number
 }
 
 class EditRepresentativeElementStub extends BaseElement {
@@ -53,6 +61,9 @@ describe('RepresentativesElement', () => {
     const optionsRepoSpy = jasmine.createSpyObj<GeneticAlgorithmOptionsRepository>(
         'GeneticAlgorithmOptionsRepository',
         [ 'get' ])
+    const summaryRepoSpy = jasmine.createSpyObj<GeneticAlgorithmSummaryRepository>(
+        'GeneticAlgorithmSummaryRepository',
+        [ 'get' ])
     const eventSpy = jasmine.createSpyObj<EventTarget>(
         'EventTarget',
         [ 'dispatchEvent' ])
@@ -70,7 +81,7 @@ describe('RepresentativesElement', () => {
         CustomElementRegistrar.instance.register(RunConfirmFormElementStub.is, RunConfirmFormElementStub)
         CustomElementRegistrar.instance.register('rf-representatives-test', class extends RepresentativesElement {
             constructor() {
-                super(stateSpy, routerSpy, genesServiceSpy, optionsRepoSpy, eventSpy)
+                super(stateSpy, routerSpy, genesServiceSpy, optionsRepoSpy, summaryRepoSpy, eventSpy)
             }
         })
     })
@@ -81,6 +92,7 @@ describe('RepresentativesElement', () => {
         routerSpy.navigate.calls.reset()
         genesServiceSpy.getGenes.calls.reset()
         optionsRepoSpy.get.calls.reset()
+        summaryRepoSpy.get.calls.reset()
         eventSpy.dispatchEvent.calls.reset()
 
         el = await fixture(html`<rf-representatives-test></rf-representatives-test>`)
@@ -131,7 +143,7 @@ describe('RepresentativesElement', () => {
             })
 
             describe('representative genes subscription', () => {
-                let genesHandler: (state: { representativeGenes: (number[] | undefined)[] }) => any
+                let genesHandler: (state: RepresentativeGenesState) => any
                 let onNotImmediatelyAvailable: () => Promise<void>
 
                 beforeEach(() => {
@@ -146,7 +158,7 @@ describe('RepresentativesElement', () => {
                     const genomes = [ [ 0 ], [ 1 ], undefined, [ 2 ] ]
                     const definedGenomes = genomes.filter(g => !!g)
 
-                    genesHandler({ representativeGenes: genomes })
+                    genesHandler({ representativeGenes: genomes, generation: 1 })
                     await elementUpdated(el)
 
                     const repEls = [ ...(el.shadowRoot?.querySelectorAll('rf-representative') ?? []) ]
@@ -159,10 +171,21 @@ describe('RepresentativesElement', () => {
                     })
                 })
 
+                it('should render rf-representatives-header element with generation number', async () => {
+                    const expectedGeneration = 1
+
+                    genesHandler({ representativeGenes: [], generation: expectedGeneration })
+                    await elementUpdated(el)
+
+                    expect((el.shadowRoot
+                        ?.querySelector('rf-representatives-header') as RepresentativesHeaderElementStub).generation)
+                        .toEqual(expectedGeneration)
+                })
+
                 it('should select first genome as active', async () => {
                     const genomes = [ [ 0 ], [ 1 ], undefined, [ 2 ] ]
 
-                    genesHandler({ representativeGenes: genomes })
+                    genesHandler({ representativeGenes: genomes, generation: 1 })
                     await elementUpdated(el)
 
                     const editRepEl = el.shadowRoot
@@ -179,15 +202,24 @@ describe('RepresentativesElement', () => {
                     expect(genesServiceSpy.getGenes).toHaveBeenCalledWith(geneticAlgorithmId)
                 })
 
+                it('should have onNotImmediatelyAvailable that calls GeneticAlgorithmSummaryRepository', async () => {
+                    summaryRepoSpy.get.and.returnValue(Promise.resolve({} as GeneticAlgorithmSummaryStore))
+                    await onNotImmediatelyAvailable()
+
+                    expect(summaryRepoSpy.get).toHaveBeenCalledWith(geneticAlgorithmId)
+                })
+
                 it('should have onNotImmediatelyAvailable that dispatches update state event', async () => {
                     const genes = [ [ 0 ] ]
+                    const generation = 1
                     genesServiceSpy.getGenes.and.returnValue(Promise.resolve(genes))
+                    summaryRepoSpy.get.and.returnValue(Promise.resolve({ generation } as GeneticAlgorithmSummaryStore))
 
                     await onNotImmediatelyAvailable()
 
                     expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(new UpdateStateEvent(
                         StateTopic.RepresentativeGenes,
-                        { representativeGenes: genes }
+                        { representativeGenes: genes, generation }
                     ))
                 })
             })
@@ -311,7 +343,7 @@ describe('RepresentativesElement', () => {
             .find(call => call.args[0] === StateTopic.RepresentativeGenes)
             ?.args[1]
         if (!genesHandler) { throw new Error('missing genes handler') }
-        genesHandler({ representativeGenes: genomes })
+        genesHandler({ representativeGenes: genomes, generation: 1 })
     }
 
     describe('on EditRepresentativeElement rating-change event', () => {
