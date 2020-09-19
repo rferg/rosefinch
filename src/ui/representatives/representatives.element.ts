@@ -53,6 +53,9 @@ export class RepresentativesElement extends BaseElement {
                 }
                 div rf-container:last-child {
                     flex-grow: 1;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    max-width: 20vw;
                 }
             `
         ]
@@ -150,6 +153,7 @@ export class RepresentativesElement extends BaseElement {
                         .map((genome, i) => genome
                             ? html`<rf-representative
                                         index="${i}"
+                                        ?active=${i === this.activeGenomeIndex}
                                         .genome=${genome}
                                         .rating=${(this.ratings || [])[i]}
                                         @click=${() => this.activeGenomeIndex = i}>
