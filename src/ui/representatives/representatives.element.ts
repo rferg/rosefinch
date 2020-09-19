@@ -14,6 +14,7 @@ import {
 import { GeneticAlgorithmOptionsRepository, GeneticAlgorithmSummaryRepository } from '../../storage'
 import { animationsStyles } from '../common/animations.styles'
 import { headingsStyles } from '../common/headings.styles'
+import { scrollbarStyles } from '../common/scrollbar.styles'
 import { BaseElement } from '../core/base-element'
 import { Router } from '../core/router'
 import { FormSubmitEvent } from '../options/form-submit-event'
@@ -27,6 +28,7 @@ export class RepresentativesElement extends BaseElement {
             super.styles,
             headingsStyles,
             animationsStyles,
+            scrollbarStyles,
             css`
                 :host {
                     width: 100%;
