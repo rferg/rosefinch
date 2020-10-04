@@ -5,6 +5,7 @@ import { IconElement } from './icon.element'
 import { ButtonElement } from './button.element'
 import { TooltipElement } from './tooltip.element'
 import { getProviders as getStorageProviders } from '../../storage'
+import { RangeInputElement } from './range-input.element'
 
 export default {
     providers: [
@@ -15,6 +16,7 @@ export default {
         { name: 'rf-inside-container', element: InsideContainerElement },
         { name: 'rf-icon', element: IconElement },
         { name: 'rf-button', element: ButtonElement },
-        { name: 'rf-tooltip', element: TooltipElement }
+        { name: 'rf-tooltip', element: TooltipElement },
+        { name: 'rf-range-input', element: RangeInputElement }
     ]
 } as Module
