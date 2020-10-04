@@ -1,6 +1,5 @@
-import { StateMediatorService, StateTopic, UpdateStateEvent } from '../../../src/services/state'
+import { RepresentativeGenesState, StateMediatorService, StateTopic, UpdateStateEvent } from '../../../src/services/state'
 import { updateStateEventType } from '../../../src/services/state/update-state-event-type'
-import { UserRatingsState } from '../../../src/services/state/user-ratings-state'
 import { ClusterConfig } from '../../../src/services/pipeline/cluster-config'
 
 describe('StateMediatorService', () => {
@@ -27,10 +26,10 @@ describe('StateMediatorService', () => {
         })
 
         it('should update state and emit to subscribers', () => {
-            const topic = StateTopic.UserRatings
-            let state: UserRatingsState | undefined
+            const topic = StateTopic.RepresentativeGenes
+            let state: RepresentativeGenesState | undefined
             service.subscribe(topic, (x) => state = x)
-            const expected: UserRatingsState = { userRepresentativeRatings: [ 1, 1, 1 ] }
+            const expected: RepresentativeGenesState = { representativeGenes: [ [ 0 ] ], generation: 1 }
 
             listener(new UpdateStateEvent(topic, expected))
 
@@ -38,7 +37,8 @@ describe('StateMediatorService', () => {
         })
 
         it('should stop event propagation is update event', () => {
-            const event = new UpdateStateEvent(StateTopic.UserRatings, { userRepresentativeRatings: [] })
+            const event = new UpdateStateEvent(
+                StateTopic.RepresentativeGenes, { representativeGenes: [ [ 0 ] ], generation: 1 })
             const stopPropSpy = spyOn(event, 'stopPropagation')
 
             listener(event)
@@ -50,7 +50,7 @@ describe('StateMediatorService', () => {
             const event = new Event('click')
             const stopPropSpy = spyOn(event, 'stopPropagation')
             const updateSpy = jasmine.createSpy('update')
-            service.subscribe(StateTopic.UserRatings, updateSpy)
+            service.subscribe(StateTopic.RepresentativeGenes, updateSpy)
 
             listener(event)
 
@@ -70,23 +70,23 @@ describe('StateMediatorService', () => {
             const ccUpdateSpy = jasmine.createSpy('ClusterConfigUpdate')
             const urUpdateSpy = jasmine.createSpy('UserRatingsUpdateSpy')
             service.subscribe(StateTopic.ClusterConfig, ccUpdateSpy)
-            service.subscribe(StateTopic.UserRatings, urUpdateSpy)
+            service.subscribe(StateTopic.RepresentativeGenes, urUpdateSpy)
             const ccState: ClusterConfig = { maxIterations: 1, numberOfRepresentatives: 1, stopThreshold: 1 }
-            const urState: UserRatingsState = { userRepresentativeRatings: [ 1 ] }
+            const rgState: RepresentativeGenesState = { representativeGenes: [ [ 0 ] ], generation: 1 }
 
-            updateListener(new UpdateStateEvent(StateTopic.UserRatings, urState))
+            updateListener(new UpdateStateEvent(StateTopic.RepresentativeGenes, rgState))
             updateListener(new UpdateStateEvent(StateTopic.ClusterConfig, ccState))
 
             expect(ccUpdateSpy).toHaveBeenCalledWith(ccState)
-            expect(urUpdateSpy).toHaveBeenCalledWith(urState)
+            expect(urUpdateSpy).toHaveBeenCalledWith(rgState)
         })
 
         it('should emit current value on subscribe if it exists', () => {
             const updateSpy = jasmine.createSpy('update')
-            const state: UserRatingsState = { userRepresentativeRatings: [ 1 ] }
-            updateListener(new UpdateStateEvent(StateTopic.UserRatings, state))
+            const state: RepresentativeGenesState = { representativeGenes: [ [ 0 ] ], generation: 1 }
+            updateListener(new UpdateStateEvent(StateTopic.RepresentativeGenes, state))
 
-            service.subscribe(StateTopic.UserRatings, updateSpy)
+            service.subscribe(StateTopic.RepresentativeGenes, updateSpy)
 
             expect(updateSpy).toHaveBeenCalledWith(state)
         })
@@ -95,18 +95,21 @@ describe('StateMediatorService', () => {
             const notAvailableSpy = jasmine.createSpy('onNotImmediatelyAvailable')
             const updateSpy = jasmine.createSpy('update')
 
-            service.subscribe(StateTopic.UserRatings, updateSpy, { onNotImmediatelyAvailable: notAvailableSpy })
+            service.subscribe(StateTopic.RepresentativeGenes, updateSpy, { onNotImmediatelyAvailable: notAvailableSpy })
 
             expect(notAvailableSpy).toHaveBeenCalledTimes(1)
         })
 
         it('should return unsubscribe function that removes listener', () => {
             const updateSpy = jasmine.createSpy('update')
-            const { unsubscribe } = service.subscribe(StateTopic.UserRatings, updateSpy)
+            const { unsubscribe } = service.subscribe(StateTopic.RepresentativeGenes, updateSpy)
 
             unsubscribe()
 
-            updateListener(new UpdateStateEvent(StateTopic.UserRatings, { userRepresentativeRatings: [] }))
+            updateListener(
+                new UpdateStateEvent(
+                    StateTopic.RepresentativeGenes,
+                    { representativeGenes: [ [ 0 ] ], generation: 1 }))
             expect(updateSpy).not.toHaveBeenCalled()
         })
     })

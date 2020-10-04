@@ -368,22 +368,6 @@ describe('RepresentativesElement', () => {
             expect(repEl.rating).toEqual(expectedRating)
             expect(editRepEl.rating).toEqual(expectedRating)
         })
-
-        it('should emit dispatch state event', async () => {
-            const genomes = [ [ 0 ] ]
-            const expectedRating = 1
-            initiateWithGenomes(genomes)
-
-            const editRepEl = el.shadowRoot
-                ?.querySelector('rf-edit-representative') as EditRepresentativeElementStub
-            editRepEl.dispatchEvent(new CustomEvent<number>('rating-change', { detail: expectedRating }))
-            await elementUpdated(el)
-
-            const event = eventSpy.dispatchEvent.calls
-                .mostRecent()
-                .args[0] as UpdateStateEvent<StateTopic.UserRatings>
-            expect(event.newState.userRepresentativeRatings).toEqual([ expectedRating ])
-        })
     })
 
     describe('on RepresentativeElement click event', () => {
@@ -410,7 +394,13 @@ describe('RepresentativesElement', () => {
 
         it('should run pipeline on confirmed run', async () => {
             const geneticAlgorithmId = 'xyz'
-            initiateWithGenomes([], geneticAlgorithmId)
+            const genes = [ [ 0 ] ]
+            const expectedRatings = [ 1 ]
+            initiateWithGenomes(genes, geneticAlgorithmId)
+            await elementUpdated(el)
+            const editRepEl = el.shadowRoot
+                ?.querySelector('rf-edit-representative') as EditRepresentativeElementStub
+            editRepEl.dispatchEvent(new CustomEvent<number>('rating-change', { detail: expectedRatings[0] }))
             await elementUpdated(el)
             const headerEl = el.shadowRoot
                 ?.querySelector('rf-representatives-header') as RepresentativesHeaderElementStub
@@ -426,7 +416,7 @@ describe('RepresentativesElement', () => {
 
             expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(new UpdateStateEvent(
                 StateTopic.PipelineRunParams,
-                { numberOfGenerations, geneticAlgorithmId }
+                { numberOfGenerations, geneticAlgorithmId, userRepresentativeRatings: expectedRatings }
             ))
             expect(routerSpy.navigate).toHaveBeenCalledWith('/run')
         })

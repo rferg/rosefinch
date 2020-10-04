@@ -151,13 +151,6 @@ describe('GeneticAlgorithmService', () => {
                             generation: result.geneticAlgorithm?.generation ?? 0
                         })
                 )
-                expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(
-                    new UpdateStateEvent(
-                        StateTopic.UserRatings,
-                        {
-                            userRepresentativeRatings: new Array<number | undefined>(
-                                result.representativeGenes?.length)
-                        }))
                 expect(serviceResult).toEqual({
                     error: undefined,
                     isCanceled: false,

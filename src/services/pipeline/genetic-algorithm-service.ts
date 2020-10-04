@@ -76,14 +76,6 @@ export class GeneticAlgorithmService {
                             representativeGenes: result.representativeGenes,
                             generation: result.geneticAlgorithm?.generation ?? 0
                         }))
-
-                this.eventTarget.dispatchEvent(
-                    new UpdateStateEvent(
-                        StateTopic.UserRatings,
-                        {
-                            userRepresentativeRatings: new Array<number | undefined>(
-                                result.representativeGenes.length)
-                        }))
             }
 
             return {

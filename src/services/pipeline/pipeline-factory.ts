@@ -50,9 +50,7 @@ export class PipelineFactory {
     }
 
     private ratingsExist(userRepresentativeRatings?: (number | undefined)[]): boolean {
-        return !!(userRepresentativeRatings || [])
-            .filter(rating => rating !== undefined)
-            .length
+        return (userRepresentativeRatings || []).some(rating => rating !== undefined)
     }
 
     private getUserRatedFitnessStages(): PipelineStage<PipelineState>[] {

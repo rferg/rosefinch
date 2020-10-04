@@ -83,25 +83,8 @@ export class RepresentativesElement extends BaseElement {
         }
     }
 
-    private _ratings?: number[]
     @internalProperty()
-    private get ratings(): number[] {
-        return this._ratings || []
-    }
-    private set ratings(val: number[]) {
-        if (val !== this._ratings) {
-            const oldVal = this._ratings
-            this._ratings = val
-            // Lit-Element documentation recommends this way of calling requestUpdate():
-            // https://lit-element.polymer-project.org/guide/properties#accessors
-            // tslint:disable-next-line: no-floating-promises
-            this.requestUpdate('ratings', oldVal)
-            this.eventTarget.dispatchEvent(new UpdateStateEvent(
-                StateTopic.UserRatings,
-                { userRepresentativeRatings: this._ratings }
-            ))
-        }
-    }
+    private ratings: number[] = []
 
     @internalProperty()
     private inPopup: PopupContent = ''
@@ -243,7 +226,8 @@ export class RepresentativesElement extends BaseElement {
         if (this.geneticAlgorithmId) {
             const params: ExistingPipelineRunParams = {
                 geneticAlgorithmId: this.geneticAlgorithmId,
-                numberOfGenerations
+                numberOfGenerations,
+                userRepresentativeRatings: this.ratings
             }
             this.eventTarget.dispatchEvent(new UpdateStateEvent(StateTopic.PipelineRunParams, params))
             this.router.navigate('/run')
