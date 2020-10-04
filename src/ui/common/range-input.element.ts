@@ -191,7 +191,7 @@ export class RangeInputElement extends BaseElement {
     @property()
     step = 1
 
-    @property()
+    @property({ reflect: true, type: Boolean })
     disabled = false
 
     render() {
@@ -202,7 +202,7 @@ export class RangeInputElement extends BaseElement {
                     step="${this.step}"
                     ?disabled=${this.disabled}
                     .value=${this.value?.toString() ?? ''}
-                    @change=${this.onChange}
+                    @input=${this.onChange}
                     />
         `
     }
