@@ -2,6 +2,7 @@ import { elementUpdated, fixture } from '@open-wc/testing-helpers'
 import { html, property } from 'lit-element'
 import { SerializedGeneticAlgorithmOptions } from '../../../src/genetic-algorithm'
 import { RepresentativeGenesService } from '../../../src/services/pipeline'
+import { PlaybackService } from '../../../src/services/playback'
 import { RepresentativeGenesState, StateMediatorService, StateSubscription, StateTopic, UpdateStateEvent } from '../../../src/services/state'
 import {
     GeneticAlgorithmOptionsRepository,
@@ -73,6 +74,7 @@ describe('RepresentativesElement', () => {
     const eventSpy = jasmine.createSpyObj<EventTarget>(
         'EventTarget',
         [ 'dispatchEvent' ])
+    const playbackSpy = jasmine.createSpyObj<PlaybackService>('PlaybackService', [ 'setupSequence' ])
 
     let el: RepresentativeElement
 
@@ -88,7 +90,7 @@ describe('RepresentativesElement', () => {
         CustomElementRegistrar.instance.register(RunConfirmFormElementStub.is, RunConfirmFormElementStub)
         CustomElementRegistrar.instance.register('rf-representatives-test', class extends RepresentativesElement {
             constructor() {
-                super(stateSpy, routerSpy, genesServiceSpy, optionsRepoSpy, summaryRepoSpy, eventSpy)
+                super(stateSpy, routerSpy, genesServiceSpy, optionsRepoSpy, summaryRepoSpy, eventSpy, playbackSpy)
             }
         })
     })

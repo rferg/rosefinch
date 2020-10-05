@@ -1,3 +1,4 @@
+import { getProviders as getPlaybackProviders } from '../../services/playback'
 import { Module } from '../core/module'
 import { EditRepresentativeElement } from './edit-representative.element'
 import { RatingDisplayElement } from './rating-display.element'
@@ -8,7 +9,7 @@ import { RepresentativesElement } from './representatives.element'
 
 export default {
     providers: [
-
+        ...getPlaybackProviders()
     ],
     elements: [
         {

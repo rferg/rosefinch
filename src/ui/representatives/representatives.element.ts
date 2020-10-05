@@ -4,6 +4,7 @@ import { assertUnreachable } from '../../common/assert-unreachable'
 import { globalEventTargetToken } from '../../common/global-event-target-token'
 import { SerializedGeneticAlgorithmOptions } from '../../genetic-algorithm'
 import { RepresentativeGenesService } from '../../services/pipeline'
+import { PlaybackControls, PlaybackService } from '../../services/playback'
 import {
     ExistingPipelineRunParams,
     StateMediatorService,
@@ -98,9 +99,13 @@ export class RepresentativesElement extends BaseElement {
     @internalProperty()
     private generation?: number
 
+    @internalProperty()
+    private isPlaying = false
+
     private readonly routeParamsSub: StateSubscription
     private representativeGenesSub?: StateSubscription
     private optionsSub?: StateSubscription
+    private activePlaybackControls?: { genomeIndex: number, controls: PlaybackControls }
 
     constructor(
         private readonly state: StateMediatorService,
@@ -108,7 +113,8 @@ export class RepresentativesElement extends BaseElement {
         private readonly genesService: RepresentativeGenesService,
         private readonly optionsRepo: GeneticAlgorithmOptionsRepository,
         private readonly summaryRepo: GeneticAlgorithmSummaryRepository,
-        @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget) {
+        @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget,
+        private readonly playback: PlaybackService) {
         super()
         this.routeParamsSub = this.state.subscribe(StateTopic.RouteParams, state => this.onRouteParams(state))
     }
@@ -130,7 +136,10 @@ export class RepresentativesElement extends BaseElement {
                     <rf-edit-representative
                         .genome=${this.genes[this.activeGenomeIndex || 0]}
                         .rating=${this.ratings[this.activeGenomeIndex || 0]}
-                        @rating-change=${this.onRatingChange}>
+                        ?playing=${this.isPlaying}
+                        @rating-change=${this.onRatingChange}
+                        @play=${this.onPlay}
+                        @pause=${this.onPause}>
                     </rf-edit-representative>
                 </rf-container>
                 <rf-container>
@@ -238,5 +247,28 @@ export class RepresentativesElement extends BaseElement {
         if (this.ratings && this.activeGenomeIndex !== undefined) {
             this.ratings = Object.assign([], this.ratings, { [this.activeGenomeIndex]: rating })
         }
+    }
+
+    private async onPlay() {
+        if (this.activePlaybackControls?.genomeIndex !== this.activeGenomeIndex) {
+            const controls = await this.playback.setupSequence({
+                genes: this.genes[this.activeGenomeIndex || 0] || [],
+                shortestNoteDuration: this.options?.shortestNoteDuration ?? 1,
+                // TODO: GET PLAYBACK OPTIONS
+                options: { bpm: 120, loop: false },
+                callbacks: {
+                    onNoteChange: (_, __, isDone) => {
+                        this.isPlaying = !isDone
+                    }
+                }
+            })
+            this.activePlaybackControls = { genomeIndex: this.activeGenomeIndex || 0, controls }
+        }
+        this.activePlaybackControls?.controls.play()
+    }
+
+    private onPause() {
+        this.activePlaybackControls?.controls.pause()
+        this.isPlaying = false
     }
 }
