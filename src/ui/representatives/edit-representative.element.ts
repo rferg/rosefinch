@@ -43,5 +43,6 @@ export class EditRepresentativeElement extends BaseElement {
 
     private onPlayPauseClick() {
         this.dispatchEvent(new CustomEvent(this.playing ? 'pause' : 'play'))
+        this.playing = !this.playing
     }
 }

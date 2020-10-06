@@ -90,8 +90,22 @@ export class RepresentativesElement extends BaseElement {
     @internalProperty()
     private inPopup: PopupContent = ''
 
+    private _activeGenomeIndex?: number
     @internalProperty()
-    private activeGenomeIndex?: number
+    private get activeGenomeIndex(): number {
+        return this._activeGenomeIndex || 0
+    }
+    private set activeGenomeIndex(val: number) {
+        if (val !== this._activeGenomeIndex) {
+            const oldVal = this._activeGenomeIndex
+            this._activeGenomeIndex = val
+            this.onPause()
+            // Lit-Element documentation recommends this way of calling requestUpdate():
+            // https://lit-element.polymer-project.org/guide/properties#accessors
+            // tslint:disable-next-line: no-floating-promises
+            this.requestUpdate('activeGenomeIndex', oldVal)
+        }
+    }
 
     @internalProperty()
     private options?: SerializedGeneticAlgorithmOptions
@@ -134,8 +148,8 @@ export class RepresentativesElement extends BaseElement {
             <div>
                 <rf-container>
                     <rf-edit-representative
-                        .genome=${this.genes[this.activeGenomeIndex || 0]}
-                        .rating=${this.ratings[this.activeGenomeIndex || 0]}
+                        .genome=${this.genes[this.activeGenomeIndex]}
+                        .rating=${this.ratings[this.activeGenomeIndex]}
                         ?playing=${this.isPlaying}
                         @rating-change=${this.onRatingChange}
                         @play=${this.onPlay}
@@ -244,7 +258,7 @@ export class RepresentativesElement extends BaseElement {
     }
 
     private onRatingChange({ detail: rating }: CustomEvent<number>) {
-        if (this.ratings && this.activeGenomeIndex !== undefined) {
+        if (this.ratings) {
             this.ratings = Object.assign([], this.ratings, { [this.activeGenomeIndex]: rating })
         }
     }
@@ -252,17 +266,17 @@ export class RepresentativesElement extends BaseElement {
     private async onPlay() {
         if (this.activePlaybackControls?.genomeIndex !== this.activeGenomeIndex) {
             const controls = await this.playback.setupSequence({
-                genes: this.genes[this.activeGenomeIndex || 0] || [],
+                genes: this.genes[this.activeGenomeIndex] || [],
                 shortestNoteDuration: this.options?.shortestNoteDuration ?? 1,
                 // TODO: GET PLAYBACK OPTIONS
-                options: { bpm: 120, loop: false },
+                options: { bpm: 200, loop: false },
                 callbacks: {
                     onNoteChange: (_, __, isDone) => {
                         this.isPlaying = !isDone
                     }
                 }
             })
-            this.activePlaybackControls = { genomeIndex: this.activeGenomeIndex || 0, controls }
+            this.activePlaybackControls = { genomeIndex: this.activeGenomeIndex, controls }
         }
         this.activePlaybackControls?.controls.play()
     }
