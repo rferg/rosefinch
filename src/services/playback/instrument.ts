@@ -1,4 +1,4 @@
 export enum Instrument {
-    Synth,
-    Piano
+    Synth = 'Synth',
+    Piano = 'Piano'
 }

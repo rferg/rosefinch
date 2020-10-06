@@ -4,7 +4,7 @@ import { assertUnreachable } from '../../common/assert-unreachable'
 import { globalEventTargetToken } from '../../common/global-event-target-token'
 import { SerializedGeneticAlgorithmOptions } from '../../genetic-algorithm'
 import { RepresentativeGenesService } from '../../services/pipeline'
-import { Instrument, PlaybackControls, PlaybackService } from '../../services/playback'
+import { Instrument, PlaybackControls, PlaybackOptions, PlaybackService } from '../../services/playback'
 import {
     ExistingPipelineRunParams,
     StateMediatorService,
@@ -116,6 +116,9 @@ export class RepresentativesElement extends BaseElement {
     @internalProperty()
     private isPlaying = false
 
+    @internalProperty()
+    private playbackOptions: PlaybackOptions = { bpm: 120, instrument: Instrument.Piano }
+
     private readonly routeParamsSub: StateSubscription
     private representativeGenesSub?: StateSubscription
     private optionsSub?: StateSubscription
@@ -219,8 +222,10 @@ export class RepresentativesElement extends BaseElement {
 
     private showPopupHandler({ detail: popupContent }: CustomEvent<PopupContent>) {
         const validValues: PopupContent[] = [ 'fitness', 'playback', 'run', '' ]
+        // Pause any current playback.
+        this.onPause()
         if (validValues.indexOf(popupContent) === -1) {
-            this.inPopup = ''
+            this.closePopup()
         } else {
             this.inPopup = popupContent
         }
@@ -233,10 +238,17 @@ export class RepresentativesElement extends BaseElement {
                     <rf-representatives-fitness-form .options=${this.options}>
                     </rf-representatives-fitness-form>`
             case 'playback':
-                return html`<rf-playback-options></rf-playback-options>`
+                return html`
+                    <rf-playback-options
+                        .options=${this.playbackOptions}
+                        @form-submit=${this.onPlaybackOptionsChange}
+                        @cancel=${this.closePopup}>
+                    </rf-playback-options>`
             case 'run':
                 return html`
-                    <rf-run-confirm-form @cancel=${() => this.inPopup = ''} @form-submit=${this.onRunConfirmed}>
+                    <rf-run-confirm-form
+                        @cancel=${this.closePopup}
+                        @form-submit=${this.onRunConfirmed}>
                     </rf-run-confirm-form>`
             case '':
                 return html``
@@ -263,13 +275,12 @@ export class RepresentativesElement extends BaseElement {
         }
     }
 
-    private async onPlay() {
+    private async onPlay(): Promise<void> {
         if (this.activePlaybackControls?.genomeIndex !== this.activeGenomeIndex) {
             const controls = await this.playback.setupSequence({
                 genes: this.genes[this.activeGenomeIndex] || [],
                 shortestNoteDuration: this.options?.shortestNoteDuration ?? 1,
-                // TODO: GET PLAYBACK OPTIONS
-                options: { bpm: 120, loop: false, instrument: Instrument.Piano },
+                options: this.playbackOptions,
                 callbacks: {
                     onNoteChange: (_, __, isDone) => {
                         this.isPlaying = !isDone
@@ -284,5 +295,20 @@ export class RepresentativesElement extends BaseElement {
     private onPause() {
         this.activePlaybackControls?.controls.pause()
         this.isPlaying = false
+    }
+
+    private onPlaybackOptionsChange(event: FormSubmitEvent<PlaybackOptions>) {
+        event.stopPropagation()
+        if (event?.value) {
+            this.playbackOptions = { ...event.value }
+            // Reset any existing playback part so that
+            // new options are applied.
+            this.activePlaybackControls = undefined
+            this.closePopup()
+        }
+    }
+
+    private closePopup() {
+        this.inPopup = ''
     }
 }

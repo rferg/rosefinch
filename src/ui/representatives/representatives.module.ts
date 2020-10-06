@@ -1,6 +1,7 @@
 import { getProviders as getPlaybackProviders } from '../../services/playback'
 import { Module } from '../core/module'
 import { EditRepresentativeElement } from './edit-representative.element'
+import { PlaybackOptionsElement } from './playback-options.element'
 import { RatingDisplayElement } from './rating-display.element'
 import { RepresentativeElement } from './representative.element'
 import { RepresentativesFitnessFormElement } from './representatives-fitness-form.element'
@@ -35,6 +36,10 @@ export default {
         {
             element: RatingDisplayElement,
             name: 'rf-rating-display'
+        },
+        {
+            element: PlaybackOptionsElement,
+            name: 'rf-playback-options'
         }
     ]
 } as Module
