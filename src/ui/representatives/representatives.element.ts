@@ -4,7 +4,7 @@ import { assertUnreachable } from '../../common/assert-unreachable'
 import { globalEventTargetToken } from '../../common/global-event-target-token'
 import { SerializedGeneticAlgorithmOptions } from '../../genetic-algorithm'
 import { RepresentativeGenesService } from '../../services/pipeline'
-import { PlaybackControls, PlaybackService } from '../../services/playback'
+import { Instrument, PlaybackControls, PlaybackService } from '../../services/playback'
 import {
     ExistingPipelineRunParams,
     StateMediatorService,
@@ -269,7 +269,7 @@ export class RepresentativesElement extends BaseElement {
                 genes: this.genes[this.activeGenomeIndex] || [],
                 shortestNoteDuration: this.options?.shortestNoteDuration ?? 1,
                 // TODO: GET PLAYBACK OPTIONS
-                options: { bpm: 200, loop: false },
+                options: { bpm: 120, loop: false, instrument: Instrument.Piano },
                 callbacks: {
                     onNoteChange: (_, __, isDone) => {
                         this.isPlaying = !isDone

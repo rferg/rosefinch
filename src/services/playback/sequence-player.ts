@@ -1,29 +1,25 @@
-import { Injectable } from 'cewdi'
-import * as Tone from 'tone'
+import { Inject, Injectable } from 'cewdi'
+import { Part, start as toneStart, Time, Transport } from 'tone'
 import { Pitch } from '../../common/pitch'
 import { PlayableNote } from '../playable-note'
 import { Instrument } from './instrument'
+import { instrumentsConfigToken } from './instruments-config-token'
+import { InstrumentsConfigType } from './instruments-config-type'
 import { PlaybackCallbacks } from './playback-callbacks'
 import { PlaybackControls } from './playback-controls'
+import { PlaybackInstrument } from './playback-instrument'
 import { PlaybackOptions } from './playback-options'
 
-type PlayerInstrument = Tone.Synth | Tone.Sampler
 type PartValueType = { time: number, note: string | null, duration: number, index: number, isDone: boolean }
 
 @Injectable()
 export class SequencePlayer {
     private hasStarted = false
-    private readonly instruments = new Map<Instrument, PlayerInstrument>()
-    private currentInstrument: { type: Instrument, instance: PlayerInstrument }
+    private readonly instruments = new Map<Instrument, PlaybackInstrument>()
+    private readonly defaultInstrument = Instrument.Synth
+    private currentInstrument?: { type: Instrument, instance: PlaybackInstrument }
 
-    constructor() {
-        this.currentInstrument = {
-            type: Instrument.Synth,
-            instance: new Tone.Synth().toDestination()
-        }
-        this.instruments.set(this.currentInstrument.type, this.currentInstrument.instance)
-        // TODO: SETUP PIANO SAMPLER
-    }
+    constructor(@Inject(instrumentsConfigToken) private readonly instrumentsConfig: InstrumentsConfigType) { }
 
     async setupSequence({
         sequence,
@@ -41,14 +37,14 @@ export class SequencePlayer {
         }
 
         if (!this.hasStarted) {
-            await Tone.start()
+            await toneStart()
             this.hasStarted = true
         }
 
         this.clearTransport()
-        this.updateOptions(options)
+        await this.updateOptions(options)
 
-        const baseTime = Tone.Time(shortestNoteDuration + 'n').toSeconds()
+        const baseTime = Time(shortestNoteDuration + 'n').toSeconds()
         const part = this.scheduleSequence(baseTime, sequence, !!options.loop, callbacks)
 
         return {
@@ -61,24 +57,24 @@ export class SequencePlayer {
         }
     }
 
-    private updateOptions({ bpm, instrument }: PlaybackOptions) {
+    private async updateOptions({ bpm, instrument }: PlaybackOptions): Promise<void> {
         if (bpm) {
-            Tone.Transport.bpm.value = Math.abs(bpm)
+            Transport.bpm.value = Math.abs(bpm)
         }
 
-        if (instrument && instrument !== this.currentInstrument.type) {
-            const instance = this.instruments.get(instrument)
+        if (!this.currentInstrument || instrument !== this.currentInstrument?.type) {
+            const instance = await this.loadInstrument(instrument || this.defaultInstrument)
             if (instance) {
-                this.currentInstrument = { type: instrument, instance }
+                this.currentInstrument = { type: instrument || this.defaultInstrument, instance }
             }
         }
     }
 
     private clearTransport() {
-        Tone.Transport.stop()
-        Tone.Transport.position = 0
-        Tone.Transport.cancel()
-        Tone.Transport.start()
+        Transport.stop()
+        Transport.position = 0
+        Transport.cancel()
+        Transport.start()
     }
 
     private getNote(pitchName: string, octave: number): string | null {
@@ -90,7 +86,7 @@ export class SequencePlayer {
         baseTime: number,
         sequence: PlayableNote[],
         loop: boolean,
-        { onNoteChange }: PlaybackCallbacks): Tone.Part {
+        { onNoteChange }: PlaybackCallbacks): Part {
         let time = 0
         const timeNotes: PartValueType[] = []
         sequence.forEach(({ pitchName, octave, numberOfShortestDurations }, index) => {
@@ -104,8 +100,8 @@ export class SequencePlayer {
         // this comes last.
         timeNotes.push({ time: time + 1, note: '', duration: 0, index: sequence.length, isDone: true })
 
-        const part = new Tone.Part<PartValueType>((time, { note, duration, index, isDone }) => {
-            if (note) {
+        const part = new Part<PartValueType>((time, { note, duration, index, isDone }) => {
+            if (note && this.currentInstrument) {
                 this.currentInstrument.instance.triggerAttackRelease(note, duration, time)
             }
             if (onNoteChange) { onNoteChange(note || '', index, isDone) }
@@ -114,5 +110,13 @@ export class SequencePlayer {
         part.loopEnd = time
         part.loop = loop
         return part
+    }
+
+    private async loadInstrument(instrument: Instrument): Promise<PlaybackInstrument | undefined> {
+        if (!this.instruments.has(instrument)) {
+            const instance = await this.instrumentsConfig[instrument].loader()
+            this.instruments.set(instrument, instance)
+        }
+        return Promise.resolve(this.instruments.get(instrument))
     }
 }
