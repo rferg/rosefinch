@@ -127,13 +127,13 @@ export class PlaybackOptionsElement extends FormElement<PlaybackOptions> {
         `
     }
 
-    onSubmit() {
+    private onSubmit() {
         if (this.valid) {
             this.dispatchEvent(new FormSubmitEvent<PlaybackOptions>({ value: this.value || {} }))
         }
     }
 
-    onCancel() {
+    private onCancel() {
         this.dispatchEvent(new CustomEvent(cancelEventType))
     }
 }
