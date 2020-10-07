@@ -4,6 +4,7 @@ import { assertUnreachable } from '../../common/assert-unreachable'
 import { globalEventTargetToken } from '../../common/global-event-target-token'
 import { SerializedGeneticAlgorithmOptions } from '../../genetic-algorithm'
 import { RepresentativeGenesService } from '../../services/pipeline'
+import { Instrument, PlaybackControls, PlaybackOptions, PlaybackService } from '../../services/playback'
 import {
     ExistingPipelineRunParams,
     StateMediatorService,
@@ -89,8 +90,22 @@ export class RepresentativesElement extends BaseElement {
     @internalProperty()
     private inPopup: PopupContent = ''
 
+    private _activeGenomeIndex?: number
     @internalProperty()
-    private activeGenomeIndex?: number
+    private get activeGenomeIndex(): number {
+        return this._activeGenomeIndex || 0
+    }
+    private set activeGenomeIndex(val: number) {
+        if (val !== this._activeGenomeIndex) {
+            const oldVal = this._activeGenomeIndex
+            this._activeGenomeIndex = val
+            this.onPause()
+            // Lit-Element documentation recommends this way of calling requestUpdate():
+            // https://lit-element.polymer-project.org/guide/properties#accessors
+            // tslint:disable-next-line: no-floating-promises
+            this.requestUpdate('activeGenomeIndex', oldVal)
+        }
+    }
 
     @internalProperty()
     private options?: SerializedGeneticAlgorithmOptions
@@ -98,9 +113,16 @@ export class RepresentativesElement extends BaseElement {
     @internalProperty()
     private generation?: number
 
+    @internalProperty()
+    private isPlaying = false
+
+    @internalProperty()
+    private playbackOptions: PlaybackOptions = { bpm: 120, instrument: Instrument.Piano }
+
     private readonly routeParamsSub: StateSubscription
     private representativeGenesSub?: StateSubscription
     private optionsSub?: StateSubscription
+    private activePlaybackControls?: { genomeIndex: number, controls: PlaybackControls }
 
     constructor(
         private readonly state: StateMediatorService,
@@ -108,7 +130,8 @@ export class RepresentativesElement extends BaseElement {
         private readonly genesService: RepresentativeGenesService,
         private readonly optionsRepo: GeneticAlgorithmOptionsRepository,
         private readonly summaryRepo: GeneticAlgorithmSummaryRepository,
-        @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget) {
+        @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget,
+        private readonly playback: PlaybackService) {
         super()
         this.routeParamsSub = this.state.subscribe(StateTopic.RouteParams, state => this.onRouteParams(state))
     }
@@ -128,9 +151,12 @@ export class RepresentativesElement extends BaseElement {
             <div>
                 <rf-container>
                     <rf-edit-representative
-                        .genome=${this.genes[this.activeGenomeIndex || 0]}
-                        .rating=${this.ratings[this.activeGenomeIndex || 0]}
-                        @rating-change=${this.onRatingChange}>
+                        .genome=${this.genes[this.activeGenomeIndex]}
+                        .rating=${this.ratings[this.activeGenomeIndex]}
+                        ?playing=${this.isPlaying}
+                        @rating-change=${this.onRatingChange}
+                        @play=${this.onPlay}
+                        @pause=${this.onPause}>
                     </rf-edit-representative>
                 </rf-container>
                 <rf-container>
@@ -196,8 +222,10 @@ export class RepresentativesElement extends BaseElement {
 
     private showPopupHandler({ detail: popupContent }: CustomEvent<PopupContent>) {
         const validValues: PopupContent[] = [ 'fitness', 'playback', 'run', '' ]
+        // Pause any current playback.
+        this.onPause()
         if (validValues.indexOf(popupContent) === -1) {
-            this.inPopup = ''
+            this.closePopup()
         } else {
             this.inPopup = popupContent
         }
@@ -210,10 +238,17 @@ export class RepresentativesElement extends BaseElement {
                     <rf-representatives-fitness-form .options=${this.options}>
                     </rf-representatives-fitness-form>`
             case 'playback':
-                return html`<rf-playback-options></rf-playback-options>`
+                return html`
+                    <rf-playback-options
+                        .options=${this.playbackOptions}
+                        @form-submit=${this.onPlaybackOptionsChange}
+                        @cancel=${this.closePopup}>
+                    </rf-playback-options>`
             case 'run':
                 return html`
-                    <rf-run-confirm-form @cancel=${() => this.inPopup = ''} @form-submit=${this.onRunConfirmed}>
+                    <rf-run-confirm-form
+                        @cancel=${this.closePopup}
+                        @form-submit=${this.onRunConfirmed}>
                     </rf-run-confirm-form>`
             case '':
                 return html``
@@ -235,8 +270,45 @@ export class RepresentativesElement extends BaseElement {
     }
 
     private onRatingChange({ detail: rating }: CustomEvent<number>) {
-        if (this.ratings && this.activeGenomeIndex !== undefined) {
+        if (this.ratings) {
             this.ratings = Object.assign([], this.ratings, { [this.activeGenomeIndex]: rating })
         }
+    }
+
+    private async onPlay(): Promise<void> {
+        if (this.activePlaybackControls?.genomeIndex !== this.activeGenomeIndex) {
+            const controls = await this.playback.setupSequence({
+                genes: this.genes[this.activeGenomeIndex] || [],
+                shortestNoteDuration: this.options?.shortestNoteDuration ?? 1,
+                options: this.playbackOptions,
+                callbacks: {
+                    onNoteChange: (_, __, isDone) => {
+                        this.isPlaying = !isDone
+                    }
+                }
+            })
+            this.activePlaybackControls = { genomeIndex: this.activeGenomeIndex, controls }
+        }
+        this.activePlaybackControls?.controls.play()
+    }
+
+    private onPause() {
+        this.activePlaybackControls?.controls.pause()
+        this.isPlaying = false
+    }
+
+    private onPlaybackOptionsChange(event: FormSubmitEvent<PlaybackOptions>) {
+        event.stopPropagation()
+        if (event?.value) {
+            this.playbackOptions = { ...event.value }
+            // Reset any existing playback part so that
+            // new options are applied.
+            this.activePlaybackControls = undefined
+            this.closePopup()
+        }
+    }
+
+    private closePopup() {
+        this.inPopup = ''
     }
 }

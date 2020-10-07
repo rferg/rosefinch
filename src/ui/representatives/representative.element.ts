@@ -70,6 +70,4 @@ export class RepresentativeElement extends BaseElement {
             .map(pitch => Pitch[pitch])
             .join(' ')
     }
-
-    // TODO
 }
