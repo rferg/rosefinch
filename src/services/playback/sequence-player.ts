@@ -1,5 +1,5 @@
 import { Inject, Injectable } from 'cewdi'
-import { Part, start as toneStart, Time, Transport } from 'tone'
+import { Part } from 'tone'
 import { Pitch } from '../../common/pitch'
 import { PlayableNote } from '../playable-note'
 import { Instrument } from './instrument'
@@ -9,6 +9,7 @@ import { PlaybackCallbacks } from './playback-callbacks'
 import { PlaybackControls } from './playback-controls'
 import { PlaybackInstrument } from './playback-instrument'
 import { PlaybackOptions } from './playback-options'
+import { ToneWrapper } from './tone-wrapper'
 
 type PartValueType = { time: number, note: string | null, duration: number, index: number, isDone: boolean }
 
@@ -19,7 +20,9 @@ export class SequencePlayer {
     private readonly defaultInstrument = Instrument.Synth
     private currentInstrument?: { type: Instrument, instance: PlaybackInstrument }
 
-    constructor(@Inject(instrumentsConfigToken) private readonly instrumentsConfig: InstrumentsConfigType) { }
+    constructor(
+        private readonly tone: ToneWrapper,
+        @Inject(instrumentsConfigToken) private readonly instrumentsConfig: InstrumentsConfigType) { }
 
     async setupSequence({
         sequence,
@@ -37,14 +40,14 @@ export class SequencePlayer {
         }
 
         if (!this.hasStarted) {
-            await toneStart()
+            await this.tone.start()
             this.hasStarted = true
         }
 
         this.clearTransport()
         await this.updateOptions(options)
 
-        const baseTime = Time(shortestNoteDuration + 'n').toSeconds()
+        const baseTime = this.tone.getTime(shortestNoteDuration + 'n').toSeconds()
         const part = this.scheduleSequence(baseTime, sequence, !!options.loop, callbacks)
 
         return {
@@ -59,7 +62,7 @@ export class SequencePlayer {
 
     private async updateOptions({ bpm, instrument }: PlaybackOptions): Promise<void> {
         if (bpm) {
-            Transport.bpm.value = Math.abs(bpm)
+            this.tone.transport.bpm.value = Math.abs(bpm)
         }
 
         if (!this.currentInstrument || instrument !== this.currentInstrument?.type) {
@@ -71,10 +74,10 @@ export class SequencePlayer {
     }
 
     private clearTransport() {
-        Transport.stop()
-        Transport.position = 0
-        Transport.cancel()
-        Transport.start()
+        this.tone.transport.stop()
+        this.tone.transport.position = 0
+        this.tone.transport.cancel()
+        this.tone.transport.start()
     }
 
     private getNote(pitchName: string, octave: number): string | null {
@@ -100,7 +103,7 @@ export class SequencePlayer {
         // this comes last.
         timeNotes.push({ time: time + 1, note: '', duration: 0, index: sequence.length, isDone: true })
 
-        const part = new Part<PartValueType>((time, { note, duration, index, isDone }) => {
+        const part = this.tone.getPart<PartValueType>((time, { note, duration, index, isDone }) => {
             if (note && this.currentInstrument) {
                 this.currentInstrument.instance.triggerAttackRelease(note, duration, time)
             }
