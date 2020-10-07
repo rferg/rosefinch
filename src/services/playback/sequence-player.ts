@@ -36,7 +36,7 @@ export class SequencePlayer {
         callbacks: PlaybackCallbacks
     }): Promise<PlaybackControls> {
         if (!sequence?.length) {
-            throw new Error('Cannot play empty sequence.')
+            return Promise.reject('Cannot play empty sequence.')
         }
 
         if (!this.hasStarted) {
