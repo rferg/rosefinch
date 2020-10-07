@@ -10,8 +10,8 @@ export class GenomeConverterService {
     convertGenesToPlayableSequence(genes: number[]): PlayableNote[] {
         return genes.reduce((result, gene) => {
             const pitch = GeneUtil.getPitch(gene as Uint8)
-            if (pitch === Pitch.Hold && result.length) {
-                result[result.length - 1].numberOfShortestDurations++
+            if (pitch === Pitch.Hold) {
+                if (result.length) { result[result.length - 1].numberOfShortestDurations++ }
             } else {
                 result.push({
                     pitchName: Pitch[pitch],
