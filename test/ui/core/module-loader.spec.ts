@@ -3,6 +3,7 @@ import { ModuleLoadConfig } from '../../../src/ui/core/module-load-config'
 import { Module } from '../../../src/ui/core/module'
 import { ElementRegistration, Injectable, InjectionContainer } from 'cewdi'
 import { ModuleName } from '../../../src/ui/core/module-name'
+import { PendingStateEvent } from '../../../src/ui/common/pending-state-event'
 
 @Injectable()
 class CustomEl extends HTMLElement {
@@ -13,16 +14,18 @@ describe('ModuleLoader', () => {
     let loader: ModuleLoader
     let registrySpy: jasmine.SpyObj<CustomElementRegistry>
     let containerSpy: jasmine.SpyObj<InjectionContainer>
+    let eventSpy: jasmine.SpyObj<EventTarget>
 
     beforeEach(() => {
         registrySpy = jasmine.createSpyObj<CustomElementRegistry>('CustomElementRegistry', [ 'define' ])
         containerSpy = jasmine.createSpyObj<InjectionContainer>('InjectionContainer', [ 'createChildContainer' ])
+        eventSpy = jasmine.createSpyObj<EventTarget>('EventTarget', [ 'dispatchEvent' ])
         containerSpy.createChildContainer.and.returnValue(containerSpy)
     })
 
     describe('registerRoot', () => {
         beforeEach(() => {
-            loader = new ModuleLoader(registrySpy, {} as ModuleLoadConfig)
+            loader = new ModuleLoader(registrySpy, {} as ModuleLoadConfig, eventSpy)
         })
 
         it('should throw if called twice', () => {
@@ -80,7 +83,7 @@ describe('ModuleLoader', () => {
                 }
             }
 
-            loader = new ModuleLoader(registrySpy, config)
+            loader = new ModuleLoader(registrySpy, config, eventSpy)
         })
 
         it('should throw if no root container registered', async () => {
@@ -129,6 +132,27 @@ describe('ModuleLoader', () => {
 
             expect(registrySpy.define).toHaveBeenCalledWith(CustomEl.is, jasmine.any(Function), undefined)
             expect(containerSpy.createChildContainer).toHaveBeenCalledWith(module.providers)
+        })
+
+        it('should dispatch PendingStateEvent with indicator promise that resolves when loading finishes',
+            async () => {
+                loader.registerRoot({ providers: [], elements: [] }, containerSpy)
+                const module: Module = {
+                    providers: [],
+                    elements: [
+                        {
+                            name: CustomEl.is,
+                            element: CustomEl
+                        }
+                    ]
+                };
+                (config.Common.loader as jasmine.Spy).and.returnValue(Promise.resolve({ default: module }))
+
+                await loader.load(ModuleName.Common)
+
+                expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(jasmine.any(PendingStateEvent))
+                await expectAsync((eventSpy.dispatchEvent.calls.mostRecent().args[0] as PendingStateEvent).waitOn)
+                    .toBeResolved()
         })
 
         it('should load and register elements if parent already loaded', async () => {

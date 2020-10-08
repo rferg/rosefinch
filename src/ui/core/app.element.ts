@@ -5,6 +5,9 @@ import { Injectable } from 'cewdi'
 @Injectable()
 export class AppElement extends BaseElement {
     render() {
-        return html`<rf-router-outlet></rf-router-outlet>`
+        return html`
+            <rf-pending></rf-pending>
+            <rf-router-outlet></rf-router-outlet>
+            `
     }
 }

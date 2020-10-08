@@ -45,6 +45,9 @@
             --animation-duration: 300ms;
             --short-animation-duration: calc(var(--animation-duration) / 2);
             --easing: cubic-bezier(0.33, 1, 0.68, 1);
+
+            --nav-border-top: 0.25rem;
+            --nav-z-index: 1;
         }
         * {
             box-sizing: border-box;
@@ -108,7 +111,7 @@
             padding: var(--small-padding) calc(var(--small-padding) / 2);
             box-shadow: var(--primary-shadow);
             background-color: var(--background-color);
-            z-index: 1;
+            z-index: var(--nav-z-index);
         }
         #logo {
             height: var(--logo-height);
@@ -116,7 +119,7 @@
         nav::before {
             content: '';
             position: absolute;
-            top: 0.25rem;
+            top: var(--nav-border-top);
             left: 0;
             width: 100%;
             height: 1px;

@@ -13,6 +13,7 @@ import { AppElement } from './app.element'
 import { FourOhFourElement } from './404.element'
 import { getProviders as getStateProviders } from '../../services/state'
 import { timerToken } from './timer-token'
+import { PendingElement } from './pending.element'
 
 const moduleLoadConfig: ModuleLoadConfig = {
     [ModuleName.Common]: {
@@ -52,6 +53,10 @@ export const rootModule: Module = {
         {
             element: FourOhFourElement,
             name: 'rf-404'
+        },
+        {
+            element: PendingElement,
+            name: 'rf-pending'
         }
     ],
     providers: [

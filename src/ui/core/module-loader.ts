@@ -4,6 +4,8 @@ import { ModuleLoadConfig } from './module-load-config'
 import { moduleLoadConfigToken } from './module-load-config-token'
 import { Module } from './module'
 import { customElementRegistryToken } from './custom-element-registry-token'
+import { globalEventTargetToken } from '../../common/global-event-target-token'
+import { PendingStateEvent } from '../common/pending-state-event'
 
 @Injectable()
 export class ModuleLoader {
@@ -12,7 +14,8 @@ export class ModuleLoader {
 
     constructor(
         @Inject(customElementRegistryToken) private readonly customElementRegistry: CustomElementRegistry,
-        @Inject(moduleLoadConfigToken) private readonly config: ModuleLoadConfig) {}
+        @Inject(moduleLoadConfigToken) private readonly config: ModuleLoadConfig,
+        @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget) {}
 
     registerRoot(module: Module, injectionContainer: InjectionContainer): void {
         if (this.rootContainer) {
@@ -67,11 +70,19 @@ export class ModuleLoader {
     }
 
     private async callLoader(loader: () => Promise<{ default?: Module }>): Promise<Module> {
-        const result = await loader()
-        if (this.isModule(result?.default)) {
-            return result.default
+        let resolveIndicator: Function | undefined
+        this.eventTarget.dispatchEvent(
+            new PendingStateEvent(new Promise(resolve => { resolveIndicator = resolve })))
+
+        try {
+            const result = await loader()
+            if (this.isModule(result?.default)) {
+                return result.default
+            }
+            throw new Error(`Failed to load module using ${loader.toString()}. Received: ${result}`)
+        } finally {
+            if (resolveIndicator) { resolveIndicator() }
         }
-        throw new Error(`Failed to load module using ${loader.toString()}. Received: ${result}`)
     }
 
     private isModule(obj: any): obj is Module {
