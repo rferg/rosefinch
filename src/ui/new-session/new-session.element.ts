@@ -1,8 +1,11 @@
 import { BaseElement } from '../core/base-element'
-import { css, html } from 'lit-element'
+import { css, html, property } from 'lit-element'
 import { Icon } from '../common/icon'
 import { headingsStyles } from '../common/headings.styles'
 import { Injectable } from 'cewdi'
+import { SummaryQueryService } from '../../services/summary-query-service'
+import { Router } from '../core/router'
+import { GeneticAlgorithmSummaryStore } from '../../storage'
 
 @Injectable()
 export class NewSessionElement extends BaseElement {
@@ -35,6 +38,19 @@ export class NewSessionElement extends BaseElement {
         ]
     }
 
+    @property()
+    summaries: GeneticAlgorithmSummaryStore[] = []
+
+    constructor(
+        private readonly summaryService: SummaryQueryService,
+        private readonly router: Router) {
+        super()
+
+        this.summaryService.getRecent(3)
+            .then(summaries => this.summaries = summaries)
+            .catch(err => console.error(err))
+    }
+
     render() {
         return html`
         <rf-container>
@@ -46,7 +62,29 @@ export class NewSessionElement extends BaseElement {
                 </a>
                 <h3>New Session</h3>
             </rf-inside-container>
+            ${this.summaries.map(({ id, lastRunOn, generation }) => {
+                return html`
+                    <rf-inside-container>
+                        <rf-button
+                            buttonRole="${'primary'}"
+                            title="Go to this session"
+                            @click=${() => this.onSummaryClick(id)}>
+                            <rf-icon icon="${Icon.Check}"></rf-icon>
+                        </rf-button>
+                        <h5>Generation ${generation}</h5>
+                        <h6>${this.formatDate(lastRunOn)}</h6>
+                    </rf-inside-container>
+                `
+            })}
         </rf-container>
         `
+    }
+
+    private onSummaryClick(id: string) {
+        this.router.navigate(`/representatives/${id}`)
+    }
+
+    private formatDate(date: Date): string {
+        return date.toLocaleDateString()
     }
 }
