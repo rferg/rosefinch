@@ -46,6 +46,21 @@ describe('SummaryQueryService', () => {
         }
     })
 
+    it('should return all if take is undefined', async () => {
+        const summaries = [
+            { lastRunOn: new Date() },
+            { lastRunOn: new Date() },
+            { lastRunOn: new Date() },
+            { lastRunOn: new Date() },
+            { lastRunOn: new Date() }
+        ] as GeneticAlgorithmSummaryStore[]
+        repoSpy.getAll.and.returnValue(Promise.resolve(summaries))
+
+        const result = await service.getRecent()
+
+        expect(result.length).toEqual(summaries.length)
+    })
+
     it('should return top N summaries sorted by lastRunOn descending', async () => {
         const summaries = [
             { lastRunOn: new Date(1, 1, 2020) },
