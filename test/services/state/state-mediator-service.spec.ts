@@ -29,7 +29,11 @@ describe('StateMediatorService', () => {
             const topic = StateTopic.RepresentativeGenes
             let state: RepresentativeGenesState | undefined
             service.subscribe(topic, (x) => state = x)
-            const expected: RepresentativeGenesState = { representativeGenes: [ [ 0 ] ], generation: 1 }
+            const expected: RepresentativeGenesState = {
+                geneticAlgorithmId: '',
+                representativeGenes: [ [ 0 ] ],
+                generation: 1
+            }
 
             listener(new UpdateStateEvent(topic, expected))
 
@@ -38,7 +42,12 @@ describe('StateMediatorService', () => {
 
         it('should stop event propagation is update event', () => {
             const event = new UpdateStateEvent(
-                StateTopic.RepresentativeGenes, { representativeGenes: [ [ 0 ] ], generation: 1 })
+                StateTopic.RepresentativeGenes,
+                {
+                    geneticAlgorithmId: '',
+                    representativeGenes: [ [ 0 ] ],
+                    generation: 1
+                })
             const stopPropSpy = spyOn(event, 'stopPropagation')
 
             listener(event)
@@ -72,7 +81,11 @@ describe('StateMediatorService', () => {
             service.subscribe(StateTopic.ClusterConfig, ccUpdateSpy)
             service.subscribe(StateTopic.RepresentativeGenes, urUpdateSpy)
             const ccState: ClusterConfig = { maxIterations: 1, numberOfRepresentatives: 1, stopThreshold: 1 }
-            const rgState: RepresentativeGenesState = { representativeGenes: [ [ 0 ] ], generation: 1 }
+            const rgState: RepresentativeGenesState = {
+                geneticAlgorithmId: '',
+                representativeGenes: [ [ 0 ] ],
+                generation: 1
+            }
 
             updateListener(new UpdateStateEvent(StateTopic.RepresentativeGenes, rgState))
             updateListener(new UpdateStateEvent(StateTopic.ClusterConfig, ccState))
@@ -83,7 +96,11 @@ describe('StateMediatorService', () => {
 
         it('should emit current value on subscribe if it exists', () => {
             const updateSpy = jasmine.createSpy('update')
-            const state: RepresentativeGenesState = { representativeGenes: [ [ 0 ] ], generation: 1 }
+            const state: RepresentativeGenesState = {
+                geneticAlgorithmId: '',
+                representativeGenes: [ [ 0 ] ],
+                generation: 1
+            }
             updateListener(new UpdateStateEvent(StateTopic.RepresentativeGenes, state))
 
             service.subscribe(StateTopic.RepresentativeGenes, updateSpy)
@@ -91,13 +108,40 @@ describe('StateMediatorService', () => {
             expect(updateSpy).toHaveBeenCalledWith(state)
         })
 
-        it('should call onNotImmediatelyAvailable if no current value', () => {
-            const notAvailableSpy = jasmine.createSpy('onNotImmediatelyAvailable')
+        it('should call matcher given ifNotMatch and call action if it returns false', () => {
+            const actionSpy = jasmine.createSpy('action')
+            const matcherSpy = jasmine.createSpy('matcher').and.returnValue(false)
             const updateSpy = jasmine.createSpy('update')
 
-            service.subscribe(StateTopic.RepresentativeGenes, updateSpy, { onNotImmediatelyAvailable: notAvailableSpy })
+            service.subscribe(
+                StateTopic.RepresentativeGenes,
+                updateSpy,
+                {
+                    ifNotMatch: {
+                        matcher: matcherSpy,
+                        action: actionSpy
+                    }
+                })
 
-            expect(notAvailableSpy).toHaveBeenCalledTimes(1)
+            expect(matcherSpy).toHaveBeenCalledTimes(1)
+            expect(actionSpy).toHaveBeenCalledTimes(1)
+        })
+
+        it('should call matcher given ifNotMatch but not call action if it returns true', () => {
+            const actionSpy = jasmine.createSpy('action')
+            const updateSpy = jasmine.createSpy('update')
+
+            service.subscribe(
+                StateTopic.RepresentativeGenes,
+                updateSpy,
+                {
+                    ifNotMatch: {
+                        matcher: _ => true,
+                        action: actionSpy
+                    }
+                })
+
+            expect(actionSpy).not.toHaveBeenCalled()
         })
 
         it('should return unsubscribe function that removes listener', () => {
@@ -109,7 +153,7 @@ describe('StateMediatorService', () => {
             updateListener(
                 new UpdateStateEvent(
                     StateTopic.RepresentativeGenes,
-                    { representativeGenes: [ [ 0 ] ], generation: 1 }))
+                    { representativeGenes: [ [ 0 ] ], generation: 1, geneticAlgorithmId: '' }))
             expect(updateSpy).not.toHaveBeenCalled()
         })
     })
