@@ -1,8 +1,12 @@
 import { BaseElement } from '../core/base-element'
-import { css, html } from 'lit-element'
+import { css, html, property } from 'lit-element'
 import { Icon } from '../common/icon'
 import { headingsStyles } from '../common/headings.styles'
 import { Injectable } from 'cewdi'
+import { SummaryQueryService } from '../../services/summary-query-service'
+import { GeneticAlgorithmSummaryStore } from '../../storage'
+import { scrollbarStyles } from '../common/scrollbar.styles'
+import { animationsStyles } from '../common/animations.styles'
 
 @Injectable()
 export class NewSessionElement extends BaseElement {
@@ -10,6 +14,8 @@ export class NewSessionElement extends BaseElement {
         return [
             super.styles,
             headingsStyles,
+            scrollbarStyles,
+            animationsStyles,
             css`
                 :host {
                     display: flex;
@@ -31,14 +37,84 @@ export class NewSessionElement extends BaseElement {
                 rf-inside-container > * {
                     margin: 1rem;
                 }
+                div {
+                    display: flex;
+                    flex-flow: column nowrap;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+                }
+                div h5, div p {
+                    margin: 0;
+                }
+                .new-container {
+                    margin-bottom: calc(var(--padding) * 2);
+                }
+                button {
+                    outline: none;
+                    font-size: var(--font-size);
+                    border: none;
+                    background-color: transparent;
+                    text-decoration: underline;
+                    cursor: pointer;
+                    margin-left: auto;
+                    margin-top: var(--small-padding);
+                }
+                a.summary-link {
+                    text-decoration: none;
+                }
+                a.summary-link h5, button {
+                    transition: color var(--animation-duration) var(--easing);
+                }
+                button:hover, a.summary-link:hover h5 {
+                    color: var(--medium-primary-color);
+                }
+                .summary {
+                    width: auto;
+                    flex-direction: column;
+                    animation: fadeIn var(--animation-duration) var(--easing);
+                }
+                .summaries-container {
+                    padding: 0;
+                    margin: 0;
+                    width: 100%;
+                    display: flex;
+                    flex-flow: row wrap;
+                    align-items: center;
+                    justify-content: center;
+                    max-height: 50vh;
+                    overflow-y: auto;
+                }
+                @media screen and (max-width: 500px) {
+                    .summaries-container {
+                        max-height: 500px;
+                    }
+                }
             `
         ]
+    }
+
+    @property()
+    summaries: GeneticAlgorithmSummaryStore[] = []
+
+    @property()
+    showMore = false
+
+    private readonly summariesToShow = 3
+
+    constructor(
+        private readonly summaryService: SummaryQueryService) {
+        super()
+
+        this.summaryService.getRecent()
+            .then(summaries => this.summaries = summaries || [])
+            .catch(err => console.error(err))
     }
 
     render() {
         return html`
         <rf-container>
-            <rf-inside-container>
+            <rf-inside-container class="new-container">
                 <a href="/options">
                     <rf-button buttonRole="${'success'}" title="Create a new session">
                         <rf-icon icon="${Icon.Plus}"></rf-icon>
@@ -46,7 +122,33 @@ export class NewSessionElement extends BaseElement {
                 </a>
                 <h3>New Session</h3>
             </rf-inside-container>
+            <div class="summaries-container">
+                ${this.summaries.slice(0, this.showMore ? undefined : this.summariesToShow)
+                    .map(({ id, lastRunOn, generation }) => html`
+                            <rf-inside-container class="summary">
+                                <a title="Open this session" class="summary-link" href="/representatives/${id}">
+                                    <h5>Generation ${generation}</h5>
+                                </a>
+                                <p>${this.formatDate(lastRunOn)}</p>
+                            </rf-inside-container>
+                        `
+                )}
+            </div>
+            ${this.summaries.length > this.summariesToShow
+                ? html`
+                    <button title="Show more past sessions" @click=${this.toggleMore}>
+                        ${this.showMore ? 'Less' : 'More'}
+                    </button>`
+                : html``}
         </rf-container>
         `
+    }
+
+    private formatDate(date: Date): string {
+        return date.toLocaleDateString(undefined, { hour: 'numeric', minute: 'numeric' })
+    }
+
+    private toggleMore() {
+        this.showMore = !this.showMore
     }
 }

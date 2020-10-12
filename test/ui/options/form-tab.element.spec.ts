@@ -20,14 +20,14 @@ describe('FormTabElement', () => {
         CustomElementRegistrar.instance.register(ButtonElementStub.is, ButtonElementStub)
         CustomElementRegistrar.instance.register(IconElementStub.is, IconElementStub)
         CustomElementRegistrar.instance.register(TestFormElement.is, TestFormElement)
-        CustomElementRegistrar.instance.register('rf-form-tab', FormTabElement)
+        CustomElementRegistrar.instance.register('rf-form-tab-test', FormTabElement)
     })
 
     it('should render form element', async () => {
         const el = await fixture(html`
-            <rf-form-tab>
+            <rf-form-tab-test>
                 <test-form-element slot="form"></test-form-element>
-            </rf-form-tab>`)
+            </rf-form-tab-test>`)
 
         // TestFormElement is slotted, so will be in light dom.
         expect(el.querySelector('test-form-element')).toBeTruthy()
@@ -35,9 +35,9 @@ describe('FormTabElement', () => {
 
     it('should render submit button but no back if no configs provided', async () => {
         const el = await fixture(html`
-            <rf-form-tab>
+            <rf-form-tab-test>
                     <test-form-element slot="form"></test-form-element>
-            </rf-form-tab>`)
+            </rf-form-tab-test>`)
 
         const submitButton = el.shadowRoot?.querySelector('rf-button') as ButtonElementStub
         expect(submitButton).toBeTruthy()
@@ -49,9 +49,9 @@ describe('FormTabElement', () => {
     it('should render back button according to expected config', async () => {
         const config: { icon: Icon, role: 'primary' | 'success' } = { icon: Icon.LeftArrow, role: 'primary' }
         const el = await fixture(html`
-            <rf-form-tab .backButton=${config}>
+            <rf-form-tab-test .backButton=${config}>
                     <test-form-element slot="form"></test-form-element>
-            </rf-form-tab>`)
+            </rf-form-tab-test>`)
 
         const backButton = el.shadowRoot?.querySelector('rf-button') as ButtonElementStub
         expect(backButton).toBeTruthy()
@@ -61,9 +61,9 @@ describe('FormTabElement', () => {
     it('should dispatch back event on back button click', async () => {
         const config: { icon: Icon, role: 'primary' | 'success' } = { icon: Icon.LeftArrow, role: 'primary' }
         const el = await fixture(html`
-            <rf-form-tab .backButton=${config}>
+            <rf-form-tab-test .backButton=${config}>
                     <test-form-element slot="form"></test-form-element>
-            </rf-form-tab>`)
+            </rf-form-tab-test>`)
 
         const backButton = el.shadowRoot?.querySelector('rf-button') as ButtonElementStub
         if (!backButton) { throw new Error('back button is missing') }
@@ -79,9 +79,9 @@ describe('FormTabElement', () => {
     it('should dispatch form submit event with form element value on submit button click', async () => {
         const expectedValue: FormValue = { a: 1, b: '' }
         const el = await fixture(html`
-            <rf-form-tab>
+            <rf-form-tab-test>
                     <test-form-element slot="form"></test-form-element>
-            </rf-form-tab>`)
+            </rf-form-tab-test>`)
         const form = el.querySelector('test-form-element') as TestFormElement
         const submitButton = el.shadowRoot?.querySelector('rf-button') as ButtonElementStub
         form.value = expectedValue
@@ -96,9 +96,9 @@ describe('FormTabElement', () => {
 
     it('should disable submit button according to form status events from form element', async () => {
         const el = await fixture(html`
-            <rf-form-tab>
+            <rf-form-tab-test>
                     <test-form-element slot="form"></test-form-element>
-            </rf-form-tab>`)
+            </rf-form-tab-test>`)
         const submitButton = el.shadowRoot?.querySelector('rf-button') as ButtonElementStub
         const form = el.querySelector('test-form-element') as TestFormElement
         form.dispatchEvent(new FormStatusEvent({ isValid: false }))

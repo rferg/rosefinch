@@ -148,7 +148,8 @@ describe('GeneticAlgorithmService', () => {
                         StateTopic.RepresentativeGenes,
                         {
                             representativeGenes: result.representativeGenes || [],
-                            generation: result.geneticAlgorithm?.generation ?? 0
+                            generation: result.geneticAlgorithm?.generation ?? 0,
+                            geneticAlgorithmId: result.geneticAlgorithmId
                         })
                 )
                 expect(serviceResult).toEqual({

@@ -19,9 +19,9 @@ export class StateMediatorService {
         topic: T,
         listener: (state: StateTypeTopicMap<T>) => any,
         {
-            onNotImmediatelyAvailable
+            ifNotMatch
         }: {
-            onNotImmediatelyAvailable?: () => any
+            ifNotMatch?: { matcher: (state?: StateTypeTopicMap<StateTopic>) => boolean, action: () => any }
         } = {}): StateSubscription {
         const service = this.getOrAddService(topic)
         const serviceListener = (state?: StateTypeTopicMap<StateTopic>) =>
@@ -29,10 +29,10 @@ export class StateMediatorService {
         service.addListener(serviceListener)
 
         const currentValue = service.getCurrent()
-        if (currentValue) {
+        if (ifNotMatch && !ifNotMatch.matcher(currentValue)) {
+            ifNotMatch.action()
+        } else if (currentValue) {
             serviceListener(currentValue)
-        } else if (onNotImmediatelyAvailable) {
-            onNotImmediatelyAvailable()
         }
 
         return {

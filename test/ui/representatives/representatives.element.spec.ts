@@ -166,21 +166,23 @@ describe('RepresentativesElement', () => {
 
             describe('representative genes subscription', () => {
                 let genesHandler: (state: RepresentativeGenesState) => any
-                let onNotImmediatelyAvailable: () => Promise<void>
+                let ifNotMatchAction: () => Promise<void>
+                let ifNotMatchMatcher: (state?: RepresentativeGenesState) => boolean
 
                 beforeEach(() => {
                     const args = stateSpy.subscribe.calls.all()
                         .find(call => call.args[0] === StateTopic.RepresentativeGenes)
                         ?.args ?? []
                     genesHandler = args[1] as (state: { representativeGenes: (number[] | undefined)[] }) => any
-                    onNotImmediatelyAvailable = args[2]?.onNotImmediatelyAvailable || (() => {})
+                    ifNotMatchMatcher = args[2]?.ifNotMatch?.matcher || (_ => false)
+                    ifNotMatchAction = args[2]?.ifNotMatch?.action || (() => {})
                 })
 
                 it('should render rf-representative elements with defined genes and undefined ratings', async () => {
                     const genomes = [ [ 0 ], [ 1 ], undefined, [ 2 ] ]
                     const definedGenomes = genomes.filter(g => !!g)
 
-                    genesHandler({ representativeGenes: genomes, generation: 1 })
+                    genesHandler({ representativeGenes: genomes, generation: 1, geneticAlgorithmId })
                     await elementUpdated(el)
 
                     const repEls = [ ...(el.shadowRoot?.querySelectorAll('rf-representative') ?? []) ]
@@ -196,7 +198,7 @@ describe('RepresentativesElement', () => {
                 it('should render rf-representatives-header element with generation number', async () => {
                     const expectedGeneration = 1
 
-                    genesHandler({ representativeGenes: [], generation: expectedGeneration })
+                    genesHandler({ representativeGenes: [], generation: expectedGeneration, geneticAlgorithmId })
                     await elementUpdated(el)
 
                     expect((el.shadowRoot
@@ -208,7 +210,7 @@ describe('RepresentativesElement', () => {
                 it('should select first genome as active', async () => {
                     const genomes = [ [ 0 ], [ 1 ], undefined, [ 2 ] ]
 
-                    genesHandler({ representativeGenes: genomes, generation: 1 })
+                    genesHandler({ representativeGenes: genomes, generation: 1, geneticAlgorithmId })
                     await elementUpdated(el)
 
                     const editRepEl = el.shadowRoot
@@ -218,61 +220,77 @@ describe('RepresentativesElement', () => {
                     expect(editRepEl.genome).toEqual(genomes[0])
                 })
 
-                it('should have onNotImmediatelyAvailable that calls RepresentativeGenesService', async () => {
+                it('should have ifNotMatch matcher that returns true iff geneticAlgorithmIds match', () => {
+                    expect(ifNotMatchMatcher({ geneticAlgorithmId } as RepresentativeGenesState)).toBeTrue()
+                    expect(ifNotMatchMatcher(undefined)).toBeFalse()
+                    expect(ifNotMatchMatcher({ geneticAlgorithmId: 'xyz' } as RepresentativeGenesState)).toBeFalse()
+                })
+
+                it('should have ifNotMatch action that calls RepresentativeGenesService', async () => {
                     genesServiceSpy.getGenes.and.returnValue(Promise.resolve([]))
-                    await onNotImmediatelyAvailable()
+                    await ifNotMatchAction()
 
                     expect(genesServiceSpy.getGenes).toHaveBeenCalledWith(geneticAlgorithmId)
                 })
 
-                it('should have onNotImmediatelyAvailable that calls GeneticAlgorithmSummaryRepository', async () => {
+                it('should have ifNotMatch action that calls GeneticAlgorithmSummaryRepository', async () => {
                     summaryRepoSpy.get.and.returnValue(Promise.resolve({} as GeneticAlgorithmSummaryStore))
-                    await onNotImmediatelyAvailable()
+                    await ifNotMatchAction()
 
                     expect(summaryRepoSpy.get).toHaveBeenCalledWith(geneticAlgorithmId)
                 })
 
-                it('should have onNotImmediatelyAvailable that dispatches update state event', async () => {
+                it('should have ifNotMatch action that dispatches update state event', async () => {
                     const genes = [ [ 0 ] ]
                     const generation = 1
                     genesServiceSpy.getGenes.and.returnValue(Promise.resolve(genes))
                     summaryRepoSpy.get.and.returnValue(Promise.resolve({ generation } as GeneticAlgorithmSummaryStore))
 
-                    await onNotImmediatelyAvailable()
+                    await ifNotMatchAction()
 
                     expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(new UpdateStateEvent(
                         StateTopic.RepresentativeGenes,
-                        { representativeGenes: genes, generation }
+                        { representativeGenes: genes, generation, geneticAlgorithmId }
                     ))
                 })
             })
 
             describe('options subscription', () => {
-                let onNotImmediatelyAvailable: () => Promise<void>
+                let ifNotMatchMatcher: (state?: GeneticAlgorithmOptionsStore) => boolean
+                let ifNotMatchAction: () => Promise<void>
+
                 const options = {
                     storeName: 'geneticAlgorithmOptions',
-                    shortestNoteDuration: 1
+                    shortestNoteDuration: 1,
+                    id: geneticAlgorithmId
                 } as GeneticAlgorithmOptionsStore
 
                 beforeEach(() => {
                     const args = stateSpy.subscribe.calls.all()
                         .find(call => call.args[0] === StateTopic.GeneticAlgorithmOptions)
                         ?.args ?? []
-                    onNotImmediatelyAvailable = args[2]?.onNotImmediatelyAvailable || (() => {})
+                    ifNotMatchAction = args[2]?.ifNotMatch?.action || (() => {})
+                    ifNotMatchMatcher = args[2]?.ifNotMatch?.matcher || (_ => false)
                 })
 
-                it('should have onNotImmediatelyAvailable that calls GeneticAlgorithmOptionsRepository', async () => {
+                it('should have ifNotMatch matcher that returns true iff geneticAlgorithmIds match', () => {
+                    expect(ifNotMatchMatcher(options)).toBeTrue()
+                    expect(ifNotMatchMatcher(undefined)).toBeFalse()
+                    expect(ifNotMatchMatcher({ ...options, id: 'xyz' })).toBeFalse()
+                })
+
+                it('should have ifNotMatch action that calls GeneticAlgorithmOptionsRepository', async () => {
                     optionsRepoSpy.get.and.returnValue(Promise.resolve(options))
 
-                    await onNotImmediatelyAvailable()
+                    await ifNotMatchAction()
 
                     expect(optionsRepoSpy.get).toHaveBeenCalledWith(geneticAlgorithmId)
                 })
 
-                it('should have onNotImmediatelyAvailable that dispatches update state event', async () => {
+                it('should have ifNotMatch action that dispatches update state event', async () => {
                     optionsRepoSpy.get.and.returnValue(Promise.resolve(options))
 
-                    await onNotImmediatelyAvailable()
+                    await ifNotMatchAction()
 
                     expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(new UpdateStateEvent(
                         StateTopic.GeneticAlgorithmOptions,
@@ -367,7 +385,7 @@ describe('RepresentativesElement', () => {
             .find(call => call.args[0] === StateTopic.RepresentativeGenes)
             ?.args[1]
         if (!genesHandler) { throw new Error('missing genes handler') }
-        genesHandler({ representativeGenes: genomes, generation: 1 })
+        genesHandler({ representativeGenes: genomes, generation: 1, geneticAlgorithmId: id })
     }
 
     describe('on EditRepresentativeElement rating-change event', () => {

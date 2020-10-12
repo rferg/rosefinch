@@ -1,4 +1,5 @@
 export interface RepresentativeGenesState {
     representativeGenes: (number[] | undefined)[],
-    generation: number
+    generation: number,
+    geneticAlgorithmId: string
 }

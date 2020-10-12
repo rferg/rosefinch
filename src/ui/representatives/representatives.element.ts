@@ -7,12 +7,13 @@ import { RepresentativeGenesService } from '../../services/pipeline'
 import { Instrument, PlaybackControls, PlaybackOptions, PlaybackService } from '../../services/playback'
 import {
     ExistingPipelineRunParams,
+    RepresentativeGenesState,
     StateMediatorService,
     StateSubscription,
     StateTopic,
     UpdateStateEvent
 } from '../../services/state'
-import { GeneticAlgorithmOptionsRepository, GeneticAlgorithmSummaryRepository } from '../../storage'
+import { GeneticAlgorithmOptionsRepository, GeneticAlgorithmOptionsStore, GeneticAlgorithmSummaryRepository } from '../../storage'
 import { animationsStyles } from '../common/animations.styles'
 import { headingsStyles } from '../common/headings.styles'
 import { scrollbarStyles } from '../common/scrollbar.styles'
@@ -188,13 +189,22 @@ export class RepresentativesElement extends BaseElement {
                     this.generation = generation
                 },
                 {
-                    onNotImmediatelyAvailable: async () => {
-                        this.genes = await this.genesService.getGenes(this.geneticAlgorithmId || '')
-                        this.generation = (await this.summaryRepo.get(this.geneticAlgorithmId || ''))?.generation ?? 0
-                        this.eventTarget.dispatchEvent(new UpdateStateEvent(
-                            StateTopic.RepresentativeGenes,
-                            { representativeGenes: [ ...(this.genes || []) ], generation: this.generation }
-                        ))
+                    ifNotMatch: {
+                        matcher: state =>
+                            (state as RepresentativeGenesState)?.geneticAlgorithmId === this.geneticAlgorithmId,
+                        action: async () => {
+                            this.genes = await this.genesService.getGenes(this.geneticAlgorithmId || '')
+                            this.generation = (await this.summaryRepo.get(this.geneticAlgorithmId || ''))
+                                ?.generation ?? 0
+                            this.eventTarget.dispatchEvent(new UpdateStateEvent(
+                                StateTopic.RepresentativeGenes,
+                                {
+                                    representativeGenes: [ ...(this.genes || []) ],
+                                    generation: this.generation,
+                                    geneticAlgorithmId: this.geneticAlgorithmId || ''
+                                }
+                            ))
+                        }
                     }
                 }
             )
@@ -205,14 +215,18 @@ export class RepresentativesElement extends BaseElement {
                     this.options = options
                 },
                 {
-                    onNotImmediatelyAvailable: async () => {
-                        const options = await this.optionsRepo.get(this.geneticAlgorithmId || '')
-                        if (options) {
-                            this.options = options
-                            this.eventTarget.dispatchEvent(new UpdateStateEvent(
-                                StateTopic.GeneticAlgorithmOptions,
-                                { ...options }
-                            ))
+                    ifNotMatch: {
+                        matcher: state =>
+                            (state as GeneticAlgorithmOptionsStore)?.id === this.geneticAlgorithmId,
+                        action: async () => {
+                            const options = await this.optionsRepo.get(this.geneticAlgorithmId || '')
+                            if (options) {
+                                this.options = options
+                                this.eventTarget.dispatchEvent(new UpdateStateEvent(
+                                    StateTopic.GeneticAlgorithmOptions,
+                                    { ...options }
+                                ))
+                            }
                         }
                     }
                 }

@@ -65,9 +65,9 @@ export class RepresentativeElement extends BaseElement {
 
     private getGenomeRepresentation(): string {
         return (this.genome || [])
-            .map(gene => GeneUtil.getPitch(gene as Uint8))
-            .filter(pitch => pitch !== Pitch.Hold)
-            .map(pitch => Pitch[pitch])
+            .map(gene => ({ pitch: GeneUtil.getPitch(gene as Uint8), octave: GeneUtil.getOctave(gene as Uint8) }))
+            .filter(({ pitch }) => pitch !== Pitch.Hold)
+            .map(({ pitch, octave }) => `${Pitch[pitch]}${octave}`)
             .join(' ')
     }
 }

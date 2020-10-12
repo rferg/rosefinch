@@ -90,7 +90,7 @@ export class OptionsElement extends BaseElement {
     @property({ reflect: false })
     showConfirm = false
 
-    private readonly sizeForm: SizeForm = {
+    private sizeForm: SizeForm = {
         populationSize: 5000,
         timeSignatureTop: 4,
         timeSignatureBottom: 4,
@@ -100,7 +100,7 @@ export class OptionsElement extends BaseElement {
         measures: 4
     }
 
-    private readonly fitnessForm: FitnessForm = {
+    private fitnessForm: FitnessForm = {
         chords: { weight: 1, method: FitnessMethod.ChordFit, options: { chords: {} } },
         scale: { weight: 1, method: FitnessMethod.ScaleInterval, options: { scale: [], intervalScores: [] } },
         restProportion: { weight: 1, method: FitnessMethod.RestProportion, options: { targetProportion: 0.1 } },
@@ -116,7 +116,7 @@ export class OptionsElement extends BaseElement {
                 }
             }
         },
-        rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 1 } }
+        rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 0 } }
     }
 
     constructor(
@@ -135,12 +135,14 @@ export class OptionsElement extends BaseElement {
                     <h4 ?data-active=${this.activeTab === 'fitness'}>Fitness</h4>
                 </div>
                 <div class="contents">
-                    <rf-form-tab ?data-active=${this.activeTab === 'size'}
+                    <rf-form-tab id="sizeTab"
+                        ?data-active=${this.activeTab === 'size'}
                         .submitButton=${{ role: 'primary' as 'primary', icon: Icon.RightArrow }}
                         @form-submit=${this.onSizeSubmit}>
                         <rf-size-form .value=${this.sizeForm} slot="form"></rf-size-form>
                     </rf-form-tab>
-                    <rf-form-tab ?data-active=${this.activeTab === 'fitness'}
+                    <rf-form-tab id="fitnessTab"
+                        ?data-active=${this.activeTab === 'fitness'}
                         .submitButton=${{ role: 'success' as 'success', icon: Icon.Check }}
                         .backButton=${{ role: 'primary' as 'primary', icon: Icon.LeftArrow }}
                         @tab-back=${this.onFitnessBack}
@@ -156,7 +158,8 @@ export class OptionsElement extends BaseElement {
         `
     }
 
-    private onSizeSubmit() {
+    private onSizeSubmit(ev: FormSubmitEvent<SizeForm>) {
+        this.sizeForm = { ...this.sizeForm, ...ev.value }
         this.activeTab = 'fitness'
     }
 
@@ -164,11 +167,12 @@ export class OptionsElement extends BaseElement {
         this.activeTab = 'size'
     }
 
-    private onFitnessSubmit() {
+    private onFitnessSubmit(ev: FormSubmitEvent<FitnessForm>) {
+        this.fitnessForm = { ...this.fitnessForm, ...ev.value }
         this.showConfirm = true
     }
 
-    private async onRunConfirmed(
+    private onRunConfirmed(
         { value: { numberOfGenerations } }: FormSubmitEvent<{ numberOfGenerations: number }>) {
         this.showConfirm = false
         const options = this.mapper.mapFitnessForm(this.fitnessForm, this.mapper.mapSizeForm(this.sizeForm))
@@ -186,7 +190,7 @@ export class OptionsElement extends BaseElement {
         measures: number,
         [ timeSignatureTop, timeSignatureBottom ]: [number, 1 | 2 | 4 | 8 | 16],
         shortestNoteDuration: 1 | 2 | 4 | 8 | 16): number {
-            return measures * timeSignatureTop * (shortestNoteDuration / timeSignatureBottom)
+            return Math.floor(measures * timeSignatureTop * (shortestNoteDuration / timeSignatureBottom))
     }
 
 }
