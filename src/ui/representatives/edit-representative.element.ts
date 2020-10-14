@@ -24,6 +24,7 @@ export class EditRepresentativeElement extends BaseElement {
 
     render() {
         return html`
+            <slot></slot>
             <rf-range-input
                 min="0"
                 max="100"

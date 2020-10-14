@@ -1,27 +1,26 @@
 import { Injectable } from 'cewdi'
 import { GenomeConverterService } from '../genome-converter-service'
-import { NotationRenderer } from './notation-renderer'
+import { DenominatedNote } from './denominated-note'
+import { MeasureSplitter } from './measure-splitter'
 
 @Injectable()
 export class NotationService {
     constructor(
         private readonly genomeConverter: GenomeConverterService,
-        private readonly renderer: NotationRenderer) { }
+        private readonly splitter: MeasureSplitter) { }
 
-    renderGenes({
-        elementId,
+    splitMeasures({
         genes,
         timeSignature,
         shortestNoteDuration
     }: {
-        elementId: string,
+        element: HTMLElement,
         genes: number[],
         timeSignature: [number, 1 | 2 | 4 | 8 | 16 ],
         shortestNoteDuration: 1 | 2 | 4 | 8 | 16
-    }): void {
+    }): DenominatedNote[][] {
         const sequence = this.genomeConverter.convertGenesToPlayableSequence(genes)
-        this.renderer.render({
-            elementId,
+        return this.splitter.splitMeasures({
             timeSignature,
             shortestNoteDuration,
             sequence

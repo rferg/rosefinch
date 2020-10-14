@@ -8,11 +8,13 @@ import { PopupElement } from './popup.element'
 import { RunConfirmFormElement } from './run-confirm-form.element'
 import { OptionsFormMapperService } from '../../services/options-form-mapper-service'
 import { ScaleService } from '../../services'
+import { getProviders as getNotationProviders } from '../../services/notation'
 
 export default {
     providers: [
         OptionsFormMapperService,
-        ScaleService
+        ScaleService,
+        ...getNotationProviders()
     ],
     elements: [
         {

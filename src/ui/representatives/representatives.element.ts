@@ -61,6 +61,10 @@ export class RepresentativesElement extends BaseElement {
                     overflow-y: auto;
                     max-width: 20vw;
                 }
+                #notation {
+                    width: 100%;
+                    display: block;
+                }
             `
         ]
     }
