@@ -15,7 +15,7 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
     render() {
         return html`
             <div style="height:60vh;">fitness form</div>
-            <rf-genome-notation></rf-genome-notation>
+            <rf-genome-notation .genome=${[ 54, 55, 61, 45 ]}></rf-genome-notation>
             `
     }
 }

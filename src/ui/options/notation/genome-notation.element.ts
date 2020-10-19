@@ -1,5 +1,5 @@
 import { Injectable } from 'cewdi'
-import { css, property, svg } from 'lit-element'
+import { css, internalProperty, property, svg, SVGTemplateResult } from 'lit-element'
 import { NotationService } from '../../../services/notation'
 import { BaseElement } from '../../core/base-element'
 
@@ -19,8 +19,39 @@ export class GenomeNotationElement extends BaseElement {
         ]
     }
 
+    private _genome?: number[]
     @property()
-    genome: number[] = []
+    get genome(): number[] {
+        return this._genome || []
+    }
+    set genome(newVal: number[]) {
+        if (newVal !== this._genome) {
+            const oldVal = this._genome
+            this._genome = newVal
+            // tslint:disable-next-line: no-floating-promises
+            this.requestUpdate('genome', oldVal)
+
+            if (!this.staffIsInitialized) {
+                this.initializeStaff()
+            }
+        }
+    }
+
+    @internalProperty()
+    private trebleStaffTemplate?: SVGTemplateResult
+
+    @internalProperty()
+    private bassStaffTemplate?: SVGTemplateResult
+
+    private staffIsInitialized = false
+    private notesStartX = 0
+    private trebleLineYs: number[] = []
+    private bassLineYs: number[] = []
+
+    private readonly staffPadding = 10
+    private readonly staffHeight = 40
+    private readonly staffWidth = 100
+    private readonly strokeWidth = 0.5
 
     constructor(private readonly service: NotationService) {
         super()
@@ -29,16 +60,40 @@ export class GenomeNotationElement extends BaseElement {
     render() {
         return svg`
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-                ${this.service.getStaffTemplate({
-                    x: 0,
-                    y: 0,
-                    width: 100,
-                    height: 50,
-                    padding: 10,
-                    clef: 'bass',
-                    id: 'trebleStaff'
-                })}
+                ${this.trebleStaffTemplate}
+                ${this.bassStaffTemplate}
             </svg>
         `
+    }
+
+    private initializeStaff() {
+        const { template, lineYs, notesStartX } = this.service.getStaffTemplateAndPositions({
+            x: 0,
+            y: 0,
+            width: this.staffWidth,
+            height: this.staffHeight,
+            padding: this.staffPadding,
+            clef: 'treble',
+            id: 'trebleStaff',
+            strokeWidth: this.strokeWidth
+        })
+        this.trebleStaffTemplate = template
+        this.trebleLineYs = lineYs
+        this.notesStartX = notesStartX
+
+        const { template: bassTemplate, lineYs: bassLineYs } = this.service.getStaffTemplateAndPositions({
+            x: 0,
+            y: this.staffHeight,
+            width: this.staffWidth,
+            height: this.staffHeight,
+            padding: this.staffPadding,
+            clef: 'bass',
+            id: 'bassStaff',
+            strokeWidth: this.strokeWidth
+        })
+        this.bassStaffTemplate = bassTemplate
+        this.bassLineYs = bassLineYs
+
+        this.staffIsInitialized = true
     }
 }

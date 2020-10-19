@@ -30,7 +30,7 @@ export class NotationService {
         })
     }
 
-    getStaffTemplate({
+    getStaffTemplateAndPositions({
         x,
         y,
         width,
@@ -46,12 +46,20 @@ export class NotationService {
         clef: 'treble' | 'bass',
         id: string,
         padding: number
-    }): SVGTemplateResult {
+    }): {
+        template: SVGTemplateResult,
+        lineYs: number[],
+        notesStartX: number
+     } {
         const startX = x
         const startY = y + padding
         const strokeWidth = 0.5
-        const spaceBetweenLines = (height - (2 * padding) - (strokeWidth * 4)) / 3
-        return svg`
+        const numberOfLines = 5
+        const spaceBetweenLines = (height - (2 * padding) - (strokeWidth * numberOfLines)) / (numberOfLines - 1)
+        const lineYs = [ ...new Array(numberOfLines) ].map((_, i) => startY + (spaceBetweenLines * i))
+        const clefWidth = width / 10
+        const notesStartX = x + clefWidth + 1
+        const template = svg`
             <defs>
                 <line id="staffLine"
                     x1=${startX}
@@ -62,16 +70,14 @@ export class NotationService {
                 ${clef === 'bass' ? bassClef : trebleClef}
             </defs>
             <g id="${id}">
-                <use href="#staffLine" y=${startY}></use>
-                <use href="#staffLine" y=${startY + spaceBetweenLines}></use>
-                <use href="#staffLine" y=${startY + spaceBetweenLines * 2}></use>
-                <use href="#staffLine" y=${startY + spaceBetweenLines * 3}></use>
+                ${lineYs.map(lineY => svg`<use href="#staffLine" y=${lineY}></use>`)}
                 <use href="#${clef === 'bass' ? 'bassClef' : 'trebleClef'}"
                     x=${x}
-                    y=${y + 10}
+                    y=${y + padding}
                     height=${height}
-                    width=${width / 10}></use>
+                    width=${clefWidth}></use>
             </g>
         `
+        return { template, lineYs, notesStartX }
     }
 }
