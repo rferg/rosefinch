@@ -1,8 +1,9 @@
 import { DurationDenomination } from '../../common/duration-denomination'
+import { Pitch } from '../../common/pitch'
 
 export interface DenominatedNote {
-    pitchName: string,
+    pitch: Pitch,
     octave: number,
-    duration: DurationDenomination,
+    duration: DurationDenomination
     originalNoteIndex: number
 }

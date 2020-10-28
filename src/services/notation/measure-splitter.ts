@@ -51,7 +51,7 @@ export class MeasureSplitter {
                     const denomination = denominations.shift() as DurationDenomination
                     if (denomination <= (sixteenthsPerMeasure - currentMeasureCount)) {
                         currentMeasure.push({
-                            pitchName: note.pitchName,
+                            pitch: note.pitch,
                             octave: note.octave,
                             duration: denomination,
                             originalNoteIndex: i

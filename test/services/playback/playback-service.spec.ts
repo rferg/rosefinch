@@ -22,7 +22,7 @@ describe('PlaybackService', () => {
 
     describe('setupSequence', () => {
         const controls: PlaybackControls = { play: () => {}, pause: () => {} }
-        const sequence: PlayableNote[] = [ { numberOfShortestDurations: 1, pitchName: 'C', octave: 0 } ]
+        const sequence: PlayableNote[] = [ { numberOfShortestDurations: 1, pitchName: 'C', octave: 0, pitch: Pitch.C } ]
 
         beforeEach(() => {
             player.setupSequence.and.returnValue(Promise.resolve(controls))
