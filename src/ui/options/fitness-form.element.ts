@@ -18,9 +18,9 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
             <div style="height:60vh;">fitness form</div>
             <rf-genome-notation .genome=${[ 66, 66, 68, 76 ]} .options=${
                 {
-                    timeSignature: [ 4, 8 ],
+                    timeSignature: [ 4, 1 ],
                     measures: 1,
-                    shortestNoteDuration: 8
+                    shortestNoteDuration: 1
                 } as SerializedGeneticAlgorithmOptions
             }></rf-genome-notation>
             `

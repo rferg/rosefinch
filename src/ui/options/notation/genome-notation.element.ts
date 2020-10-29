@@ -156,6 +156,8 @@ export class GenomeNotationElement extends BaseElement {
             // TEMPORARY
             // TODO:    CALCULATE WIDTH AND MAKE SURE MEASURE CAN FIT ON LINE, O.W. ADD STAFF
             //          AND UPDATE STAFF LINE Ys and notesStartX
+            // TODO:    SPACE THAT NOTE TAKES UP SHOULD BE PROPORTIONAL TO ITS DURATION,
+            //          E.G., WHOLE NOTE SHOULD TAKE UP SPACE OF 4 QUARTER NOTES
             measure.forEach((note) => {
                 const renderedNote = this.service.renderNote({
                     note,

@@ -23,11 +23,16 @@ export class NoteDrawer {
         const radiusX = spaceBetweenStaffLines
         const noteHead = this.getNoteHead(centerX, centerY, radiusX, radiusY, duration)
         const innerNoteHead = this.getNoteHeadNegativeSpace(centerX, centerY, radiusX, radiusY, duration)
-        const stem = this.getStem(centerX, centerY, radiusX, radiusY, duration, stemDirection)
+        const { stemWidth, template: stemTemplate } = this.getStem(
+            centerX,
+            centerY,
+            radiusX,
+            radiusY,
+            duration,
+            stemDirection)
         return {
-            template: svg`${noteHead}${innerNoteHead}${stem}`,
-            // TEMP: NEED TO ACCOUNT FOR STEM FLAG
-            width: radiusX * 2
+            template: svg`${noteHead}${innerNoteHead}${stemTemplate}`,
+            width: (radiusX * 2) + stemWidth
         }
     }
 
@@ -77,9 +82,9 @@ export class NoteDrawer {
         radiusY: number,
         duration: DurationDenomination,
         stemDirection: 'up' | 'down'
-    ): SVGTemplateResult {
+    ): { stemWidth: number, template: SVGTemplateResult } {
         if (duration === 16) {
-            return svg``
+            return { stemWidth: 0, template: svg`` }
         }
 
         const strokeWidth = radiusY / 2
@@ -95,9 +100,16 @@ export class NoteDrawer {
                 y1=${stemY1}
                 x2=${stemX}
                 y2=${stemY2}></line>`
-        const flags = this.getFlags(stemX, stemY2, radiusX, radiusY, duration, strokeWidth, stemDirection)
+        const { flagWidth, template: flagsTemplate } = this.getFlags(
+            stemX,
+            stemY2,
+            radiusX,
+            radiusY,
+            duration,
+            strokeWidth,
+            stemDirection)
 
-        return svg`${stemTemplate}${flags}`
+        return { stemWidth: strokeWidth + flagWidth, template: svg`${stemTemplate}${flagsTemplate}` }
     }
 
     private getFlags(
@@ -108,9 +120,9 @@ export class NoteDrawer {
         duration: DurationDenomination,
         strokeWidth: number,
         stemDirection: 'up' | 'down'
-    ): SVGTemplateResult {
+    ): { flagWidth: number, template: SVGTemplateResult } {
         if (duration !== 1 && duration !== 2) {
-            return svg``
+            return { flagWidth: 0, template: svg`` }
         }
         const directionFactor = (stemDirection === 'up' ? 1 : -1)
         const startX = stemX
@@ -150,7 +162,7 @@ export class NoteDrawer {
                             cubicBezierYs.map(y => y + secondFlagYAdjustment))}"></path>`
             : svg``
 
-        return svg`${firstFlag}${secondFlag}`
+        return { template: svg`${firstFlag}${secondFlag}`, flagWidth: firstCubicBezierControlPointX - startX }
     }
 
     private getCubicBezier(xValues: number[], yValues: number[]): string {
