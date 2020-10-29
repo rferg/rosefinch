@@ -1,7 +1,7 @@
 import { Injectable } from 'cewdi'
 import { css, internalProperty, property, svg, SVGTemplateResult } from 'lit-element'
 import { SerializedGeneticAlgorithmOptions } from '../../../genetic-algorithm'
-import { NotationComponent, NotationService, RenderedNote } from '../../../services/notation'
+import { NotationService, RenderedNote } from '../../../services/notation'
 import { animationsStyles } from '../../common/animations.styles'
 import { BaseElement } from '../../core/base-element'
 
@@ -12,6 +12,10 @@ export class GenomeNotationElement extends BaseElement {
             super.styles,
             animationsStyles,
             css`
+                :host {
+                    --notation-background-color: var(--container-background-color);
+                    background-color: var(--notation-background-color);
+                }
                 svg {
                     stroke: var(--danger-color);
                     fill: var(--danger-color);
@@ -22,6 +26,9 @@ export class GenomeNotationElement extends BaseElement {
                     stroke: var(--primary-color);
                     fill: var(--primary-color);
                     animation: fadeIn var(--animation-duration) var(--easing);
+                }
+                svg .negative-space {
+                    fill: var(--notation-background-color);
                 }
             `
         ]
@@ -78,9 +85,6 @@ export class GenomeNotationElement extends BaseElement {
     private bassStaffTemplate?: SVGTemplateResult
 
     @internalProperty()
-    private noteDefinitionTemplates: { [key in Partial<NotationComponent>]?: SVGTemplateResult } = {}
-
-    @internalProperty()
     private noteTemplates: SVGTemplateResult[] = []
 
     private staffIsInitialized = false
@@ -90,9 +94,9 @@ export class GenomeNotationElement extends BaseElement {
 
     private readonly staffPadding = 10
     private readonly staffHeight = 40
-    private readonly staffWidth = 100
-    private readonly strokeWidth = 0.5
-    private readonly spaceBetweenNotes = 1
+    private readonly staffWidth = 400
+    private readonly strokeWidth = 0.75
+    private readonly minSpaceBetweenNotes = 4
 
     constructor(private readonly service: NotationService) {
         super()
@@ -100,9 +104,7 @@ export class GenomeNotationElement extends BaseElement {
 
     render() {
         return svg`
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-                <defs>${Object.keys(this.noteDefinitionTemplates)
-                    .map(key => this.noteDefinitionTemplates[key as NotationComponent])}</defs>
+            <svg viewBox="0 0 ${this.staffWidth} 100" xmlns="http://www.w3.org/2000/svg">
                 ${this.trebleStaffTemplate}
                 ${this.bassStaffTemplate}
                 ${this.noteTemplates.map(template => template)}
@@ -164,16 +166,13 @@ export class GenomeNotationElement extends BaseElement {
                     noteClass: `note note${note.originalNoteIndex}`
                 })
                 currentNoteIndex++
-                startX = (renderedNote.endX + this.spaceBetweenNotes)
+                startX = (renderedNote.endX + this.minSpaceBetweenNotes)
                 renderedNotes.push(renderedNote)
             })
 
             // TODO: DRAW MEASURE BAR
         })
 
-        this.noteDefinitionTemplates = renderedNotes.reduce((agg, curr) => {
-            return { ...agg, ...curr.requiredDefs }
-        }, {})
         this.noteTemplates = renderedNotes.map(({ template }) => template)
     }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from 'cewdi'
 import { svg, SVGTemplateResult } from 'lit-element'
 import { DurationDenomination } from '../../common/duration-denomination'
+import { DrawnNoteResult } from './drawn-note-result'
 
 @Injectable()
 export class NoteDrawer {
@@ -17,13 +18,17 @@ export class NoteDrawer {
         spaceBetweenStaffLines: number,
         duration: DurationDenomination,
         stemDirection: 'up' | 'down'
-    }): SVGTemplateResult {
-        const radiusY = spaceBetweenStaffLines
-        const radiusX = spaceBetweenStaffLines * 1.5
+    }): DrawnNoteResult {
+        const radiusY = spaceBetweenStaffLines * (2 / 3)
+        const radiusX = spaceBetweenStaffLines
         const noteHead = this.getNoteHead(centerX, centerY, radiusX, radiusY, duration)
-        const innerNoteHead = this.getInnerNoteHeadShape(centerX, centerY, radiusX, radiusY, duration)
+        const innerNoteHead = this.getNoteHeadNegativeSpace(centerX, centerY, radiusX, radiusY, duration)
         const stem = this.getStem(centerX, centerY, radiusX, radiusY, duration, stemDirection)
-        return svg`${noteHead}${innerNoteHead}${stem}`
+        return {
+            template: svg`${noteHead}${innerNoteHead}${stem}`,
+            // TEMP: NEED TO ACCOUNT FOR STEM FLAG
+            width: radiusX * 2
+        }
     }
 
     drawRest(): SVGTemplateResult {
@@ -36,26 +41,31 @@ export class NoteDrawer {
         radiusX: number,
         radiusY: number,
         duration: DurationDenomination): SVGTemplateResult {
-            const transform = duration === 1 ? '' : `rotate(-22.5 ${centerX} ${centerY})`
+            const transform = duration === 16 ? '' : `rotate(-22.5 ${centerX} ${centerY})`
             return svg`
             <ellipse transform=${transform}
                 cx=${centerX}
-                cy={centerY}
+                cy=${centerY}
                 rx=${radiusX}
                 ry=${radiusY}></ellipse>`
     }
 
-    private getInnerNoteHeadShape(
+    private getNoteHeadNegativeSpace(
         centerX: number,
         centerY: number,
         radiusX: number,
         radiusY: number,
         duration: DurationDenomination): SVGTemplateResult {
-            if (duration === 1) {
+            if (duration === 16) {
                 return svg`
-                    <ellipse class="negative-space" cx=${centerX} cy=${centerY} rx=${radiusX / 2} ry=${radiusY}>`
-            } else if (duration === 2) {
-                return svg`<circle class="negative-space" cx=${centerX} cy=${centerY} r=${radiusX}></circle>`
+                    <ellipse transform="rotate(-22.5 ${centerX} ${centerY})"
+                        class="negative-space"
+                        cx=${centerX}
+                        cy=${centerY}
+                        rx=${radiusX / 2}
+                        ry=${radiusY}>`
+            } else if (duration === 8) {
+                return svg`<circle class="negative-space" cx=${centerX} cy=${centerY} r=${radiusX * 0.75}></circle>`
             }
             return svg``
     }
@@ -68,18 +78,18 @@ export class NoteDrawer {
         duration: DurationDenomination,
         stemDirection: 'up' | 'down'
     ): SVGTemplateResult {
-        if (duration === 1) {
+        if (duration === 16) {
             return svg``
         }
 
-        const strokeWidth = radiusY / 5
-        const stemLength = radiusY * 6
-        const stemX = centerX + (radiusX - (strokeWidth / 2)) * (stemDirection === 'up' ? 1 : -1)
+        const strokeWidth = radiusY / 2
+        const stemLength = radiusY * 10
+        const stemX = centerX + radiusX * (stemDirection === 'up' ? 1 : -1)
         const stemY1 = centerY
         const stemY2 = centerY + stemLength * (stemDirection === 'up' ? -1 : 1)
 
         const stemTemplate = svg`
-            <line stoke-width=${strokeWidth}
+            <line stroke-width=${strokeWidth}
                 stroke-linecap="round"
                 x1=${stemX}
                 y1=${stemY1}
@@ -99,40 +109,45 @@ export class NoteDrawer {
         strokeWidth: number,
         stemDirection: 'up' | 'down'
     ): SVGTemplateResult {
-        if (duration !== 8 && duration !== 16) {
+        if (duration !== 1 && duration !== 2) {
             return svg``
         }
         const directionFactor = (stemDirection === 'up' ? 1 : -1)
         const startX = stemX
         const startY = stemY2
-        const initialLineEndX = startX + (radiusX / 5)
-        const initialLineEndY = startY + (radiusY / 2) * directionFactor
-        const firstCubicBezierControlPointX = initialLineEndX + (radiusX / 5)
+        const xReference = radiusX / 2
+        const yReference = radiusY * 1.5
+        const initialLineEndX = startX + xReference
+        const initialLineEndY = startY + yReference * directionFactor
+        const firstCubicBezierControlPointX = initialLineEndX + xReference
         const cubicBezierXs = [
             firstCubicBezierControlPointX,
-            firstCubicBezierControlPointX + radiusX,
-            firstCubicBezierControlPointX + (radiusX / 1.5)
+            firstCubicBezierControlPointX + xReference,
+            firstCubicBezierControlPointX + (xReference / 1.5)
         ]
-        const firstCubicBezierControlPointY = initialLineEndY + ((radiusY / 2) * directionFactor)
+        const firstCubicBezierControlPointY = initialLineEndY + (yReference * directionFactor)
         const cubicBezierYs = [
             firstCubicBezierControlPointY,
-            firstCubicBezierControlPointY + (radiusY * directionFactor),
-            firstCubicBezierControlPointY + (radiusY * 1.5 * directionFactor)
+            firstCubicBezierControlPointY + (yReference * directionFactor),
+            firstCubicBezierControlPointY + (yReference * 1.5 * directionFactor)
         ]
 
         const firstFlag = svg`
             <path stroke-width=${strokeWidth}
                 stroke-linecap="round"
-                d="L ${initialLineEndX} ${initialLineEndY} ${this.getCubicBezier(cubicBezierXs, cubicBezierYs)}"></path>`
+                d="M ${stemX} ${stemY2} L ${initialLineEndX} ${initialLineEndY} ${this.getCubicBezier(
+                    cubicBezierXs,
+                    cubicBezierYs)}"></path>`
 
-        const secondFlagYAdjustment = radiusY * 1.5 * directionFactor
-        const secondFlag = duration === 16
+        const secondFlagYAdjustment = yReference * 1.5 * directionFactor
+        const secondFlag = duration === 1
             ? svg`
                 <path stroke-width=${strokeWidth}
                     stroke-linecap="round"
-                    d="L ${initialLineEndX} ${initialLineEndY} ${this.getCubicBezier(
-                        cubicBezierXs,
-                        cubicBezierYs.map(y => y + secondFlagYAdjustment))}"></path>`
+                    d="M ${stemX} ${stemY2} L ${initialLineEndX} ${initialLineEndY + secondFlagYAdjustment} ${
+                        this.getCubicBezier(
+                            cubicBezierXs,
+                            cubicBezierYs.map(y => y + secondFlagYAdjustment))}"></path>`
             : svg``
 
         return svg`${firstFlag}${secondFlag}`
