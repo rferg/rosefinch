@@ -25,6 +25,7 @@ import { DurationDenomination } from '../../common/duration-denomination'
 import { assertUnreachable } from '../../common/assert-unreachable'
 import { GeneUtil } from '../../common/gene-util'
 import { Uint8 } from '../../common/uint8'
+import { NoteDrawer } from './note-drawer'
 
 interface StaffLineReference {
     clef: 'treble' | 'bass'
@@ -53,7 +54,8 @@ export class NotationService {
 
     constructor(
         private readonly genomeConverter: GenomeConverterService,
-        private readonly splitter: MeasureSplitter) {
+        private readonly splitter: MeasureSplitter,
+        private readonly noteDrawer: NoteDrawer) {
             this.noteLineReference = this.generateNoteLines()
         }
 
