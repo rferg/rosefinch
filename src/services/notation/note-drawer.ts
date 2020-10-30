@@ -6,6 +6,10 @@ import { DrawnNoteResult } from './drawn-note-result'
 @Injectable()
 export class NoteDrawer {
 
+    calculateNoteRadiusX(spaceBetweenStaffLines: number): number {
+        return spaceBetweenStaffLines
+    }
+
     drawNote({
         centerX,
         centerY,
@@ -20,7 +24,7 @@ export class NoteDrawer {
         stemDirection: 'up' | 'down'
     }): DrawnNoteResult {
         const radiusY = spaceBetweenStaffLines * (2 / 3)
-        const radiusX = spaceBetweenStaffLines
+        const radiusX = this.calculateNoteRadiusX(spaceBetweenStaffLines)
         const noteHead = this.getNoteHead(centerX, centerY, radiusX, radiusY, duration)
         const innerNoteHead = this.getNoteHeadNegativeSpace(centerX, centerY, radiusX, radiusY, duration)
         const { stemWidth, template: stemTemplate } = this.getStem(
@@ -34,6 +38,49 @@ export class NoteDrawer {
             template: svg`${noteHead}${innerNoteHead}${stemTemplate}`,
             width: (radiusX * 2) + stemWidth
         }
+    }
+
+    drawFlat({
+        startX,
+        centerY,
+        spaceBetweenStaffLines
+    }: {
+        startX: number,
+        centerY: number,
+        spaceBetweenStaffLines: number
+    }): DrawnNoteResult {
+        const height = spaceBetweenStaffLines * 5
+        const strokeWidth = height * 0.05
+        const startY = centerY + (height * 0.32)
+        // Rough estimate of width.
+        const width = height * 0.3
+        const template = svg`
+            <line x1=${startX} x2=${startX} y1=${startY} y2=${startY - height} stroke-width=${strokeWidth}></line>
+            <path stroke-width=${strokeWidth} d="M${startX} ${startY} ${this.getCubicBezier([
+                startX + (height * 0.4),
+                startX + (height * 0.35),
+                startX
+            ],
+            [
+                startY - (height * 0.25),
+                startY - (height * 0.54),
+                centerY
+            ])}"></path>
+            <path class="negative-space"
+                stroke-width=${strokeWidth}
+                d="M${startX + (height * 0.01)} ${startY - (height * 0.02)} ${this.getCubicBezier([
+                    startX + (height * 0.3),
+                    startX + (height * 0.25),
+                    startX + (height * 0.01)
+                ],
+                [
+                    startY - (height * 0.25),
+                    startY - (height * 0.44),
+                    centerY + (height * 0.02)
+                ])}"></path>
+        `
+
+        return { template, width }
     }
 
     drawRest(): SVGTemplateResult {

@@ -114,8 +114,17 @@ export class NotationService {
             trebleYs,
             bassYs,
             spaceBetweenStaffLines)
-        const accidentalWidth = spaceBetweenStaffLines
-        const centerX = startX + accidentalWidth
+
+        let accidentalWidth = 0
+        let accidentalTemplate = svg``
+        if (this.hasAccidental(note.pitch)) {
+            const drawnAccidental = this.noteDrawer.drawFlat({ startX, centerY, spaceBetweenStaffLines })
+            accidentalTemplate = drawnAccidental.template || accidentalTemplate
+            accidentalWidth = drawnAccidental.width || accidentalWidth
+        }
+
+        const noteRadiusX = this.noteDrawer.calculateNoteRadiusX(spaceBetweenStaffLines)
+        const centerX = startX + accidentalWidth + noteRadiusX + 1
         const { template: noteTemplate, width: noteWidth } = this.noteDrawer.drawNote({
             centerX,
             centerY,
@@ -123,10 +132,10 @@ export class NotationService {
             duration: note.duration,
             stemDirection: 'up'
         })
-        // TODO: RESTS, ACCIDENTALS, TIES, LEDGER LINES, BEAMS
+        // TODO: RESTS, TIES, LEDGER LINES, BEAMS
         return {
-            template: svg`<g class="${noteClass}">${noteTemplate}</g>`,
-            endX: startX + noteWidth + accidentalWidth,
+            template: svg`<g class="${noteClass}">${accidentalTemplate}${noteTemplate}</g>`,
+            endX: centerX + noteRadiusX,
             originalNoteIndex: note.originalNoteIndex
         }
     }

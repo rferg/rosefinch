@@ -16,11 +16,11 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
     render() {
         return html`
             <div style="height:60vh;">fitness form</div>
-            <rf-genome-notation .genome=${[ 66, 66, 68, 76 ]} .options=${
+            <rf-genome-notation .genome=${[ 65, 65, 67, 77 ]} .options=${
                 {
-                    timeSignature: [ 4, 1 ],
+                    timeSignature: [ 4, 4 ],
                     measures: 1,
-                    shortestNoteDuration: 1
+                    shortestNoteDuration: 4
                 } as SerializedGeneticAlgorithmOptions
             }></rf-genome-notation>
             `
