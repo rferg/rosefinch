@@ -135,7 +135,7 @@ export class NotationService {
         // TODO: RESTS, TIES, LEDGER LINES, BEAMS
         return {
             template: svg`<g class="${noteClass}">${accidentalTemplate}${noteTemplate}</g>`,
-            endX: centerX + noteRadiusX,
+            endX: startX + noteWidth + accidentalWidth + 1,
             originalNoteIndex: note.originalNoteIndex
         }
     }
