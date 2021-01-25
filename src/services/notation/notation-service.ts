@@ -108,7 +108,7 @@ export class NotationService {
         const bassYs = [ ...bassLineYs ].sort((a, b) => b - a)
         const trebleYs = [ ...trebleLineYs ].sort((a, b) => b - a)
         const spaceBetweenStaffLines = this.calculateDistanceBetweenLines(bassYs, trebleYs)
-        const centerY = this.calculateNoteY(
+        const { y: centerY, staffLineIndex } = this.calculateNoteY(
             note.pitch,
             note.octave,
             trebleYs,
@@ -132,9 +132,20 @@ export class NotationService {
             duration: note.duration,
             stemDirection: 'up'
         })
-        // TODO: RESTS, TIES, LEDGER LINES, BEAMS
+
+        const ledgerLineLength = (noteRadiusX * 4)
+        const ledgerLines = this.getLedgerLines(
+            ledgerLineLength,
+            staffLineIndex,
+            centerX - ledgerLineLength / 2,
+            centerY - noteRadiusX / 2,
+            spaceBetweenStaffLines)
+        // TODO: RESTS, TIES, BEAMS
         return {
-            template: svg`<g class="${noteClass}">${accidentalTemplate}${noteTemplate}</g>`,
+            template: svg`<g class="${noteClass}">
+                    ${ledgerLines.map(template => template)}
+                    ${accidentalTemplate}${noteTemplate}
+                </g>`,
             endX: startX + noteWidth + accidentalWidth + 1,
             originalNoteIndex: note.originalNoteIndex
         }
@@ -145,21 +156,26 @@ export class NotationService {
         octave: number,
         trebleLineYs: number[],
         bassLineYs: number[],
-        spaceBetweenLines: number): number {
+        spaceBetweenLines: number): { y: number, staffLineIndex: number } {
             const note = GeneUtil.convertToGene(pitch, octave)
             const { clef, lineIndexOnStaff } = this.noteLineReference[note] || this.defaultLineReference
             const clefLineYs = clef === 'treble' ? trebleLineYs : bassLineYs
             const roundedLineIndex = Math.floor(lineIndexOnStaff)
             let lineY = 0
             if (roundedLineIndex < 0) {
-                lineY = clefLineYs[0] - (roundedLineIndex * spaceBetweenLines)
+                lineY = clefLineYs[0] + (roundedLineIndex * spaceBetweenLines)
             } else if (roundedLineIndex > clefLineYs.length - 1) {
                 lineY = clefLineYs[clefLineYs.length - 1]
-                    + ((roundedLineIndex - (clefLineYs.length - 1)) * spaceBetweenLines)
+                    - ((roundedLineIndex - (clefLineYs.length - 1)) * spaceBetweenLines)
             } else {
                 lineY = clefLineYs[roundedLineIndex]
             }
-            return lineY - (roundedLineIndex !== lineIndexOnStaff ? spaceBetweenLines : 0)
+            const adjustedY = lineY - (roundedLineIndex !== lineIndexOnStaff ? spaceBetweenLines : 0)
+            console.log(adjustedY)
+            return {
+                y: adjustedY,
+                staffLineIndex: roundedLineIndex
+            }
     }
 
     private generateNoteLines(): StaffLineReference[] {
@@ -203,5 +219,31 @@ export class NotationService {
             prev + (i ? trebleLineYs[i - 1] - curr : 0), 0) / trebleLineYs.length - 1
         const avg = (bassAvg + trebleAvg) / 2
         return avg
+    }
+
+    private getLedgerLines(
+        length: number,
+        staffLineIndex: number,
+        startX: number,
+        noteY: number,
+        spaceBetweenStaffLines: number): SVGTemplateResult[] {
+        // TODO: NOT RIGHT
+        const lineTemplates: SVGTemplateResult[] = []
+        const strokeWidth = spaceBetweenStaffLines / 3
+        let currentLineIndex = staffLineIndex
+        while (currentLineIndex >= this.linesPerStaff || currentLineIndex < 0) {
+            const referenceLineIndex = currentLineIndex < 0 ? 0 : (this.linesPerStaff - 1)
+            const lineDifference = referenceLineIndex - currentLineIndex
+            const y = noteY + (referenceLineIndex - currentLineIndex)
+            lineTemplates.push(
+                this.drawLedgerLine(length, startX, y, strokeWidth)
+            )
+            currentLineIndex += (lineDifference > 0 ? 1 : -1)
+        }
+        return lineTemplates
+    }
+
+    private drawLedgerLine(length: number, startX: number, y: number, strokeWidth: number): SVGTemplateResult {
+        return svg`<line stroke-width=${strokeWidth} x1=${startX} x2=${startX + length} y1=${y} y2=${y}></line>`
     }
 }
