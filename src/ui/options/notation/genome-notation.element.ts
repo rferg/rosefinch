@@ -1,7 +1,7 @@
 import { Injectable } from 'cewdi'
-import { css, internalProperty, property, svg, SVGTemplateResult } from 'lit-element'
+import { css, html, property } from 'lit-element'
 import { SerializedGeneticAlgorithmOptions } from '../../../genetic-algorithm'
-import { NotationComponent, NotationService, RenderedNote } from '../../../services/notation'
+import { NotationService } from '../../../services/notation'
 import { animationsStyles } from '../../common/animations.styles'
 import { BaseElement } from '../../core/base-element'
 
@@ -39,10 +39,6 @@ export class GenomeNotationElement extends BaseElement {
             // tslint:disable-next-line: no-floating-promises
             this.requestUpdate('options', oldVal)
 
-            if (!this.staffIsInitialized) {
-                this.initializeStaff()
-            }
-
             if (this.genome.length && this._options) {
                 this.drawNotes(this.genome, this._options)
             }
@@ -61,119 +57,22 @@ export class GenomeNotationElement extends BaseElement {
             // tslint:disable-next-line: no-floating-promises
             this.requestUpdate('genome', oldVal)
 
-            if (!this.staffIsInitialized) {
-                this.initializeStaff()
-            }
-
             if (this.genome && this.options) {
                 this.drawNotes(this.genome, this.options)
             }
         }
     }
 
-    @internalProperty()
-    private trebleStaffTemplate?: SVGTemplateResult
-
-    @internalProperty()
-    private bassStaffTemplate?: SVGTemplateResult
-
-    @internalProperty()
-    private noteDefinitionTemplates: { [key in Partial<NotationComponent>]?: SVGTemplateResult } = {}
-
-    @internalProperty()
-    private noteTemplates: SVGTemplateResult[] = []
-
-    private staffIsInitialized = false
-    private notesStartX = 0
-    private trebleLineYs: number[] = []
-    private bassLineYs: number[] = []
-
-    private readonly staffPadding = 10
-    private readonly staffHeight = 40
-    private readonly staffWidth = 100
-    private readonly strokeWidth = 0.5
-    private readonly spaceBetweenNotes = 1
-
     constructor(private readonly service: NotationService) {
         super()
     }
 
     render() {
-        return svg`
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-                <defs>${Object.keys(this.noteDefinitionTemplates)
-                    .map(key => this.noteDefinitionTemplates[key as NotationComponent])}</defs>
-                ${this.trebleStaffTemplate}
-                ${this.bassStaffTemplate}
-                ${this.noteTemplates.map(template => template)}
-            </svg>
-        `
-    }
-
-    private initializeStaff() {
-        const { template, lineYs, notesStartX } = this.service.getStaffTemplateAndPositions({
-            x: 0,
-            y: 0,
-            width: this.staffWidth,
-            height: this.staffHeight,
-            padding: this.staffPadding,
-            clef: 'treble',
-            id: 'trebleStaff',
-            strokeWidth: this.strokeWidth
-        })
-        this.trebleStaffTemplate = template
-        this.trebleLineYs = lineYs
-        this.notesStartX = notesStartX
-
-        const { template: bassTemplate, lineYs: bassLineYs } = this.service.getStaffTemplateAndPositions({
-            x: 0,
-            y: this.staffHeight,
-            width: this.staffWidth,
-            height: this.staffHeight,
-            padding: this.staffPadding,
-            clef: 'bass',
-            id: 'bassStaff',
-            strokeWidth: this.strokeWidth
-        })
-        this.bassStaffTemplate = bassTemplate
-        this.bassLineYs = bassLineYs
-
-        this.staffIsInitialized = true
+        return html``
     }
 
     private drawNotes(genome: number[], options: SerializedGeneticAlgorithmOptions) {
+        throw new Error('not implemented' + genome + options)
         // TODO
-        const renderedNotes: RenderedNote[] = []
-        let currentNoteIndex = 0
-        let startX = this.notesStartX
-        this.service.splitMeasures({
-            genes: genome,
-            timeSignature: options.timeSignature,
-            shortestNoteDuration: options.shortestNoteDuration
-        }).forEach((measure) => {
-            // TEMPORARY
-            // TODO:    CALCULATE WIDTH AND MAKE SURE MEASURE CAN FIT ON LINE, O.W. ADD STAFF
-            //          AND UPDATE STAFF LINE Ys and notesStartX
-            measure.forEach((note) => {
-                const renderedNote = this.service.renderNote({
-                    note,
-                    previousNote: renderedNotes[currentNoteIndex - 1],
-                    trebleLineYs: this.trebleLineYs,
-                    bassLineYs: this.bassLineYs,
-                    startX,
-                    noteClass: `note note${note.originalNoteIndex}`
-                })
-                currentNoteIndex++
-                startX = (renderedNote.endX + this.spaceBetweenNotes)
-                renderedNotes.push(renderedNote)
-            })
-
-            // TODO: DRAW MEASURE BAR
-        })
-
-        this.noteDefinitionTemplates = renderedNotes.reduce((agg, curr) => {
-            return { ...agg, ...curr.requiredDefs }
-        }, {})
-        this.noteTemplates = renderedNotes.map(({ template }) => template)
     }
 }

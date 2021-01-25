@@ -1,6 +1,3 @@
 export { DenominatedNote } from './denominated-note'
 export { getProviders } from './get-providers'
-export { NoteRenderingOptions } from './note-rendering-options'
-export { NotationComponent } from './notation-component'
 export { NotationService } from './notation-service'
-export { RenderedNote } from './rendered-note'
