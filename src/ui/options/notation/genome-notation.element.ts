@@ -18,10 +18,17 @@ export class GenomeNotationElement extends BaseElement {
                     height: 250px;
                     width: 100%;
                 }
-                svg .note {
-                    stroke: var(--primary-color);
+                svg .abcjs-note, .abcjs-beam-elem, .abcjs-rest, .abcjs-tie {
                     fill: var(--primary-color);
+                    stroke: var(--primary-color);
                     animation: fadeIn var(--animation-duration) var(--easing);
+                }
+                svg .abcjs-staff, .abcjs-staff-extra, .abcjs-bar {
+                    fill: var(--danger-color);
+                    animation: fadeIn var(--animation-duration) var(--easing);
+                }
+                svg .abcjs-bar {
+                    stroke: var(--danger-color);
                 }
             `
         ]

@@ -10,7 +10,7 @@ declare module 'abcjs' {
         target: string | HTMLElement,
         abcNotation: string,
         options: {
-            addClasses?: boolean,
+            add_classes?: boolean,
             responsive?: 'resize',
             oneSvgPerLine?: boolean,
             [key: string]: string | boolean | number | { [key: string]: string | number }
