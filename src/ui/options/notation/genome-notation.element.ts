@@ -1,5 +1,5 @@
 import { Injectable } from 'cewdi'
-import { css, html, property } from 'lit-element'
+import { css, html, property, query } from 'lit-element'
 import { SerializedGeneticAlgorithmOptions } from '../../../genetic-algorithm'
 import { NotationService } from '../../../services/notation'
 import { animationsStyles } from '../../common/animations.styles'
@@ -26,6 +26,9 @@ export class GenomeNotationElement extends BaseElement {
             `
         ]
     }
+
+    @query('#notes')
+    notesRenderContainer?: HTMLElement
 
     private _options?: SerializedGeneticAlgorithmOptions
     @property()
@@ -68,11 +71,12 @@ export class GenomeNotationElement extends BaseElement {
     }
 
     render() {
-        return html``
+        return html`<div id="notes"></div>`
     }
 
     private drawNotes(genome: number[], options: SerializedGeneticAlgorithmOptions) {
-        throw new Error('not implemented' + genome + options)
-        // TODO
+        if (this.notesRenderContainer) {
+            this.service.drawNotes({ genome, options, element: this.notesRenderContainer })
+        }
     }
 }

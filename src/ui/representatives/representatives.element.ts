@@ -47,7 +47,7 @@ export class RepresentativesElement extends BaseElement {
                     display: flex;
                     flex-flow: row wrap;
                     justify-content: space-between;
-                    align-items: center;
+                    align-items: flex-start;
                 }
                 rf-container {
                     margin: var(--small-padding);
@@ -60,10 +60,6 @@ export class RepresentativesElement extends BaseElement {
                     max-height: 80vh;
                     overflow-y: auto;
                     max-width: 20vw;
-                }
-                #notation {
-                    width: 100%;
-                    display: block;
                 }
             `
         ]
@@ -162,6 +158,9 @@ export class RepresentativesElement extends BaseElement {
                         @rating-change=${this.onRatingChange}
                         @play=${this.onPlay}
                         @pause=${this.onPause}>
+                        <rf-genome-notation
+                            .genome=${this.genes[this.activeGenomeIndex]}
+                            .options=${this.options}></rf-genome-notation>
                     </rf-edit-representative>
                 </rf-container>
                 <rf-container>

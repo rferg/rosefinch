@@ -9,7 +9,11 @@ export class EditRepresentativeElement extends BaseElement {
     static get styles() {
         return [
             super.styles,
-            css``
+            css`
+                :host {
+                    width: 100%;
+                }
+            `
         ]
     }
 
