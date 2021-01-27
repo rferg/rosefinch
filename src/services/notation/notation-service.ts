@@ -7,6 +7,7 @@ import { Pitch } from '../../common/pitch'
 import { GeneUtil } from '../../common/gene-util'
 import { SerializedGeneticAlgorithmOptions } from '../../genetic-algorithm'
 import { DurationDenomination } from '../../common/duration-denomination'
+import { Uint8 } from '../../common/uint8'
 @Injectable()
 export class NotationService {
     private readonly referenceOctave = 4
@@ -40,13 +41,24 @@ export class NotationService {
             }
             measureStrings.push(measureString)
         }
-
-        const abcString = `${this.getAbcStringHeader(timeSignature)}${measureStrings.join('|')}`
+        const medianOctave = this.getMedianOctave(genome)
+        const abcString = `${this.getAbcStringHeader(medianOctave, timeSignature)}${measureStrings.join('|')}`
 
         abcjs.renderAbc(
             element,
             abcString,
             { add_classes: true, responsive: 'resize' })
+    }
+
+    getMedianOctave(genome: number[]) {
+        const sortedOctaves = [ ...genome ]
+            .map(pitch => GeneUtil.getOctave(pitch as Uint8))
+            .sort((a, b) => a - b)
+        const midPoint = Math.floor(sortedOctaves.length / 2)
+        if (midPoint % 2) {
+            return sortedOctaves[midPoint]
+        }
+        return (sortedOctaves[midPoint - 1] + sortedOctaves[midPoint]) / 2.0
     }
 
     private splitMeasures({
@@ -71,8 +83,10 @@ export class NotationService {
     }
 
     private getAbcStringHeader(
+        medianOctave: number,
         [ meterTop, meterBottom ]: [number, DurationDenomination]): string {
-        return `M:${meterTop}/${meterBottom}\nL:1/16\nK:C\n`
+            const clef = this.inferClefFromMedianOctave(medianOctave)
+            return `M:${meterTop}/${meterBottom}\nL:1/16\nK:C clef=${clef}\n`
     }
 
     private getNoteString({ pitch, octave, duration }: DenominatedNote): string {
@@ -103,5 +117,12 @@ export class NotationService {
             }
         }
         return false
+    }
+
+    private inferClefFromMedianOctave(medianOctave: number): 'treble' | 'bass' {
+        if (medianOctave < 3.5) {
+            return 'bass'
+        }
+        return 'treble'
     }
 }
