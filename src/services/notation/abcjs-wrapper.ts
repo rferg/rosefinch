@@ -1,12 +1,9 @@
-declare module '*.svg' {
-    const content: string
-    export default content
-}
+import { renderAbc } from 'abcjs'
+import { Injectable } from 'cewdi'
 
-// see https://paulrosen.github.io/abcjs/visual/render-abc-options.html#format
-// to add more options later
-declare module 'abcjs' {
-    export function renderAbc(
+@Injectable()
+export class AbcJSWrapper {
+    render(
         target: string | HTMLElement,
         abcNotation: string,
         options: {
@@ -14,5 +11,7 @@ declare module 'abcjs' {
             responsive?: 'resize',
             oneSvgPerLine?: boolean,
             [key: string]: string | boolean | number | undefined | { [key: string]: string | number }
-        })
+        }): void {
+            renderAbc(target, abcNotation, options)
+        }
 }

@@ -1,5 +1,4 @@
 import { Injectable } from 'cewdi'
-import abcjs from 'abcjs'
 import { GenomeConverterService } from '../genome-converter-service'
 import { DenominatedNote } from './denominated-note'
 import { MeasureSplitter } from './measure-splitter'
@@ -8,6 +7,7 @@ import { GeneUtil } from '../../common/gene-util'
 import { SerializedGeneticAlgorithmOptions } from '../../genetic-algorithm'
 import { DurationDenomination } from '../../common/duration-denomination'
 import { Uint8 } from '../../common/uint8'
+import { AbcJSWrapper } from './abcjs-wrapper'
 @Injectable()
 export class NotationService {
     private readonly referenceOctave = 4
@@ -16,7 +16,8 @@ export class NotationService {
 
     constructor(
         private readonly genomeConverter: GenomeConverterService,
-        private readonly splitter: MeasureSplitter) { }
+        private readonly splitter: MeasureSplitter,
+        private readonly abcjs: AbcJSWrapper) { }
 
     drawNotes({
         genome,
@@ -44,7 +45,7 @@ export class NotationService {
         const medianOctave = this.getMedianOctave(genome)
         const abcString = `${this.getAbcStringHeader(medianOctave, timeSignature)}${measureStrings.join('|')}`
 
-        abcjs.renderAbc(
+        this.abcjs.render(
             element,
             abcString,
             { add_classes: true, responsive: 'resize' })
