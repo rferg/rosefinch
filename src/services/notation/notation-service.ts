@@ -43,7 +43,10 @@ export class NotationService {
 
         const abcString = `${this.getAbcStringHeader(timeSignature)}${measureStrings.join('|')}`
 
-        abcjs.renderAbc(element, abcString, { add_classes: true, responsive: 'resize' })
+        abcjs.renderAbc(
+            element,
+            abcString,
+            { add_classes: true, responsive: 'resize' })
     }
 
     private splitMeasures({

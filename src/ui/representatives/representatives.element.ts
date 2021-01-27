@@ -39,27 +39,22 @@ export class RepresentativesElement extends BaseElement {
                     justify-content: flex-start;
                     align-items: center;
                 }
-                :host > * {
-                    flex-grow: 1;
-                }
                 div {
                     width: 100%;
                     display: flex;
-                    flex-flow: row wrap;
-                    justify-content: space-between;
-                    align-items: flex-start;
+                    flex-flow: column nowrap;
+                    justify-content: flex-start;
+                    align-items: stretch;
                 }
-                rf-container {
+                div rf-container {
                     margin: var(--small-padding);
                 }
-                div rf-container:first-child {
-                    flex-grow: 4
-                }
                 div rf-container:last-child {
-                    flex-grow: 1;
-                    max-height: 80vh;
-                    overflow-y: auto;
-                    max-width: 20vw;
+                    overflow-x: auto;
+                    flex-flow: row nowrap;
+                }
+                rf-representative {
+                    margin: 0 var(--small-padding);
                 }
             `
         ]

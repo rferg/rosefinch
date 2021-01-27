@@ -12,23 +12,21 @@ export class GenomeNotationElement extends BaseElement {
             super.styles,
             animationsStyles,
             css`
-                svg {
-                    stroke: var(--danger-color);
-                    fill: var(--danger-color);
-                    height: 250px;
+                .notes-container {
+                    display: flex;
                     width: 100%;
+                    max-width: 900px;
+                    justify-content: center;
+                    align-items: center;
+                    overflow-x: auto;
                 }
-                svg .abcjs-note, .abcjs-beam-elem, .abcjs-rest, .abcjs-tie {
+                svg .abcjs-note, .abcjs-beam-elem, .abcjs-rest, .abcjs-slur {
                     fill: var(--primary-color);
-                    stroke: var(--primary-color);
                     animation: fadeIn var(--animation-duration) var(--easing);
                 }
                 svg .abcjs-staff, .abcjs-staff-extra, .abcjs-bar {
                     fill: var(--danger-color);
                     animation: fadeIn var(--animation-duration) var(--easing);
-                }
-                svg .abcjs-bar {
-                    stroke: var(--danger-color);
                 }
             `
         ]
@@ -78,7 +76,10 @@ export class GenomeNotationElement extends BaseElement {
     }
 
     render() {
-        return html`<div id="notes"></div>`
+        return html`
+            <div class="notes-container">
+                <div id="notes"></div>
+            </div>`
     }
 
     private drawNotes(genome: number[], options: SerializedGeneticAlgorithmOptions) {
