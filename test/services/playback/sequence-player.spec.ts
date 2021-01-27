@@ -61,7 +61,7 @@ describe('SequencePlayer', () => {
             options: PlaybackOptions,
             callbacks: PlaybackCallbacks
         } = {
-            sequence: [ { pitchName: Pitch[Pitch.C], octave: 0, numberOfShortestDurations: 1 } ],
+            sequence: [ { pitchName: Pitch[Pitch.C], octave: 0, numberOfShortestDurations: 1, pitch: Pitch.C } ],
             shortestNoteDuration: 1,
             options: {},
             callbacks: {}
@@ -164,17 +164,20 @@ describe('SequencePlayer', () => {
                 {
                     pitchName: Pitch[Pitch.C],
                     octave: 4,
-                    numberOfShortestDurations: 2
+                    numberOfShortestDurations: 2,
+                    pitch: Pitch.C
                 },
                 {
                     pitchName: Pitch[Pitch.Rest],
                     octave: 3,
-                    numberOfShortestDurations: 1
+                    numberOfShortestDurations: 1,
+                    pitch: Pitch.Rest
                 },
                 {
                     pitchName: Pitch[Pitch.B],
                     octave: 3,
-                    numberOfShortestDurations: 1
+                    numberOfShortestDurations: 1,
+                    pitch: Pitch.B
                 }
             ]
             const instrument = Instrument.Piano

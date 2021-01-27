@@ -13,6 +13,8 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
     }
 
     render() {
-        return html`<div style="height:60vh;">fitness form</div>`
+        return html`
+            <div style="height:60vh;">fitness form</div>
+            `
     }
 }

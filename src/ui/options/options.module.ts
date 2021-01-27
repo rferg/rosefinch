@@ -8,11 +8,14 @@ import { PopupElement } from './popup.element'
 import { RunConfirmFormElement } from './run-confirm-form.element'
 import { OptionsFormMapperService } from '../../services/options-form-mapper-service'
 import { ScaleService } from '../../services'
+import { getProviders as getNotationProviders } from '../../services/notation'
+import { GenomeNotationElement } from './notation/genome-notation.element'
 
 export default {
     providers: [
         OptionsFormMapperService,
-        ScaleService
+        ScaleService,
+        ...getNotationProviders()
     ],
     elements: [
         {
@@ -42,6 +45,10 @@ export default {
         {
             element: RunConfirmFormElement,
             name: 'rf-run-confirm-form'
+        },
+        {
+            element: GenomeNotationElement,
+            name: 'rf-genome-notation'
         }
     ]
 } as Module

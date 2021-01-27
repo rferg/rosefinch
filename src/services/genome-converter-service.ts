@@ -14,6 +14,7 @@ export class GenomeConverterService {
                 if (result.length) { result[result.length - 1].numberOfShortestDurations++ }
             } else {
                 result.push({
+                    pitch,
                     pitchName: Pitch[pitch],
                     octave: GeneUtil.getOctave(gene as Uint8),
                     numberOfShortestDurations: 1

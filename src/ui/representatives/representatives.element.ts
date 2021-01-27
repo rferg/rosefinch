@@ -39,27 +39,22 @@ export class RepresentativesElement extends BaseElement {
                     justify-content: flex-start;
                     align-items: center;
                 }
-                :host > * {
-                    flex-grow: 1;
-                }
                 div {
                     width: 100%;
                     display: flex;
-                    flex-flow: row wrap;
-                    justify-content: space-between;
-                    align-items: center;
+                    flex-flow: column nowrap;
+                    justify-content: flex-start;
+                    align-items: stretch;
                 }
-                rf-container {
+                div rf-container {
                     margin: var(--small-padding);
                 }
-                div rf-container:first-child {
-                    flex-grow: 4
-                }
                 div rf-container:last-child {
-                    flex-grow: 1;
-                    max-height: 80vh;
-                    overflow-y: auto;
-                    max-width: 20vw;
+                    overflow-x: auto;
+                    flex-flow: row nowrap;
+                }
+                rf-representative {
+                    margin: 0 var(--small-padding);
                 }
             `
         ]
@@ -158,6 +153,9 @@ export class RepresentativesElement extends BaseElement {
                         @rating-change=${this.onRatingChange}
                         @play=${this.onPlay}
                         @pause=${this.onPause}>
+                        <rf-genome-notation
+                            .genome=${this.genes[this.activeGenomeIndex]}
+                            .options=${this.options}></rf-genome-notation>
                     </rf-edit-representative>
                 </rf-container>
                 <rf-container>
@@ -166,11 +164,13 @@ export class RepresentativesElement extends BaseElement {
                             ? html`<rf-representative
                                         index="${i}"
                                         ?active=${i === this.activeGenomeIndex}
-                                        .genome=${genome}
                                         .rating=${(this.ratings || [])[i]}
                                         @click=${() => this.activeGenomeIndex = i}>
+                                        <rf-genome-notation
+                                            .genome=${this.genes[i]}
+                                            .options=${this.options}></rf-genome-notation>
                                     </rf-representative>`
-                                : html``)}
+                            : html``)}
                 </rf-container>
             </div>
             <rf-popup ?show=${!!this.inPopup}>

@@ -33,7 +33,7 @@ module.exports = (config) => {
         { pattern: 'test/**/*.spec.ts' },
         { pattern: 'test/helpers/**/*.ts'}
       ],
-      exclude: [ 'src/index.ts' ],
+      exclude: [ 'src/index.ts', 'src/custom.d.ts' ],
       preprocessors: {
         'test/setup.ts': [ 'karma-typescript' ],
         'src/**/*.ts': [ 'karma-typescript' ],

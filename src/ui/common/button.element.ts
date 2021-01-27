@@ -43,6 +43,9 @@ export class ButtonElement extends BaseElement {
                 button:focus {
                     box-shadow: var(--focus-shadow);
                 }
+                :host([size="large"]) button {
+                    padding: var(--padding);
+                }
             `
         ]
     }
@@ -52,6 +55,9 @@ export class ButtonElement extends BaseElement {
 
     @property({ type: Boolean })
     disabled = false
+
+    @property({ type: String })
+    size: 'large' | 'medium' = 'medium'
 
     render() {
         return html`<button type="button" ?disabled=${this.disabled}><slot></slot></button>`

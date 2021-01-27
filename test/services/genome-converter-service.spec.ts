@@ -35,11 +35,13 @@ describe('GenomeConverterService', () => {
                 ],
                 expected: [
                     {
+                        pitch: Pitch.C,
                         pitchName: Pitch[Pitch.C],
                         octave: 4,
                         numberOfShortestDurations: 3
                     },
                     {
+                        pitch: Pitch.Rest,
                         pitchName: Pitch[Pitch.Rest],
                         octave: 0,
                         numberOfShortestDurations: 1
@@ -54,6 +56,7 @@ describe('GenomeConverterService', () => {
                 ],
                 expected: [
                     {
+                        pitch: Pitch.Rest,
                         pitchName: Pitch[Pitch.Rest],
                         octave: 0,
                         numberOfShortestDurations: 1
@@ -68,16 +71,19 @@ describe('GenomeConverterService', () => {
                 ],
                 expected: [
                     {
+                        pitch: Pitch.C,
                         pitchName: Pitch[Pitch.C],
                         octave: 1,
                         numberOfShortestDurations: 1
                     },
                     {
+                        pitch: Pitch.D,
                         pitchName: Pitch[Pitch.D],
                         octave: 2,
                         numberOfShortestDurations: 1
                     },
                     {
+                        pitch: Pitch.Rest,
                         pitchName: Pitch[Pitch.Rest],
                         octave: 0,
                         numberOfShortestDurations: 1
@@ -95,16 +101,19 @@ describe('GenomeConverterService', () => {
                 ],
                 expected: [
                     {
+                        pitch: Pitch.C,
                         pitchName: Pitch[Pitch.C],
                         octave: 1,
                         numberOfShortestDurations: 2
                     },
                     {
+                        pitch: Pitch.D,
                         pitchName: Pitch[Pitch.D],
                         octave: 2,
                         numberOfShortestDurations: 2
                     },
                     {
+                        pitch: Pitch.Rest,
                         pitchName: Pitch[Pitch.Rest],
                         octave: 0,
                         numberOfShortestDurations: 2
