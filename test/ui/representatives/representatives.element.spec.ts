@@ -43,8 +43,6 @@ class EditRepresentativeElementStub extends BaseElement {
 
 class RepresentativeElementStub extends BaseElement {
     static get is() { return 'rf-representative' }
-    @property()
-    genome?: number[]
 
     @property()
     rating = 0
@@ -56,6 +54,16 @@ class PlaybackOptionsElementStub extends BaseElement {
 
 class RepresentativesFitnessFormElementStub extends BaseElement {
     static get is() { return 'rf-representatives-fitness-form' }
+
+    @property()
+    options?: SerializedGeneticAlgorithmOptions
+}
+
+class GenomeNotationElementStub extends BaseElement {
+    static get is() { return 'rf-genome-notation' }
+
+    @property()
+    genome?: number[]
 
     @property()
     options?: SerializedGeneticAlgorithmOptions
@@ -94,6 +102,7 @@ describe('RepresentativesElement', () => {
         CustomElementRegistrar.instance
             .register(RepresentativesFitnessFormElementStub.is, RepresentativesFitnessFormElementStub)
         CustomElementRegistrar.instance.register(RunConfirmFormElementStub.is, RunConfirmFormElementStub)
+        CustomElementRegistrar.instance.register(GenomeNotationElementStub.is, GenomeNotationElementStub)
         CustomElementRegistrar.instance.register('rf-representatives-test', class extends RepresentativesElement {
             constructor() {
                 super(stateSpy, routerSpy, genesServiceSpy, optionsRepoSpy, summaryRepoSpy, eventSpy, playbackSpy)
@@ -178,21 +187,29 @@ describe('RepresentativesElement', () => {
                     ifNotMatchAction = args[2]?.ifNotMatch?.action || (() => {})
                 })
 
-                it('should render rf-representative elements with defined genes and undefined ratings', async () => {
-                    const genomes = [ [ 0 ], [ 1 ], undefined, [ 2 ] ]
-                    const definedGenomes = genomes.filter(g => !!g)
+                it(
+                    'should render rf-representative elements with undefined ratings and ' +
+                    'rf-genome-notation in slot with genomes',
+                    async () => {
+                        const genomes = [ [ 0 ], [ 1 ], undefined, [ 2 ] ]
+                        const definedGenomes = genomes.filter(g => !!g)
 
-                    genesHandler({ representativeGenes: genomes, generation: 1, geneticAlgorithmId })
-                    await elementUpdated(el)
+                        genesHandler({ representativeGenes: genomes, generation: 1, geneticAlgorithmId })
+                        await elementUpdated(el)
 
-                    const repEls = [ ...(el.shadowRoot?.querySelectorAll('rf-representative') ?? []) ]
-                    expect(repEls.length).toEqual(definedGenomes.length)
-                    definedGenomes.forEach((genome, i) => {
-                        const repEl = repEls[i] as RepresentativeElementStub
+                        const repEls =
+                            [ ...(el.shadowRoot?.querySelectorAll(RepresentativeElementStub.is) ?? []) ]
+                        expect(repEls.length).toEqual(definedGenomes.length)
+                        definedGenomes.forEach((genome, i) => {
+                            const repEl = repEls[i] as RepresentativeElementStub
 
-                        expect(repEl.genome).toEqual(genome)
-                        expect(repEl.rating).toBeUndefined()
-                    })
+                            expect(repEl.rating).toBeUndefined()
+
+                            const notationEl = repEl
+                                .querySelector(GenomeNotationElementStub.is) as GenomeNotationElementStub
+                            expect(notationEl).toBeDefined()
+                            expect(notationEl.genome).toEqual(genome)
+                        })
                 })
 
                 it('should render rf-representatives-header element with generation number', async () => {
