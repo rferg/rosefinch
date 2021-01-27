@@ -164,11 +164,13 @@ export class RepresentativesElement extends BaseElement {
                             ? html`<rf-representative
                                         index="${i}"
                                         ?active=${i === this.activeGenomeIndex}
-                                        .genome=${genome}
                                         .rating=${(this.ratings || [])[i]}
                                         @click=${() => this.activeGenomeIndex = i}>
+                                        <rf-genome-notation
+                                            .genome=${this.genes[i]}
+                                            .options=${this.options}></rf-genome-notation>
                                     </rf-representative>`
-                                : html``)}
+                            : html``)}
                 </rf-container>
             </div>
             <rf-popup ?show=${!!this.inPopup}>

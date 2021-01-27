@@ -32,7 +32,7 @@ export class GenomeNotationElement extends BaseElement {
         ]
     }
 
-    @query('#notes')
+    @query('.notes-container > div')
     notesRenderContainer?: HTMLElement
 
     private _options?: SerializedGeneticAlgorithmOptions
@@ -62,12 +62,11 @@ export class GenomeNotationElement extends BaseElement {
         if (newVal !== this._genome) {
             const oldVal = this._genome
             this._genome = newVal
-            // tslint:disable-next-line: no-floating-promises
-            this.requestUpdate('genome', oldVal)
-
-            if (this.genome && this.options) {
-                this.drawNotes(this.genome, this.options)
-            }
+            this.requestUpdate('genome', oldVal).then(() => {
+                if (this.genome && this.options) {
+                    this.drawNotes(this.genome, this.options)
+                }
+            }).catch(err => console.error(err))
         }
     }
 
@@ -78,7 +77,7 @@ export class GenomeNotationElement extends BaseElement {
     render() {
         return html`
             <div class="notes-container">
-                <div id="notes"></div>
+                <div></div>
             </div>`
     }
 

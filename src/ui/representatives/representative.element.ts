@@ -1,9 +1,6 @@
 import { html } from '@open-wc/testing-helpers'
 import { Injectable } from 'cewdi'
 import { css, property } from 'lit-element'
-import { GeneUtil } from '../../common/gene-util'
-import { Pitch } from '../../common/pitch'
-import { Uint8 } from '../../common/uint8'
 import { BaseElement } from '../core/base-element'
 
 @Injectable()
@@ -23,6 +20,7 @@ export class RepresentativeElement extends BaseElement {
                    justify-content: center;
                    border: solid 0.25rem transparent;
                    cursor: pointer;
+                   overflow-x: hidden;
                    transition: background-color var(--short-animation-duration) var(--easing);
                 }
                 rf-inside-container:hover {
@@ -32,21 +30,13 @@ export class RepresentativeElement extends BaseElement {
                     background-color: var(--light-primary-color);
                     border-color: var(--primary-color);
                 }
-                p {
-                    max-width: 15rem;
-                    overflow: hidden;
-                    word-wrap: none;
-                    word-break: none;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
+                ::slotted(*) {
                     margin: 0.25rem 0;
+                    min-width: 20rem;
                 }
             `
         ]
     }
-
-    @property({ reflect: false })
-    genome?: number[]
 
     @property({ reflect: true, type: Number })
     rating = 0
@@ -57,17 +47,9 @@ export class RepresentativeElement extends BaseElement {
     render() {
         return html`
             <rf-inside-container>
-                <p>${this.getGenomeRepresentation()}</p>
+                <slot></slot>
                 <rf-rating-display .rating=${this.rating}></rf-rating-display>
             </rf-inside-container>
         `
-    }
-
-    private getGenomeRepresentation(): string {
-        return (this.genome || [])
-            .map(gene => ({ pitch: GeneUtil.getPitch(gene as Uint8), octave: GeneUtil.getOctave(gene as Uint8) }))
-            .filter(({ pitch }) => pitch !== Pitch.Hold)
-            .map(({ pitch, octave }) => `${Pitch[pitch]}${octave}`)
-            .join(' ')
     }
 }
