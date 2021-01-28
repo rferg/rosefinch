@@ -52,12 +52,12 @@ export class MeasureSplitter {
                     if (denomination <= (sixteenthsPerMeasure - currentMeasureCount)) {
                         if (currentMeasure.length
                             && currentMeasure[currentMeasure.length - 1].originalNoteIndex === i) {
-                            currentMeasure[currentMeasure.length - 1].duration += denomination
+                            currentMeasure[currentMeasure.length - 1].durationInSixteenths += denomination
                         } else {
                             currentMeasure.push({
                                 pitch: note.pitch,
                                 octave: note.octave,
-                                duration: denomination,
+                                durationInSixteenths: denomination,
                                 originalNoteIndex: i
                             })
                         }

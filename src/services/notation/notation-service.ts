@@ -90,7 +90,7 @@ export class NotationService {
             return `M:${meterTop}/${meterBottom}\nL:1/16\nK:C clef=${clef}\n`
     }
 
-    private getNoteString({ pitch, octave, duration }: DenominatedNote): string {
+    private getNoteString({ pitch, octave, durationInSixteenths: duration }: DenominatedNote): string {
         if (this.isRest(pitch)) {
             return `z${duration}`
         }
