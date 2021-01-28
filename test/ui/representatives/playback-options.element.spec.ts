@@ -59,10 +59,10 @@ describe('PlaybackOptionsElement', () => {
 
         expect(input.inputType).toEqual('select')
         expect(input.options).toEqual([
-            { value: false as any, label: 'No' },
-            { value: true as any, label: 'Yes' }
+            { value: 0, label: 'No' },
+            { value: 1, label: 'Yes' }
         ])
-        expect(input.value).toEqual(options.loop as any)
+        expect(input.value).toEqual(options.loop ? 1 : 0)
     })
 
     it('should render cancel button that dispatches cancel event when clicked', async () => {
@@ -117,9 +117,9 @@ describe('PlaybackOptionsElement', () => {
             value: { bpm: expected.bpm },
             isValid: true
         }))
-        loopInput.value = expected.loop as any
-        bpmInput.dispatchEvent(new FormFieldChangeEvent({
-            value: { loop: expected.loop },
+        loopInput.value = expected.loop ? 1 : 0
+        loopInput.dispatchEvent(new FormFieldChangeEvent({
+            value: { loop: expected.loop ? 1 : 0 },
             isValid: true
         }))
         await elementUpdated(el)

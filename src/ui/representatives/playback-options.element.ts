@@ -106,8 +106,8 @@ export class PlaybackOptionsElement extends FormElement<PlaybackOptions> {
                     <rf-input inputType="select"
                         id="loop"
                         name="loop"
-                        .options=${[ { value: false, label: 'No' }, { value: true, label: 'Yes' } ]}
-                        .value=${!!this.value?.loop}></rf-input>
+                        .options=${[ { value: 0, label: 'No' }, { value: 1, label: 'Yes' } ]}
+                        .value=${this.value?.loop ? 1 : 0}></rf-input>
                 </rf-inside-container>
                 <div>
                     <rf-button buttonRole="danger"
@@ -129,7 +129,10 @@ export class PlaybackOptionsElement extends FormElement<PlaybackOptions> {
 
     private onSubmit() {
         if (this.valid) {
-            this.dispatchEvent(new FormSubmitEvent<PlaybackOptions>({ value: this.value || {} }))
+            this.dispatchEvent(new FormSubmitEvent<PlaybackOptions>({
+                // Coerce loop to boolean.
+                value: { ...(this.value || {}), loop: !!this.value?.loop }
+            }))
         }
     }
 
