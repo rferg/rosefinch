@@ -2,7 +2,7 @@ import { renderAbc } from 'abcjs'
 import { Injectable } from 'cewdi'
 
 @Injectable()
-export class AbcJSWrapper {
+export class AbcNotationRenderer {
     render(
         target: string | HTMLElement,
         abcNotation: string,

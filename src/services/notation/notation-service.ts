@@ -7,7 +7,7 @@ import { GeneUtil } from '../../common/gene-util'
 import { SerializedGeneticAlgorithmOptions } from '../../genetic-algorithm'
 import { DurationDenomination } from '../../common/duration-denomination'
 import { Uint8 } from '../../common/uint8'
-import { AbcJSWrapper } from './abcjs-wrapper'
+import { AbcNotationRenderer } from './abc-notation-renderer'
 @Injectable()
 export class NotationService {
     private readonly referenceOctave = 4
@@ -17,7 +17,7 @@ export class NotationService {
     constructor(
         private readonly genomeConverter: GenomeConverterService,
         private readonly splitter: MeasureSplitter,
-        private readonly abcjs: AbcJSWrapper) { }
+        private readonly abcRenderer: AbcNotationRenderer) { }
 
     drawNotes({
         genome,
@@ -45,13 +45,16 @@ export class NotationService {
         const medianOctave = this.getMedianOctave(genome)
         const abcString = `${this.getAbcStringHeader(medianOctave, timeSignature)}${measureStrings.join('|')}`
 
-        this.abcjs.render(
+        this.abcRenderer.render(
             element,
             abcString,
             { add_classes: true, responsive: 'resize' })
     }
 
-    getMedianOctave(genome: number[]) {
+    private getMedianOctave(genome: number[]) {
+        if (!(genome && genome.length)) {
+            return 0
+        }
         const sortedOctaves = [ ...genome ]
             .map(pitch => GeneUtil.getOctave(pitch as Uint8))
             .sort((a, b) => a - b)

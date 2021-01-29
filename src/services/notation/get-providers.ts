@@ -1,6 +1,6 @@
 import { Provider } from 'cewdi'
 import { GenomeConverterService } from '../genome-converter-service'
-import { AbcJSWrapper } from './abcjs-wrapper'
+import { AbcNotationRenderer } from './abc-notation-renderer'
 import { MeasureSplitter } from './measure-splitter'
 import { NotationService } from './notation-service'
 
@@ -9,6 +9,6 @@ export function getProviders(): Provider[] {
         GenomeConverterService,
         NotationService,
         MeasureSplitter,
-        AbcJSWrapper
+        AbcNotationRenderer
     ]
 }
