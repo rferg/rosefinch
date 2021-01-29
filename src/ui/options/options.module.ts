@@ -10,6 +10,8 @@ import { OptionsFormMapperService } from '../../services/options-form-mapper-ser
 import { ScaleService } from '../../services'
 import { getProviders as getNotationProviders } from '../../services/notation'
 import { GenomeNotationElement } from './notation/genome-notation.element'
+import { FitnessFormItemElement } from './fitness-form-item.element'
+import { ScaleFitnessElement } from './scale-fitness.element'
 
 export default {
     providers: [
@@ -49,6 +51,14 @@ export default {
         {
             element: GenomeNotationElement,
             name: 'rf-genome-notation'
+        },
+        {
+            element: FitnessFormItemElement,
+            name: 'rf-fitness-form-item'
+        },
+        {
+            element: ScaleFitnessElement,
+            name: 'rf-scale-fitness'
         }
     ]
 } as Module

@@ -7,6 +7,7 @@ import { SummaryQueryService } from '../../services/summary-query-service'
 import { GeneticAlgorithmSummaryStore } from '../../storage'
 import { scrollbarStyles } from '../common/scrollbar.styles'
 import { animationsStyles } from '../common/animations.styles'
+import { linkLikeButtonStyles } from '../common/link-like-button.styles'
 
 @Injectable()
 export class NewSessionElement extends BaseElement {
@@ -16,6 +17,7 @@ export class NewSessionElement extends BaseElement {
             headingsStyles,
             scrollbarStyles,
             animationsStyles,
+            linkLikeButtonStyles,
             css`
                 :host {
                     display: flex;
@@ -47,18 +49,11 @@ export class NewSessionElement extends BaseElement {
                 div h5, div p {
                     margin: 0;
                 }
+                button.link-like-button {
+                    margin-left: auto;
+                }
                 .new-container {
                     margin-bottom: calc(var(--padding) * 2);
-                }
-                button {
-                    outline: none;
-                    font-size: var(--font-size);
-                    border: none;
-                    background-color: transparent;
-                    text-decoration: underline;
-                    cursor: pointer;
-                    margin-left: auto;
-                    margin-top: var(--small-padding);
                 }
                 a.summary-link {
                     text-decoration: none;
@@ -66,7 +61,7 @@ export class NewSessionElement extends BaseElement {
                 a.summary-link h5, button {
                     transition: color var(--animation-duration) var(--easing);
                 }
-                button:hover, a.summary-link:hover h5 {
+                a.summary-link:hover h5 {
                     color: var(--medium-primary-color);
                 }
                 .summary {
@@ -136,7 +131,7 @@ export class NewSessionElement extends BaseElement {
             </div>
             ${this.summaries.length > this.summariesToShow
                 ? html`
-                    <button title="Show more past sessions" @click=${this.toggleMore}>
+                    <button class="link-like-button" title="Show more past sessions" @click=${this.toggleMore}>
                         ${this.showMore ? 'Less' : 'More'}
                     </button>`
                 : html``}
