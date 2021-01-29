@@ -45,11 +45,12 @@ export class GenomeNotationElement extends BaseElement {
             const oldVal = this._options
             this._options = newVal
             // tslint:disable-next-line: no-floating-promises
-            this.requestUpdate('options', oldVal)
+            this.requestUpdate('options', oldVal).then(() => {
+                if (this.genome && this.options) {
+                    this.drawNotes(this.genome, this.options)
+                }
+            }).catch(err => console.error(err))
 
-            if (this.genome.length && this._options) {
-                this.drawNotes(this.genome, this._options)
-            }
         }
     }
 
