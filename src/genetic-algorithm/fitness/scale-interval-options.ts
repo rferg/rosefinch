@@ -1,6 +1,6 @@
-import { Pitch } from '../../common/pitch'
+import { Scale } from '../../services/scale'
 
 export interface ScaleIntervalOptions {
-    scale: Pitch[],
+    scale: Scale,
     intervalScores: number[]
 }

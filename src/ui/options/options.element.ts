@@ -102,7 +102,11 @@ export class OptionsElement extends BaseElement {
 
     private fitnessForm: FitnessForm = {
         chords: { weight: 1, method: FitnessMethod.ChordFit, options: { chords: {} } },
-        scale: { weight: 1, method: FitnessMethod.ScaleInterval, options: { scale: [], intervalScores: [] } },
+        scale: {
+            weight: 1,
+            method: FitnessMethod.ScaleInterval,
+            options: { scale: { pitches: [] }, intervalScores: [] }
+        },
         restProportion: { weight: 1, method: FitnessMethod.RestProportion, options: { targetProportion: 0.1 } },
         pitchSequence: {
             weight: 1,

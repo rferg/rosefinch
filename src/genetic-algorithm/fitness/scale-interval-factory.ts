@@ -5,7 +5,7 @@ import { Uint8 } from '../../common/uint8'
 import { ScaleIntervalOptions } from './scale-interval-options'
 
 export function scaleIntervalFactory({
-    scale,
+    scale: { pitches },
     intervalScores
 }: ScaleIntervalOptions): (population: Population) => Int8Array {
     return (population: Population) => {
@@ -23,7 +23,7 @@ export function scaleIntervalFactory({
                 }
                 noteGenesCount++
 
-                const geneScaleDegree = scale.indexOf(pitch)
+                const geneScaleDegree = pitches.indexOf(pitch)
                 if (geneScaleDegree === -1) {
                     continue
                 }
@@ -33,7 +33,7 @@ export function scaleIntervalFactory({
                     continue
                 }
 
-                const nextScaleDegree = scale.indexOf(nextPitch)
+                const nextScaleDegree = pitches.indexOf(nextPitch)
                 if (nextScaleDegree === -1) {
                     continue
                 }

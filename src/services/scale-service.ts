@@ -1,28 +1,28 @@
 import { Injectable } from 'cewdi'
-import { Scale } from './scale'
+import { ScaleName } from './scale-name'
 import { Pitch } from '../common/pitch'
 import { GeneUtil } from '../common/gene-util'
 import { Uint8 } from '../common/uint8'
 
 @Injectable()
 export class ScaleService {
-    private readonly scaleIntervalMap: { [scale in Scale]: number[] } = {
-        [Scale.Chromatic]: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
-        [Scale.Major]: [ 2, 2, 1, 2, 2, 2 ],
-        [Scale.NaturalMinor]: [ 2, 1, 2, 2, 1, 2 ],
-        [Scale.Dorian]: [ 2, 1, 2, 2, 2, 1 ],
-        [Scale.Phrygian]: [ 1, 2, 2, 2, 1, 2 ],
-        [Scale.Lydian]: [ 2, 2, 2, 1, 2, 2 ],
-        [Scale.Mixolydian]: [ 2, 2, 1, 2, 2, 1 ],
-        [Scale.Aeolian]: [ 2, 1, 2, 2, 1, 2 ],
-        [Scale.Locrian]: [ 1, 2, 2, 1, 2, 2 ],
-        [Scale.MinorPentatonic]: [ 3, 2, 2, 3 ],
-        [Scale.MajorPentatonic]: [ 2, 2, 3, 2 ],
-        [Scale.Blues]: [ 3, 2, 1, 1, 3 ],
-        [Scale.PhrygianDominant]: [ 1, 3, 1, 2, 1, 2 ]
+    private readonly scaleIntervalMap: { [scale in ScaleName]: number[] } = {
+        [ScaleName.Chromatic]: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
+        [ScaleName.Major]: [ 2, 2, 1, 2, 2, 2 ],
+        [ScaleName.NaturalMinor]: [ 2, 1, 2, 2, 1, 2 ],
+        [ScaleName.Dorian]: [ 2, 1, 2, 2, 2, 1 ],
+        [ScaleName.Phrygian]: [ 1, 2, 2, 2, 1, 2 ],
+        [ScaleName.Lydian]: [ 2, 2, 2, 1, 2, 2 ],
+        [ScaleName.Mixolydian]: [ 2, 2, 1, 2, 2, 1 ],
+        [ScaleName.Aeolian]: [ 2, 1, 2, 2, 1, 2 ],
+        [ScaleName.Locrian]: [ 1, 2, 2, 1, 2, 2 ],
+        [ScaleName.MinorPentatonic]: [ 3, 2, 2, 3 ],
+        [ScaleName.MajorPentatonic]: [ 2, 2, 3, 2 ],
+        [ScaleName.Blues]: [ 3, 2, 1, 1, 3 ],
+        [ScaleName.PhrygianDominant]: [ 1, 3, 1, 2, 1, 2 ]
     }
 
-    getPitches(root: Pitch, scale: Scale): Pitch[] {
+    getPitches(root: Pitch, scale: ScaleName): Pitch[] {
         if (root === Pitch.Rest || root === Pitch.Hold) { return [] }
         const intervals = this.scaleIntervalMap[scale]
         let currentPitch = GeneUtil.getPitch(root)

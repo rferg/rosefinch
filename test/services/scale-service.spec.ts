@@ -1,4 +1,4 @@
-import { Scale, ScaleService } from '../../src/services'
+import { ScaleName, ScaleService } from '../../src/services'
 import { Pitch } from '../../src/common/pitch'
 
 describe('ScaleService', () => {
@@ -9,47 +9,47 @@ describe('ScaleService', () => {
     })
 
     it('should return empty if root is Rest', () => {
-        expect(service.getPitches(Pitch.Rest, Scale.Major).length).toBe(0)
+        expect(service.getPitches(Pitch.Rest, ScaleName.Major).length).toBe(0)
     })
 
     it('should return empty if root is Hold', () => {
-        expect(service.getPitches(Pitch.Hold, Scale.Major).length).toBe(0)
+        expect(service.getPitches(Pitch.Hold, ScaleName.Major).length).toBe(0)
     })
 
-    const cases: { root: Pitch, scale: Scale, expected: Pitch[] }[] = [
+    const cases: { root: Pitch, scale: ScaleName, expected: Pitch[] }[] = [
         {
             root: Pitch.C,
-            scale: Scale.Major,
+            scale: ScaleName.Major,
             expected: [ Pitch.C, Pitch.D, Pitch.E, Pitch.F, Pitch.G, Pitch.A, Pitch.B ]
         },
         {
             root: Pitch.Eb,
-            scale: Scale.Major,
+            scale: ScaleName.Major,
             expected: [ Pitch.Eb, Pitch.F, Pitch.G, Pitch.Ab, Pitch.Bb, Pitch.C, Pitch.D ]
         },
         {
             root: Pitch.A,
-            scale: Scale.Major,
+            scale: ScaleName.Major,
             expected: [ Pitch.A, Pitch.B, Pitch.Db, Pitch.D, Pitch.E, Pitch.Gb, Pitch.Ab ]
         },
         {
             root: Pitch.C,
-            scale: Scale.NaturalMinor,
+            scale: ScaleName.NaturalMinor,
             expected: [ Pitch.C, Pitch.D, Pitch.Eb, Pitch.F, Pitch.G, Pitch.Ab, Pitch.Bb ]
         },
         {
             root: Pitch.Eb,
-            scale: Scale.NaturalMinor,
+            scale: ScaleName.NaturalMinor,
             expected: [ Pitch.Eb, Pitch.F, Pitch.Gb, Pitch.Ab, Pitch.Bb, Pitch.B, Pitch.Db ]
         },
         {
             root: Pitch.A,
-            scale: Scale.NaturalMinor,
+            scale: ScaleName.NaturalMinor,
             expected: [ Pitch.A, Pitch.B, Pitch.C, Pitch.D, Pitch.E, Pitch.F, Pitch.G ]
         },
         {
             root: Pitch.B,
-            scale: Scale.Chromatic,
+            scale: ScaleName.Chromatic,
             expected: [
                 Pitch.B,
                 Pitch.C,
@@ -67,47 +67,47 @@ describe('ScaleService', () => {
         },
         {
             root: Pitch.Eb,
-            scale: Scale.Dorian,
+            scale: ScaleName.Dorian,
             expected: [ Pitch.Eb, Pitch.F, Pitch.Gb, Pitch.Ab, Pitch.Bb, Pitch.C, Pitch.Db ]
         },
         {
             root: Pitch.Eb,
-            scale: Scale.Phrygian,
+            scale: ScaleName.Phrygian,
             expected: [ Pitch.Eb, Pitch.E, Pitch.Gb, Pitch.Ab, Pitch.Bb, Pitch.B, Pitch.Db ]
         },
         {
             root: Pitch.Eb,
-            scale: Scale.Lydian,
+            scale: ScaleName.Lydian,
             expected: [ Pitch.Eb, Pitch.F, Pitch.G, Pitch.A, Pitch.Bb, Pitch.C, Pitch.D ]
         },
         {
             root: Pitch.Eb,
-            scale: Scale.Mixolydian,
+            scale: ScaleName.Mixolydian,
             expected: [ Pitch.Eb, Pitch.F, Pitch.G, Pitch.Ab, Pitch.Bb, Pitch.C, Pitch.Db ]
         },
         {
             root: Pitch.Eb,
-            scale: Scale.Aeolian,
+            scale: ScaleName.Aeolian,
             expected: [ Pitch.Eb, Pitch.F, Pitch.Gb, Pitch.Ab, Pitch.Bb, Pitch.B, Pitch.Db ]
         },
         {
             root: Pitch.Eb,
-            scale: Scale.Locrian,
+            scale: ScaleName.Locrian,
             expected: [ Pitch.Eb, Pitch.E, Pitch.Gb, Pitch.Ab, Pitch.A, Pitch.B, Pitch.Db ]
         },
         {
             root: Pitch.G,
-            scale: Scale.MinorPentatonic,
+            scale: ScaleName.MinorPentatonic,
             expected: [ Pitch.G, Pitch.Bb, Pitch.C, Pitch.D, Pitch.F ]
         },
         {
             root: Pitch.G,
-            scale: Scale.MajorPentatonic,
+            scale: ScaleName.MajorPentatonic,
             expected: [ Pitch.G, Pitch.A, Pitch.B, Pitch.D, Pitch.E ]
         },
         {
             root: Pitch.G,
-            scale: Scale.PhrygianDominant,
+            scale: ScaleName.PhrygianDominant,
             expected: [ Pitch.G, Pitch.Ab, Pitch.B, Pitch.C, Pitch.D, Pitch.Eb, Pitch.F ]
         }
     ]

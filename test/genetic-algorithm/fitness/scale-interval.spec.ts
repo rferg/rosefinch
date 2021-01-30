@@ -2,12 +2,15 @@ import { Population } from '../../../src/genetic-algorithm/population'
 import { scaleIntervalFactory } from '../../../src/genetic-algorithm/fitness/scale-interval-factory'
 import { Uint8 } from '../../../src/common/uint8'
 import { Pitch } from '../../../src/common/pitch'
+import { ScaleName } from '../../../src/services'
 
 describe('scaleInterval', () => {
     it('should return array of same length as population', () => {
         const population = new Population({ size: 5, genomeSize: 5 })
 
-        const result = scaleIntervalFactory({ scale: [], intervalScores: [] })(population)
+        const result = scaleIntervalFactory(
+            { scale: { name: ScaleName.Aeolian, pitches: [] },
+            intervalScores: [] })(population)
 
         expect(result.length).toBe(population.size)
     })
@@ -15,7 +18,8 @@ describe('scaleInterval', () => {
     it('should return 0 if scale is empty', () => {
         const population = new Population({ size: 1, genomeSize: 4, geneFactory: (i: number) => i as Uint8 })
 
-        const result = scaleIntervalFactory({ scale: [], intervalScores: [ 1, 2 ] })(population)[0]
+        const result = scaleIntervalFactory(
+            { scale: { name: ScaleName.Aeolian, pitches: [] }, intervalScores: [ 1, 2 ] })(population)[0]
 
         expect(result).toBe(0)
     })
@@ -24,7 +28,7 @@ describe('scaleInterval', () => {
         const population = new Population({ size: 1, genomeSize: 4, geneFactory: (i: number) => i as Uint8 })
 
         const result = scaleIntervalFactory({
-            scale: [ Pitch.C, Pitch.Bb, Pitch.B ],
+            scale: { name: ScaleName.Aeolian, pitches: [ Pitch.C, Pitch.Bb, Pitch.B ] },
             intervalScores: []
         })(population)[0]
 
@@ -39,7 +43,7 @@ describe('scaleInterval', () => {
         })
 
         const result = scaleIntervalFactory({
-            scale: [ Pitch.C, Pitch.Bb, Pitch.B ],
+            scale: { name: ScaleName.Aeolian, pitches: [ Pitch.C, Pitch.Bb, Pitch.B ] },
             intervalScores: [ 1, 2, 3 ]
         })(population)[0]
 
@@ -54,7 +58,7 @@ describe('scaleInterval', () => {
         })
 
         const result = scaleIntervalFactory({
-            scale: [ Pitch.C, Pitch.Bb, Pitch.B ],
+            scale: { name: ScaleName.Aeolian, pitches: [ Pitch.C, Pitch.Bb, Pitch.B ] },
             intervalScores: [ 1, 2, 3 ]
         })(population)[0]
 
@@ -69,7 +73,7 @@ describe('scaleInterval', () => {
         })
 
         const result = scaleIntervalFactory({
-            scale: [ Pitch.C, Pitch.B, Pitch.A ],
+            scale: { name: ScaleName.Aeolian, pitches: [ Pitch.C, Pitch.B, Pitch.A ] },
             intervalScores: [ 1, 2, 3 ]
         })(population)[0]
 
@@ -84,7 +88,7 @@ describe('scaleInterval', () => {
         })
 
         const result = scaleIntervalFactory({
-            scale: [ Pitch.C, Pitch.B, Pitch.A ],
+            scale: { name: ScaleName.Aeolian, pitches: [ Pitch.C, Pitch.B, Pitch.A ] },
             intervalScores: [ 1, 2, 3 ]
         })(population)[0]
 
@@ -99,7 +103,7 @@ describe('scaleInterval', () => {
         })
 
         const result = scaleIntervalFactory({
-            scale: [ Pitch.C, Pitch.Db, Pitch.D, Pitch.Eb ],
+            scale: { name: ScaleName.Aeolian, pitches: [ Pitch.C, Pitch.Db, Pitch.D, Pitch.Eb ] },
             intervalScores: [ 0, 0 ]
         })(population)[0]
 
@@ -110,62 +114,62 @@ describe('scaleInterval', () => {
     const cScores = [ 9, 10, 10, 8, 7, 1, 1 ]
     const cases: {
         genome: Pitch[],
-        scale: Pitch[],
+        pitches: Pitch[],
         intervalScores: number[],
         expectedFitness: number
     }[] = [
         {
             genome: [ Pitch.C, Pitch.B ],
-            scale: cScale,
+            pitches: cScale,
             intervalScores: cScores,
             expectedFitness: 10
         },
         {
             genome: [ Pitch.C, Pitch.Hold, Pitch.B ],
-            scale: cScale,
+            pitches: cScale,
             intervalScores: cScores,
             expectedFitness: 10
         },
         {
             genome: [ Pitch.C, Pitch.Rest, Pitch.Rest, Pitch.Hold, Pitch.B ],
-            scale: cScale,
+            pitches: cScale,
             intervalScores: cScores,
             expectedFitness: 10
         },
         {
             genome: [ Pitch.C, Pitch.Rest, Pitch.B, Pitch.Rest, Pitch.A ],
-            scale: cScale,
+            pitches: cScale,
             intervalScores: cScores,
             expectedFitness: 55
         },
         {
             genome: [ Pitch.B, Pitch.A, Pitch.A, Pitch.B, Pitch.B, Pitch.Hold, Pitch.Rest ],
-            scale: cScale,
+            pitches: cScale,
             intervalScores: cScores,
             expectedFitness: 95
         },
         {
             genome: [ Pitch.B, Pitch.Rest, Pitch.A, Pitch.Hold, Pitch.A, Pitch.B, Pitch.B ],
-            scale: cScale,
+            pitches: cScale,
             intervalScores: cScores,
             expectedFitness: 95
         },
         {
             genome: [ Pitch.C, Pitch.D, Pitch.E, Pitch.F, Pitch.G, Pitch.A, Pitch.B ],
-            scale: cScale,
+            pitches: cScale,
             intervalScores: cScores,
             expectedFitness: 100
         },
         {
             genome: [ Pitch.C, Pitch.Bb, Pitch.B, Pitch.Db, Pitch.B, Pitch.D ],
-            scale: cScale,
+            pitches: cScale,
             intervalScores: cScores,
             expectedFitness: 2
         }
     ]
 
-    cases.forEach(({ genome, scale, intervalScores, expectedFitness }) => {
-        it(`should return ${expectedFitness} for ${genome} with scale ${scale}` +
+    cases.forEach(({ genome, pitches, intervalScores, expectedFitness }) => {
+        it(`should return ${expectedFitness} for ${genome} with scale ${pitches}` +
             ` and intervalScores ${intervalScores}`, () => {
                 const population = new Population({
                     size: 1,
@@ -174,7 +178,7 @@ describe('scaleInterval', () => {
                 })
 
                 const result = scaleIntervalFactory({
-                    scale,
+                    scale: { name: ScaleName.Aeolian, pitches },
                     intervalScores
                 })(population)[0]
 

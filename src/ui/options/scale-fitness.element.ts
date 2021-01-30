@@ -1,8 +1,11 @@
 import { Injectable } from 'cewdi'
 import { css, html, property } from 'lit-element'
+import { Pitch } from '../../common/pitch'
 import { ScaleIntervalOptions } from '../../genetic-algorithm'
+import { ScaleName, ScaleService } from '../../services'
 import { Icon } from '../common/icon'
 import { BaseElement } from '../core/base-element'
+import { FormFieldChangeEvent } from './form-field-change-event'
 import { FormSubmitEvent } from './form-submit-event'
 
 @Injectable()
@@ -26,9 +29,28 @@ export class ScaleFitnessElement extends BaseElement {
     @property()
     options?: ScaleIntervalOptions
 
+    @property()
+    get root(): Pitch {
+        return this.options?.scale?.pitches?.[ 0 ] ?? this.defaultRoot
+    }
+
+    private readonly defaultRoot = Pitch.C
+
+    private readonly scaleOptions: { value: string, label: string }[] =
+        [ { value: '', label: '' }, ...Object.keys(ScaleName).map(k => ({ value: k, label: k })) ]
+
+    constructor(private readonly service: ScaleService) {
+        super()
+    }
+
     render() {
         return html`
-            <p>scale fitness</p>
+            <rf-input inputType="select"
+                .value=${this.options?.scale?.name ?? ''}
+                .options=${this.scaleOptions}
+                name="scaleName"
+                @form-field-change=${this.onScaleChange}>
+            </rf-input>
             <div>
                 <rf-button buttonRole="danger"
                     @click=${this.onCancel}
@@ -43,6 +65,15 @@ export class ScaleFitnessElement extends BaseElement {
                 </rf-button>
             </div>
             `
+    }
+
+    private onScaleChange(ev: FormFieldChangeEvent) {
+        const name = ev.value.scaleName || ''
+        const pitches = name ? this.service.getPitches(this.root, name) : []
+        this.options = {
+            ...(this.options || { intervalScores: [] }),
+            scale: { name, pitches }
+        }
     }
 
     private onCancel() {

@@ -69,8 +69,11 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
         {
             key: 'scale',
             title: 'Scale/Intervals',
-            valueTextFactory: (options: FitnessConfigOptions | undefined) =>
-                (options as ScaleIntervalOptions)?.scale?.map(p => Pitch[p]).join(',') ?? '',
+            valueTextFactory: (options: FitnessConfigOptions | undefined) => {
+                    const { scale: { name, pitches } } = (options as ScaleIntervalOptions)
+                    if (name) { return name }
+                    return pitches?.map(p => Pitch[p]).join(',') ?? ''
+                },
             editTemplateFactory: (options: FitnessConfigOptions | undefined) =>
                 html`<rf-scale-fitness .options=${options}></rf-scale-fitness>`
         }

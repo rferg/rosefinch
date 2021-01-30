@@ -103,7 +103,11 @@ describe('OptionsFormMapperService', () => {
         it('should update default options if none given', () => {
             const form: FitnessForm = {
                 chords: { weight: 0, method: FitnessMethod.ChordFit, options: { chords: {} } },
-                scale: { weight: 0, method: FitnessMethod.ScaleInterval, options: { scale: [], intervalScores: [] } },
+                scale: {
+                    weight: 0,
+                    method: FitnessMethod.ScaleInterval,
+                    options: { scale: { pitches: [] }, intervalScores: [] }
+                },
                 restProportion: { weight: 0, method: FitnessMethod.RestProportion, options: { targetProportion: 0.1 } },
                 pitchSequence: {
                     weight: 0,
@@ -140,7 +144,11 @@ describe('OptionsFormMapperService', () => {
             }
             const form: FitnessForm = {
                 chords: { weight: 0, method: FitnessMethod.ChordFit, options: { chords: {} } },
-                scale: { weight: 0, method: FitnessMethod.ScaleInterval, options: { scale: [], intervalScores: [] } },
+                scale: {
+                    weight: 0,
+                    method: FitnessMethod.ScaleInterval,
+                    options: { scale: { pitches: [] }, intervalScores: [] }
+                },
                 restProportion: { weight: 1, method: FitnessMethod.RestProportion, options: { targetProportion: 0.1 } },
                 pitchSequence: {
                     weight: 0,
@@ -168,7 +176,11 @@ describe('OptionsFormMapperService', () => {
         it('should include all fitness configs with weight !== 0', () => {
             const form: FitnessForm = {
                 chords: { weight: 2, method: FitnessMethod.ChordFit, options: { chords: {} } },
-                scale: { weight: -1, method: FitnessMethod.ScaleInterval, options: { scale: [], intervalScores: [] } },
+                scale: {
+                    weight: -1,
+                    method: FitnessMethod.ScaleInterval,
+                    options: { scale: { pitches: [] }, intervalScores: [] }
+                },
                 restProportion: { weight: 1, method: FitnessMethod.RestProportion, options: { targetProportion: 0.1 } },
                 pitchSequence: {
                     weight: 0.5,
