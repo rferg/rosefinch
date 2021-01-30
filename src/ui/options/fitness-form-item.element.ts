@@ -17,15 +17,12 @@ export class FitnessFormItemElement extends BaseElement {
                     justify-content: space-between;
                     padding-left: var(--padding);
                     padding-right: var(--padding);
+                    margin: 0;
                 }
-                button {
+                h5 {
                     width: 100%;
-                }
-                button h5 {
-                    margin: 0
-                }
-                rf-inside-container > * {
-                    margin: var(--small-padding) 0;
+                    margin: 0;
+                    text-align: center;
                 }
                 div {
                     display: flex;
@@ -37,9 +34,10 @@ export class FitnessFormItemElement extends BaseElement {
                     font-size: small;
                     text-align: center;
                 }
-                p {
+                button {
                     flex-grow: 1;
                     margin-right: var(--small-padding);
+                    text-align: left;
                 }
             `
         ]
@@ -57,10 +55,10 @@ export class FitnessFormItemElement extends BaseElement {
     render() {
         return html`
             <rf-inside-container>
-                <button class="link-like-button" @click=${this.onEditClick} title="Edit">
-                    <h5>${this.itemTitle || ''}</h5>
+                <h5>${this.itemTitle || ''}</h5>
+                <button class="link-like-button" title="Edit ${this.itemTitle || ''}" @click=${this.onEditClick}>
+                    ${this.valueText || 'None selected'}
                 </button>
-                <p>${this.valueText || 'None selected'}</p>
                 <div>
                     <span>Weight: ${this.weight || 0}</span>
                     <rf-range-input

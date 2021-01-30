@@ -13,6 +13,7 @@ import {
     ScaleIntervalOptions
 } from '../../genetic-algorithm'
 import { Pitch } from '../../common/pitch'
+import { animationsStyles } from '../common/animations.styles'
 interface FormItemConfig {
     key: keyof FitnessForm
     title: string
@@ -27,14 +28,38 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
     static get styles() {
         return [
             super.styles,
+            animationsStyles,
             css`
-                div {
-                    width: 100%;
+                #items-container {
                     display: flex;
-                    flex-flow: row wrap;
+                    flex-flow: column nowrap;
+                    justify-content: flex-start;
                     align-items: center;
-                    justify-content: space-around;
-                    margin-top: var(--padding);
+                }
+                #items-container rf-fitness-form-item {
+                    width: 100%;
+                    margin: var(--small-padding) 0;
+                }
+                #overlay {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    opacity: 0;
+                    pointer-events: none;
+                    transform: translateY(2%);
+                }
+                #overlay[show] {
+                    animation: slideInFromBottom var(--animation-duration) var(--easing);
+                    opacity: 1;
+                    pointer-events: auto;
+                    transform: translateY(0);
+                }
+                #overlay rf-container {
+                    margin: 0;
+                    width: 100%;
+                    height: 100%;
                 }
             `
         ]
@@ -43,7 +68,7 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
     private readonly itemConfigs: FormItemConfig[] = [
         {
             key: 'scale',
-            title: 'Scale',
+            title: 'Scale/Intervals',
             valueTextFactory: (options: FitnessConfigOptions | undefined) =>
                 (options as ScaleIntervalOptions)?.scale?.map(p => Pitch[p]).join(',') ?? '',
             editTemplateFactory: (options: FitnessConfigOptions | undefined) =>
@@ -56,23 +81,25 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
 
     render() {
         return html`
-            ${this.itemConfigs.map(({ key, title, valueTextFactory, editTemplateFactory }) => {
-                const value = (this.value || {})[key]
-                return html`<rf-fitness-form-item
-                    .weight=${value?.weight}
-                    .itemTitle=${title}
-                    .valueText=${valueTextFactory(value?.options)}
-                    @edit=${() =>
-                        this.onEditOptions(key, editTemplateFactory(value ? { ...value.options } : undefined))}
-                    @value-change=${(ev: ValueChangeEvent<number>) =>
-                        this.onWeightChange(key, ev)}>
-                    </rf-fitness-form-item>`
-            })}
-            <rf-popup ?show=${!!this.currentlyEditing}>
+            <div id="items-container">
+                ${this.itemConfigs.map(({ key, title, valueTextFactory, editTemplateFactory }) => {
+                    const value = (this.value || {})[key]
+                    return html`<rf-fitness-form-item
+                        .weight=${value?.weight}
+                        .itemTitle=${title}
+                        .valueText=${valueTextFactory(value?.options)}
+                        @edit=${() =>
+                            this.onEditOptions(key, editTemplateFactory(value ? { ...value.options } : undefined))}
+                        @value-change=${(ev: ValueChangeEvent<number>) =>
+                            this.onWeightChange(key, ev)}>
+                        </rf-fitness-form-item>`
+                })}
+            </div>
+            <div id="overlay" ?show=${!!this.currentlyEditing}>
                 <rf-container @cancel=${this.onEditOptionsCancel} @form-submit=${this.onEditOptionsSubmit}>
                     ${this.currentlyEditing?.template}
                 </rf-container>
-            </rf-popup>
+            </div>
         `
     }
 
