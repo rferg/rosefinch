@@ -12,8 +12,10 @@ import {
     RhythmicDispersionOptions,
     ScaleIntervalOptions
 } from '../../genetic-algorithm'
-import { Pitch } from '../../common/pitch'
 import { animationsStyles } from '../common/animations.styles'
+import { Pitch } from '../../common/pitch'
+import { GeneUtil } from '../../common/gene-util'
+import { Uint8 } from '../../common/uint8'
 interface FormItemConfig {
     key: keyof FitnessForm
     title: string
@@ -42,10 +44,10 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
                 }
                 #overlay {
                     position: absolute;
-                    top: 0;
+                    top: -10rem;
                     left: 0;
                     width: 100%;
-                    height: 100%;
+                    height: calc(100% + 10rem);
                     opacity: 0;
                     pointer-events: none;
                     transform: translateY(2%);
@@ -59,7 +61,7 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
                 #overlay rf-container {
                     margin: 0;
                     width: 100%;
-                    height: 100%;
+                    min-height: 100%;
                 }
             `
         ]
@@ -68,14 +70,20 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
     private readonly itemConfigs: FormItemConfig[] = [
         {
             key: 'scale',
-            title: 'Scale/Intervals',
+            title: 'Scale Degree Changes',
             valueTextFactory: (options: FitnessConfigOptions | undefined) => {
-                    const { scale: { name, pitches } } = (options as ScaleIntervalOptions)
-                    if (name) { return name }
-                    return pitches?.map(p => Pitch[p]).join(',') ?? ''
+                    const { scale: { name, pitches }, intervalScores } = (options as ScaleIntervalOptions)
+                    if (!name) { return '' }
+                    const root = pitches?.[0]
+                    const rootName = root ? Pitch[GeneUtil.getPitch(root as Uint8)] + ' ' : ''
+                    const pitchIntervalText = intervalScores.reduce((result, curr, i) => {
+                        if (i > 2) { return result }
+                        return result + `${result ? ', ' : ''}${i}: ${curr || 0}`
+                    }, '')
+                    return `${rootName}${name} | ${pitchIntervalText}...`
                 },
             editTemplateFactory: (options: FitnessConfigOptions | undefined) =>
-                html`<rf-scale-fitness .options=${options}></rf-scale-fitness>`
+                html`<rf-scale-fitness .options=${{ ...options }}></rf-scale-fitness>`
         }
     ]
 

@@ -24,7 +24,10 @@ export class ScaleService {
 
     getPitches(root: Pitch, scale: ScaleName): Pitch[] {
         if (root === Pitch.Rest || root === Pitch.Hold) { return [] }
+
         const intervals = this.scaleIntervalMap[scale]
+        if (!intervals) { return [] }
+
         let currentPitch = GeneUtil.getPitch(root)
         const result = [ currentPitch ]
         for (let intervalIndex = 0; intervalIndex < intervals.length; intervalIndex++) {
