@@ -271,5 +271,4 @@ describe('ScaleFitnessElement', () => {
             expect(event.value).toEqual(options)
         })
     })
-    
 })
