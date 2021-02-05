@@ -25,6 +25,12 @@ interface FormItemConfig {
 
 type FitnessConfigOptions = ChordFitOptions | ScaleIntervalOptions |
     RestProportionOptions | PitchSequenceDirectionOptions | RhythmicDispersionOptions
+
+const rhythmicDispersionLabels = {
+    0: 'Constant - mostly the same note length',
+    1: 'Balanced - variation in note lengths',
+    2: 'Extreme - mostly very short and very long notes'
+}
 @Injectable()
 export class FitnessFormElement extends FormElement<FitnessForm> {
     static get styles() {
@@ -94,6 +100,17 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
             },
             editTemplateFactory: (options: FitnessConfigOptions | undefined) =>
                 html`<rf-rest-proportion-fitness .options=${{ ...options }}></rf-rest-proportion-fitness>`
+        },
+        {
+            key: 'rhythmicDispersion',
+            title: 'Rhythmic Dispersion',
+            valueTextFactory: (options: FitnessConfigOptions | undefined) => {
+                const { target } = (options as RhythmicDispersionOptions) || {}
+                return rhythmicDispersionLabels[target || 0]
+            },
+            editTemplateFactory: (options: FitnessConfigOptions | undefined) =>
+                html`<rf-rhythmic-dispersion-fitness .options=${{ ...options }} .labels=${rhythmicDispersionLabels}>
+                    </rf-rhythmic-dispersion-fitness>`
         }
     ]
 

@@ -47,7 +47,7 @@ function getFunction(
             })
         case FitnessMethod.RhythmicDispersion:
             return rhythmicDispersionFactory({
-                target: options?.target || 1
+                target: options?.target ?? 0
             })
         case FitnessMethod.RepeatedSequences:
             return repeatedSequencesFactory({

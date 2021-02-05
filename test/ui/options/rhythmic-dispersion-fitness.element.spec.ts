@@ -1,63 +1,67 @@
-import { elementUpdated, fixture, html, oneEvent } from '@open-wc/testing-helpers'
-import { RestProportionOptions } from '../../../src/genetic-algorithm'
+import { elementUpdated, fixture, oneEvent } from '@open-wc/testing-helpers'
+import { html } from 'lit-element'
+import { RhythmicDispersionOptions } from '../../../src/genetic-algorithm'
 import { ValueChangeEvent } from '../../../src/ui/common/value-change-event'
 import { FormSubmitEvent } from '../../../src/ui/options/form-submit-event'
-import { RestProportionFitnessElement } from '../../../src/ui/options/rest-proportion-fitness.element'
+import { RhythmicDispersionFitnessElement } from '../../../src/ui/options/rhythmic-dispersion-fitness.element'
 import { CustomElementRegistrar } from '../../helpers/custom-element-registrar'
 import { FitnessFormItemButtonsElementStub } from '../../helpers/fitness-form-item-buttons-element-stub'
 import { RangeInputElementStub } from '../../helpers/range-input-element-stub'
 
-describe('RestProportionFitnessElement', () => {
-    let el: RestProportionFitnessElement
+describe('RhythmicDispersionFitnessElement', () => {
+    let el: RhythmicDispersionFitnessElement
 
     beforeAll(() => {
         CustomElementRegistrar.instance.register(RangeInputElementStub.is, RangeInputElementStub)
         CustomElementRegistrar.instance
             .register(FitnessFormItemButtonsElementStub.is, FitnessFormItemButtonsElementStub)
-        CustomElementRegistrar.instance.register('rf-rest-proportion-fitness-test', RestProportionFitnessElement)
+        CustomElementRegistrar.instance
+            .register('rf-rhythmic-dispersion-fitness-test', RhythmicDispersionFitnessElement)
     })
 
     beforeEach(async () => {
-        el = await fixture(html`<rf-rest-proportion-fitness-test></rf-rest-proportion-fitness-test>`)
+        el = await fixture(html`<rf-rhythmic-dispersion-fitness-test></rf-rhythmic-dispersion-fitness-test>`)
     })
 
     it('should create', () => {
         expect(el).toBeDefined()
     })
 
-    describe('on proportion change', () => {
-        let options: RestProportionOptions
+    describe('on target change', () => {
+        let options: RhythmicDispersionOptions
+        const labels = { 0: 'aaaaa', 1: 'bbbbb', 2: 'cccccc' }
 
-        const updateProportion = (value: number) => {
-            const input = el.shadowRoot?.querySelector('rf-range-input')
+        const updateTarget = (value: 0 | 1 | 2) => {
+            const input = el.shadowRoot?.querySelector(RangeInputElementStub.is)
 
-            if (!input) { throw new Error('no range input found') }
+            if (!input) { throw new Error('did not find range input') }
 
-            input.dispatchEvent(new ValueChangeEvent<number>(value))
+            input.dispatchEvent(new ValueChangeEvent<0 | 1 | 2>(value))
         }
 
         beforeEach(() => {
-            options = { targetProportion: 0 }
-            el.options = { ...options }
+            options = { target: 0 }
+            el.options = options
+            el.labels = { ...labels }
         })
 
-        it('should update options.targetProportion', async () => {
-            const value = 0.45
-            updateProportion(value)
+        it('should update options.target', async () => {
+            const value = 1
+            updateTarget(value)
             await elementUpdated(el)
 
-            expect(el.options?.targetProportion).toEqual(value)
+            expect(el.options?.target).toEqual(value)
         })
 
-        it('should update range input value and label as %', async () => {
-            const value = 0.45
-            updateProportion(value)
+        it('should update input value and label', async () => {
+            const value = 1
+            updateTarget(value)
             await elementUpdated(el)
 
-            const input = el.shadowRoot?.querySelector('rf-range-input') as RangeInputElementStub
+            const input = el.shadowRoot?.querySelector(RangeInputElementStub.is) as RangeInputElementStub
             expect(input.value).toEqual(value)
             const label = el.shadowRoot?.querySelector('.input-container span')
-            expect(label?.textContent).toContain(`${Math.floor(value * 100)}%`)
+            expect(label?.textContent).toContain(labels[value])
         })
     })
 
@@ -74,15 +78,15 @@ describe('RestProportionFitnessElement', () => {
 
     describe('submit', () => {
         it('should emit FormSubmitEvent with options on submit', async () => {
-            const options: RestProportionOptions = {
-                targetProportion: 0.4
+            const options: RhythmicDispersionOptions = {
+                target: 1
             }
             el.options = options
             await elementUpdated(el)
             const buttonsEl = el.shadowRoot?.querySelector(FitnessFormItemButtonsElementStub.is)
             setTimeout(() => buttonsEl?.dispatchEvent(new CustomEvent('submit')), 0)
 
-            const event = (await oneEvent(el, 'form-submit')) as FormSubmitEvent<RestProportionOptions>
+            const event = (await oneEvent(el, 'form-submit')) as FormSubmitEvent<RhythmicDispersionOptions>
 
             expect(event).toBeTruthy()
             expect(event.value).toEqual(options)
