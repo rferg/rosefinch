@@ -1,7 +1,6 @@
 import { Injectable } from 'cewdi'
 import { css, html, property } from 'lit-element'
 import { RestProportionOptions } from '../../genetic-algorithm'
-import { Icon } from '../common/icon'
 import { ValueChangeEvent } from '../common/value-change-event'
 import { BaseElement } from '../core/base-element'
 import { FormSubmitEvent } from './form-submit-event'
@@ -22,14 +21,6 @@ export class RestProportionFitnessElement extends BaseElement {
                 }
                 h5 {
                     text-align: center;
-                }
-                div.buttons-container {
-                    width: 100%;
-                    display: flex;
-                    flex-flow: row wrap;
-                    align-items: center;
-                    justify-content: space-around;
-                    margin-top: var(--padding);
                 }
                 div.input-container {
                     display: flex;
@@ -61,19 +52,8 @@ export class RestProportionFitnessElement extends BaseElement {
                     @value-change=${this.onProportionChange}>
                 </rf-range-input>
             </div>
-            <div class="buttons-container">
-                <rf-button buttonRole="danger"
-                    @click=${this.onCancel}
-                    title="Cancel">
-                    <rf-icon icon=${Icon.Cross}></rf-icon>
-                </rf-button>
-                <rf-button
-                    buttonRole="success"
-                    @click=${this.onSubmit}
-                    title="Save">
-                    <rf-icon icon=${Icon.Check}></rf-icon>
-                </rf-button>
-            </div>
+            <rf-fitness-form-item-buttons @cancel=${this.onCancel} @submit=${this.onSubmit}>
+            </rf-fitness-form-item-buttons>
         `
     }
 

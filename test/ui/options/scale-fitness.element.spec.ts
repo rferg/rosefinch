@@ -9,6 +9,7 @@ import { FormFieldChangeEvent } from '../../../src/ui/options/form-field-change-
 import { FormSubmitEvent } from '../../../src/ui/options/form-submit-event'
 import { ScaleFitnessElement } from '../../../src/ui/options/scale-fitness.element'
 import { CustomElementRegistrar } from '../../helpers/custom-element-registrar'
+import { FitnessFormItemButtonsElementStub } from '../../helpers/fitness-form-item-buttons-element-stub'
 import { InputElementStub } from '../../helpers/input-element-stub'
 import { RangeInputElementStub } from '../../helpers/range-input-element-stub'
 
@@ -19,7 +20,8 @@ describe('ScaleFitnessElement', () => {
     beforeAll(() => {
         CustomElementRegistrar.instance.register(InputElementStub.is, InputElementStub)
         CustomElementRegistrar.instance.register(RangeInputElementStub.is, RangeInputElementStub)
-
+        CustomElementRegistrar.instance
+            .register(FitnessFormItemButtonsElementStub.is, FitnessFormItemButtonsElementStub)
         CustomElementRegistrar.instance.register('rf-scale-fitness-test', class extends ScaleFitnessElement {
             constructor() { super(scaleService) }
         })
@@ -243,10 +245,10 @@ describe('ScaleFitnessElement', () => {
         })
     })
 
-    describe('cancel button', () => {
-        it('should emit cancel event on click', async () => {
-            const button = el.shadowRoot?.querySelector('rf-button[title="Cancel"]')
-            setTimeout(() => button?.dispatchEvent(new Event('click')), 0)
+    describe('cancel', () => {
+        it('should emit cancel event', async () => {
+            const buttonsEl = el.shadowRoot?.querySelector(FitnessFormItemButtonsElementStub.is)
+            setTimeout(() => buttonsEl?.dispatchEvent(new CustomEvent('cancel')), 0)
 
             const event = await oneEvent(el, 'cancel')
 
@@ -254,16 +256,16 @@ describe('ScaleFitnessElement', () => {
         })
     })
 
-    describe('submit button', () => {
-        it('should emit FormSubmitEvent with options on click', async () => {
+    describe('submit', () => {
+        it('should emit FormSubmitEvent with options on submit event', async () => {
             const options: ScaleIntervalOptions = {
                 scale: { name: ScaleName.Aeolian, pitches: [ 1 ] },
                 intervalScores: [ 0.1 ]
             }
             el.options = options
             await elementUpdated(el)
-            const button = el.shadowRoot?.querySelector('rf-button[title="Save"]')
-            setTimeout(() => button?.dispatchEvent(new Event('click')), 0)
+            const buttonsEl = el.shadowRoot?.querySelector(FitnessFormItemButtonsElementStub.is)
+            setTimeout(() => buttonsEl?.dispatchEvent(new CustomEvent('submit')), 0)
 
             const event = (await oneEvent(el, 'form-submit')) as FormSubmitEvent<ScaleIntervalOptions>
 

@@ -5,6 +5,7 @@ import { FormSubmitEvent } from '../../../src/ui/options/form-submit-event'
 import { RestProportionFitnessElement } from '../../../src/ui/options/rest-proportion-fitness.element'
 import { ButtonElementStub } from '../../helpers/button-element-stub'
 import { CustomElementRegistrar } from '../../helpers/custom-element-registrar'
+import { FitnessFormItemButtonsElementStub } from '../../helpers/fitness-form-item-buttons-element-stub'
 import { RangeInputElementStub } from '../../helpers/range-input-element-stub'
 
 describe('RestProportionFitnessElement', () => {
@@ -13,6 +14,8 @@ describe('RestProportionFitnessElement', () => {
     beforeAll(() => {
         CustomElementRegistrar.instance.register(RangeInputElementStub.is, RangeInputElementStub)
         CustomElementRegistrar.instance.register(ButtonElementStub.is, ButtonElementStub)
+        CustomElementRegistrar.instance
+            .register(FitnessFormItemButtonsElementStub.is, FitnessFormItemButtonsElementStub)
         CustomElementRegistrar.instance.register('rf-rest-proportion-fitness-test', RestProportionFitnessElement)
     })
 
@@ -60,10 +63,10 @@ describe('RestProportionFitnessElement', () => {
         })
     })
 
-    describe('cancel button', () => {
-        it('should emit cancel event on click', async () => {
-            const button = el.shadowRoot?.querySelector('rf-button[title="Cancel"]')
-            setTimeout(() => button?.dispatchEvent(new Event('click')), 0)
+    describe('cancel', () => {
+        it('should emit cancel event', async () => {
+            const buttonsEl = el.shadowRoot?.querySelector(FitnessFormItemButtonsElementStub.is)
+            setTimeout(() => buttonsEl?.dispatchEvent(new CustomEvent('cancel')), 0)
 
             const event = await oneEvent(el, 'cancel')
 
@@ -71,15 +74,15 @@ describe('RestProportionFitnessElement', () => {
         })
     })
 
-    describe('submit button', () => {
-        it('should emit FormSubmitEvent with options on click', async () => {
+    describe('submit', () => {
+        it('should emit FormSubmitEvent with options on submit', async () => {
             const options: RestProportionOptions = {
                 targetProportion: 0.4
             }
             el.options = options
             await elementUpdated(el)
-            const button = el.shadowRoot?.querySelector('rf-button[title="Save"]')
-            setTimeout(() => button?.dispatchEvent(new Event('click')), 0)
+            const buttonsEl = el.shadowRoot?.querySelector(FitnessFormItemButtonsElementStub.is)
+            setTimeout(() => buttonsEl?.dispatchEvent(new CustomEvent('submit')), 0)
 
             const event = (await oneEvent(el, 'form-submit')) as FormSubmitEvent<RestProportionOptions>
 

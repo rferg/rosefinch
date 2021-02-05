@@ -5,7 +5,6 @@ import { Pitch } from '../../common/pitch'
 import { Uint8 } from '../../common/uint8'
 import { ScaleIntervalOptions } from '../../genetic-algorithm'
 import { ScaleName, ScaleService } from '../../services'
-import { Icon } from '../common/icon'
 import { scrollbarStyles } from '../common/scrollbar.styles'
 import { ValueChangeEvent } from '../common/value-change-event'
 import { BaseElement } from '../core/base-element'
@@ -41,14 +40,6 @@ export class ScaleFitnessElement extends BaseElement {
                 }
                 .form-section-container label {
                     margin-right: var(--small-padding);
-                }
-                div.buttons-container {
-                    width: 100%;
-                    display: flex;
-                    flex-flow: row wrap;
-                    align-items: center;
-                    justify-content: space-around;
-                    margin-top: var(--padding);
                 }
                 h5 {
                     width: 100%;
@@ -228,19 +219,8 @@ export class ScaleFitnessElement extends BaseElement {
                     </ul>
                 `
                 : html``}
-            <div class="buttons-container">
-                <rf-button buttonRole="danger"
-                    @click=${this.onCancel}
-                    title="Cancel">
-                    <rf-icon icon=${Icon.Cross}></rf-icon>
-                </rf-button>
-                <rf-button
-                    buttonRole="success"
-                    @click=${this.onSubmit}
-                    title="Save">
-                    <rf-icon icon=${Icon.Check}></rf-icon>
-                </rf-button>
-            </div>
+            <rf-fitness-form-item-buttons @cancel=${this.onCancel} @submit=${this.onSubmit}>
+            </rf-fitness-form-item-buttons>
             `
     }
 
