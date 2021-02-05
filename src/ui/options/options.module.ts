@@ -12,6 +12,7 @@ import { getProviders as getNotationProviders } from '../../services/notation'
 import { GenomeNotationElement } from './notation/genome-notation.element'
 import { FitnessFormItemElement } from './fitness-form-item.element'
 import { ScaleFitnessElement } from './scale-fitness.element'
+import { RestProportionFitnessElement } from './rest-proportion-fitness.element'
 
 export default {
     providers: [
@@ -59,6 +60,10 @@ export default {
         {
             element: ScaleFitnessElement,
             name: 'rf-scale-fitness'
+        },
+        {
+            element: RestProportionFitnessElement,
+            name: 'rf-rest-proportion-fitness'
         }
     ]
 } as Module

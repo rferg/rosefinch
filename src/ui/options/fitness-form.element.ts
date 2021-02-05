@@ -84,6 +84,16 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
                 },
             editTemplateFactory: (options: FitnessConfigOptions | undefined) =>
                 html`<rf-scale-fitness .options=${{ ...options }}></rf-scale-fitness>`
+        },
+        {
+            key: 'restProportion',
+            title: 'Rest Proportion',
+            valueTextFactory: (options: FitnessConfigOptions | undefined) => {
+                const { targetProportion } = (options as RestProportionOptions) || {}
+                return `${((targetProportion || 0) * 100)}%`
+            },
+            editTemplateFactory: (options: FitnessConfigOptions | undefined) =>
+                html`<rf-rest-proportion-fitness .options=${{ ...options }}></rf-rest-proportion-fitness>`
         }
     ]
 
