@@ -7,6 +7,11 @@ export class BaseElement extends LitElement {
                     font-family: var(--font-family);
                     color: var(--font-color);
                 }
+                ul {
+                    list-style: none;
+                    list-style-type: none;
+                    padding: 0;
+                }
             `
     }
 }

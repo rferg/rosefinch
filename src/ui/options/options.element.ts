@@ -94,10 +94,10 @@ export class OptionsElement extends BaseElement {
         populationSize: 5000,
         timeSignatureTop: 4,
         timeSignatureBottom: 4,
-        octaveMax: 6,
-        octaveMin: 3,
+        octaveMax: 5,
+        octaveMin: 4,
         shortestNoteDuration: 8,
-        measures: 4
+        measures: 2
     }
 
     private fitnessForm: FitnessForm = {

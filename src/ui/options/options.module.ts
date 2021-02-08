@@ -15,6 +15,7 @@ import { ScaleFitnessElement } from './scale-fitness.element'
 import { RestProportionFitnessElement } from './rest-proportion-fitness.element'
 import { FitnessFormItemButtonsElement } from './fitness-form-item-buttons.element'
 import { RhythmicDispersionFitnessElement } from './rhythmic-dispersion-fitness.element'
+import { PitchSequenceDirectionFitnessElement } from './pitch-sequence-direction-fitness.element'
 
 export default {
     providers: [
@@ -74,6 +75,10 @@ export default {
         {
             element: RhythmicDispersionFitnessElement,
             name: 'rf-rhythmic-dispersion-fitness'
+        },
+        {
+            element: PitchSequenceDirectionFitnessElement,
+            name: 'rf-pitch-sequence-direction-fitness'
         }
     ]
 } as Module

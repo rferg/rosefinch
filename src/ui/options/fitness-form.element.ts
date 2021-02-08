@@ -111,6 +111,19 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
             editTemplateFactory: (options: FitnessConfigOptions | undefined) =>
                 html`<rf-rhythmic-dispersion-fitness .options=${{ ...options }} .labels=${rhythmicDispersionLabels}>
                     </rf-rhythmic-dispersion-fitness>`
+        },
+        {
+            key: 'pitchSequence',
+            title: 'Pitch Sequence Direction',
+            valueTextFactory: (options: FitnessConfigOptions | undefined) => {
+                const { sequenceLength, scores } = (options as PitchSequenceDirectionOptions) || {}
+                if (!sequenceLength || !scores) { return '' }
+                return `Length: ${sequenceLength} | Asc: ${scores.ascending}, ` +
+                    `Desc: ${scores.descending}, Stable: ${scores.stable}`
+            },
+            editTemplateFactory: (options: FitnessConfigOptions | undefined) =>
+            html`<rf-pitch-sequence-direction-fitness .options=${{ ...options }}>
+                </rf-pitch-sequence-direction-fitness>`
         }
     ]
 
