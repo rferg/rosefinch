@@ -7,7 +7,7 @@ import { FitnessFormElement } from './fitness-form.element'
 import { PopupElement } from './popup.element'
 import { RunConfirmFormElement } from './run-confirm-form.element'
 import { OptionsFormMapperService } from '../../services/options-form-mapper-service'
-import { ScaleService } from '../../services'
+import { ChordService, ScaleService } from '../../services'
 import { getProviders as getNotationProviders } from '../../services/notation'
 import { GenomeNotationElement } from './notation/genome-notation.element'
 import { FitnessFormItemElement } from './fitness-form-item.element'
@@ -19,6 +19,7 @@ import { PitchSequenceDirectionFitnessElement } from './pitch-sequence-direction
 
 export default {
     providers: [
+        ChordService,
         OptionsFormMapperService,
         ScaleService,
         ...getNotationProviders()

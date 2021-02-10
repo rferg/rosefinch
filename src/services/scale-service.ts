@@ -1,8 +1,7 @@
 import { Injectable } from 'cewdi'
 import { ScaleName } from './scale-name'
 import { Pitch } from '../common/pitch'
-import { GeneUtil } from '../common/gene-util'
-import { Uint8 } from '../common/uint8'
+import { getSequenceFromIntervals } from './get-sequence-from-intervals'
 
 @Injectable()
 export class ScaleService {
@@ -23,23 +22,7 @@ export class ScaleService {
     }
 
     getPitches(root: Pitch, scale: ScaleName): Pitch[] {
-        if (root === Pitch.Rest || root === Pitch.Hold) { return [] }
-
         const intervals = this.scaleIntervalMap[scale]
-        if (!intervals) { return [] }
-
-        let currentPitch = GeneUtil.getPitch(root)
-        const result = [ currentPitch ]
-        for (let intervalIndex = 0; intervalIndex < intervals.length; intervalIndex++) {
-            const interval = intervals[intervalIndex]
-            let nextPitch = currentPitch + interval
-            if (nextPitch >= Pitch.Hold) {
-                // Add 2 to account for Rest and Hold and then get pitch by mod.
-                nextPitch = GeneUtil.getPitch(nextPitch + 2 as Uint8)
-            }
-            result.push(nextPitch)
-            currentPitch = nextPitch
-        }
-        return result
+        return getSequenceFromIntervals(root, intervals, true)
     }
 }
