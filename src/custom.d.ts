@@ -15,20 +15,23 @@ declare module 'abcjs' {
         clickListener?: AbcClickListener
     }
 
-    export type AbcAnalysis = {
-        line: number,
-        measure: number,
-        voice: number,
-        staffPos: { top: number, height: number, zero: number }
-    }
-
     export type AbcElement = {
-
+        abselem?: any,
+        averagepitch?: number,
+        duration?: number
+        el_type?: string
+        endBeam?: boolean
+        endChar?: number,
+        maxpitch?: number,
+        minpitch?: number
+        pitches?: any[]
+        startChar?: number
     }
 
     export type AbcClickListener = (
         abcElement: AbcElement,
         tuneNumber: number,
         classes: string[],
-        analysis: AbcAnalysis) => void
+        analysis: any,
+        drag: any) => void
 }

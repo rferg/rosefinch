@@ -9,6 +9,8 @@ import { DurationDenomination } from '../../common/duration-denomination'
 import { Uint8 } from '../../common/uint8'
 import { AbcNotationRenderer } from './abc-notation-renderer'
 import { AbcClickListener } from 'abcjs'
+
+type GeneClickListener = (note: DenominatedNote) => void
 @Injectable()
 export class NotationService {
     private readonly referenceOctave = 4
@@ -29,7 +31,7 @@ export class NotationService {
         genome: number[],
         options: SerializedGeneticAlgorithmOptions,
         element: HTMLElement,
-        clickListener?: AbcClickListener
+        clickListener?: GeneClickListener
     }): void {
         if (!element) {
             throw new Error(`Attempted to draw notes by HTMLElement was ${element}`)
@@ -51,7 +53,11 @@ export class NotationService {
         this.abcRenderer.render(
             element,
             abcString,
-            { add_classes: true, responsive: 'resize', clickListener })
+            {
+                add_classes: true,
+                responsive: 'resize',
+                clickListener: this.createClickListener(measures, clickListener)
+            })
     }
 
     private getMedianOctave(genome: number[]) {
@@ -131,5 +137,36 @@ export class NotationService {
             return 'bass'
         }
         return 'treble'
+    }
+
+    private createClickListener(
+        measures: DenominatedNote[][],
+        originalListener?: GeneClickListener): AbcClickListener | undefined {
+        if (!originalListener) { return undefined }
+
+        return (el, _tune, classes, _analysis, _drag) => {
+            if (!(el?.el_type === 'note') || !classes) { return }
+
+            const measureRegex = /abcjs-m(\d+)/
+            const noteRegex = /abcjs-n(\d+)/
+            let noteIndex: number | undefined
+            let measureIndex: number | undefined
+            classes.forEach(classList => {
+                const measureMatch = classList.match(measureRegex)
+                if (measureMatch && measureIndex === undefined) {
+                    measureIndex = Number.parseInt(measureMatch[1])
+                }
+
+                const noteMatch = classList.match(noteRegex)
+                if (noteMatch && noteIndex === undefined) {
+                    noteIndex = Number.parseInt(noteMatch[1])
+                }
+            })
+
+            if (noteIndex !== undefined && measureIndex !== undefined) {
+                const note = measures?.[measureIndex]?.[noteIndex]
+                originalListener(note)
+            }
+        }
     }
 }

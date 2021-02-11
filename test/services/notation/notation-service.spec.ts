@@ -104,16 +104,6 @@ describe('NotationService', () => {
             })
         })
 
-        it('should call renderer with clickListener if given', () => {
-            const clickListener: AbcClickListener = (_, __, ___, ____) => {}
-            const inputsWithListener = { ...inputs, clickListener }
-            service.drawNotes(inputsWithListener)
-
-            const args = abcRenderer.render.calls.mostRecent().args
-
-            expect(args[2].clickListener).toEqual(clickListener)
-        })
-
         it('should create header string with time signature, default note length, and key', () => {
             service.drawNotes(inputs)
 
@@ -407,6 +397,122 @@ describe('NotationService', () => {
                     .split('\n')
                     .pop()
                 expect(actual).toEqual(expected)
+            })
+        })
+
+        describe('click listener', () => {
+            let listener: jasmine.Spy<(note: DenominatedNote) => void>
+            let abcListener: AbcClickListener
+            const notes: DenominatedNote[][] = [
+                [
+                    {
+                        pitch: Pitch.C,
+                        octave: 4,
+                        durationInSixteenths: 1,
+                        originalNoteIndex: 0
+                    }
+                ],
+                [
+                    {
+                        pitch: Pitch.C,
+                        octave: 4,
+                        durationInSixteenths: 3,
+                        originalNoteIndex: 1
+                    }
+                ],
+                [
+                    {
+                        pitch: Pitch.C,
+                        octave: 4,
+                        durationInSixteenths: 16,
+                        originalNoteIndex: 2
+                    }
+                ]
+            ]
+
+            beforeEach(() => {
+                listener = jasmine.createSpy('click listener')
+                splitter.splitMeasures.and.returnValue(notes)
+                service.drawNotes({ ...inputs, clickListener: listener })
+                const passedListener = abcRenderer.render.calls.mostRecent().args[2].clickListener
+
+                if (!passedListener) { throw new Error('no listener passed to abc renderer') }
+
+                abcListener = passedListener
+            })
+
+            it('should not call listener if abc element is not a note', () => {
+                abcListener({ el_type: 'beam' }, 0, [ 'abcjs-m0 abcjs-n0' ], {}, null)
+
+                expect(listener).not.toHaveBeenCalled()
+            })
+
+            it('should not call listener if classes do not contain measure or note', () => {
+                abcListener({ el_type: 'note' }, 0, [ 'abcjs-x abcjs-y' ], {}, null)
+
+                expect(listener).not.toHaveBeenCalled()
+            })
+
+            it('should not call listener if classes do not contain note', () => {
+                abcListener({ el_type: 'note' }, 0, [ 'abcjs-m0 abcjs-y' ], {}, null)
+
+                expect(listener).not.toHaveBeenCalled()
+            })
+
+            it('should not call listener if classes do not contain measure', () => {
+                abcListener({ el_type: 'note' }, 0, [ 'abcjs-n0 abcjs-y' ], {}, null)
+
+                expect(listener).not.toHaveBeenCalled()
+            })
+
+            it('should call listener with note at correct index when indices are in same class list element', () => {
+                notes.forEach((measure, measureIndex) => {
+                    measure.forEach((note, noteIndex) => {
+                        abcListener(
+                            { el_type: 'note' },
+                            0,
+                            [ `abcjs-abc abcjs-n${noteIndex} abcjs-m${measureIndex} abcjs-xyz` ],
+                            {},
+                            null)
+
+                        expect(listener).toHaveBeenCalledWith(note)
+                    })
+                })
+            })
+
+            it(
+                'should call listener with note at correct index when indices are in different class list elements',
+                () => {
+                notes.forEach((measure, measureIndex) => {
+                    measure.forEach((note, noteIndex) => {
+                        abcListener(
+                            { el_type: 'note' },
+                            0,
+                            [ `abcjs-abc abcjs-n${noteIndex}`, `abcjs-m${measureIndex} abcjs-xyz` ],
+                            {},
+                            null)
+
+                        expect(listener).toHaveBeenCalledWith(note)
+                    })
+                })
+            })
+
+            it('should call listener with note at first index when multiple are specified', () => {
+                notes.forEach((measure, measureIndex) => {
+                    measure.forEach((note, noteIndex) => {
+                        abcListener(
+                            { el_type: 'note' },
+                            0,
+                            [
+                                `abcjs-n${noteIndex} abcjs-m${measureIndex}`,
+                                `abcjs-n${noteIndex + 1} abcjs-m${measureIndex + 1}`
+                            ],
+                            {},
+                            null)
+
+                        expect(listener).toHaveBeenCalledWith(note)
+                    })
+                })
             })
         })
     })
