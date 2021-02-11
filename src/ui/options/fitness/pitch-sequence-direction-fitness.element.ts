@@ -1,10 +1,10 @@
 import { Injectable } from 'cewdi'
 import { css, html, internalProperty, property } from 'lit-element'
-import { PitchSequenceDirectionOptions } from '../../genetic-algorithm'
-import { PitchSequenceType } from '../../genetic-algorithm/fitness/pitch-sequence-type'
-import { ValueChangeEvent } from '../common/value-change-event'
-import { BaseElement } from '../core/base-element'
-import { FormSubmitEvent } from './form-submit-event'
+import { PitchSequenceDirectionOptions } from '../../../genetic-algorithm'
+import { PitchSequenceType } from '../../../genetic-algorithm/fitness/pitch-sequence-type'
+import { ValueChangeEvent } from '../../common/value-change-event'
+import { BaseElement } from '../../core/base-element'
+import { FormSubmitEvent } from '../form-submit-event'
 
 @Injectable()
 export class PitchSequenceDirectionFitnessElement extends BaseElement {

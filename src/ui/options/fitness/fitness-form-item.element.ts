@@ -1,8 +1,8 @@
 import { Injectable } from 'cewdi'
 import { css, html, property } from 'lit-element'
-import { linkLikeButtonStyles } from '../common/link-like-button.styles'
-import { ValueChangeEvent } from '../common/value-change-event'
-import { BaseElement } from '../core/base-element'
+import { linkLikeButtonStyles } from '../../common/link-like-button.styles'
+import { ValueChangeEvent } from '../../common/value-change-event'
+import { BaseElement } from '../../core/base-element'
 
 @Injectable()
 export class FitnessFormItemElement extends BaseElement {

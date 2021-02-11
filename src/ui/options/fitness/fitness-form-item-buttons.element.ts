@@ -1,7 +1,7 @@
 import { Injectable } from 'cewdi'
 import { css, html } from 'lit-element'
-import { Icon } from '../common/icon'
-import { BaseElement } from '../core/base-element'
+import { Icon } from '../../common/icon'
+import { BaseElement } from '../../core/base-element'
 
 @Injectable()
 export class FitnessFormItemButtonsElement extends BaseElement {

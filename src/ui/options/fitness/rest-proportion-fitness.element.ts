@@ -1,9 +1,9 @@
 import { Injectable } from 'cewdi'
 import { css, html, property } from 'lit-element'
-import { RestProportionOptions } from '../../genetic-algorithm'
-import { ValueChangeEvent } from '../common/value-change-event'
-import { BaseElement } from '../core/base-element'
-import { FormSubmitEvent } from './form-submit-event'
+import { RestProportionOptions } from '../../../genetic-algorithm'
+import { ValueChangeEvent } from '../../common/value-change-event'
+import { BaseElement } from '../../core/base-element'
+import { FormSubmitEvent } from '../form-submit-event'
 
 @Injectable()
 export class RestProportionFitnessElement extends BaseElement {

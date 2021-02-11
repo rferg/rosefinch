@@ -1,21 +1,21 @@
-import { FormElement } from './form.element'
+import { FormElement } from '../form.element'
 import { css, html, internalProperty, TemplateResult } from 'lit-element'
 import { FitnessForm } from './fitness-form'
 import { Injectable } from 'cewdi'
-import { ValueChangeEvent } from '../common/value-change-event'
-import { FormFieldChangeEvent } from './form-field-change-event'
-import { FormSubmitEvent } from './form-submit-event'
+import { ValueChangeEvent } from '../../common/value-change-event'
+import { FormFieldChangeEvent } from '../form-field-change-event'
+import { FormSubmitEvent } from '../form-submit-event'
 import {
     ChordFitOptions,
     PitchSequenceDirectionOptions,
     RestProportionOptions,
     RhythmicDispersionOptions,
     ScaleIntervalOptions
-} from '../../genetic-algorithm'
-import { animationsStyles } from '../common/animations.styles'
-import { Pitch } from '../../common/pitch'
-import { GeneUtil } from '../../common/gene-util'
-import { Uint8 } from '../../common/uint8'
+} from '../../../genetic-algorithm'
+import { animationsStyles } from '../../common/animations.styles'
+import { Pitch } from '../../../common/pitch'
+import { GeneUtil } from '../../../common/gene-util'
+import { Uint8 } from '../../../common/uint8'
 interface FormItemConfig {
     key: keyof FitnessForm
     title: string

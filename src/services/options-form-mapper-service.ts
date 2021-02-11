@@ -6,8 +6,8 @@ import {
     SelectionMethod,
     SerializedGeneticAlgorithmOptions
 } from '../genetic-algorithm'
-import { FitnessForm } from '../ui/options/fitness-form'
-import { SizeForm } from '../ui/options/size-form'
+import { FitnessForm } from '../ui/options/fitness/fitness-form'
+import { SizeForm } from '../ui/options/size/size-form'
 
 @Injectable()
 export class OptionsFormMapperService {

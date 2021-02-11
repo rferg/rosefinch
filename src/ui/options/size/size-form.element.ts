@@ -1,10 +1,10 @@
-import { FormElement } from './form.element'
+import { FormElement } from '../form.element'
 import { SizeForm } from './size-form'
 import { css, html, TemplateResult } from 'lit-element'
-import { FieldValidator } from './field-validator'
-import { GeneUtil } from '../../common/gene-util'
-import { numberRangeFieldValidatorFactory } from './number-range-field-validator-factory'
-import { animationsStyles } from '../common/animations.styles'
+import { FieldValidator } from '../field-validator'
+import { GeneUtil } from '../../../common/gene-util'
+import { numberRangeFieldValidatorFactory } from '../number-range-field-validator-factory'
+import { animationsStyles } from '../../common/animations.styles'
 import { Injectable } from 'cewdi'
 
 @Injectable()
