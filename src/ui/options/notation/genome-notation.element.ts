@@ -1,7 +1,7 @@
 import { Injectable } from 'cewdi'
 import { css, html, property, query } from 'lit-element'
 import { SerializedGeneticAlgorithmOptions } from '../../../genetic-algorithm'
-import { NotationService } from '../../../services/notation'
+import { DenominatedNote, NotationService } from '../../../services/notation'
 import { animationsStyles } from '../../common/animations.styles'
 import { BaseElement } from '../../core/base-element'
 
@@ -34,6 +34,9 @@ export class GenomeNotationElement extends BaseElement {
 
     @query('.notes-container > div')
     notesRenderContainer?: HTMLElement
+
+    @property()
+    clickListener?: (note: DenominatedNote) => void
 
     private _options?: SerializedGeneticAlgorithmOptions
     @property()
@@ -84,7 +87,12 @@ export class GenomeNotationElement extends BaseElement {
 
     private drawNotes(genome: number[], options: SerializedGeneticAlgorithmOptions) {
         if (this.notesRenderContainer) {
-            this.service.drawNotes({ genome, options, element: this.notesRenderContainer })
+            this.service.drawNotes({
+                genome,
+                options,
+                element: this.notesRenderContainer,
+                clickListener: this.clickListener
+            })
         }
     }
 }

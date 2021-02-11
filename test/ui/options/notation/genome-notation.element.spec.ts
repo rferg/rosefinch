@@ -1,7 +1,7 @@
 import { elementUpdated, fixture } from '@open-wc/testing-helpers'
 import { html } from 'lit-element'
 import { CrossoverMethod, MutationMethod, SelectionMethod, SerializedGeneticAlgorithmOptions } from '../../../../src/genetic-algorithm'
-import { NotationService } from '../../../../src/services/notation'
+import { DenominatedNote, NotationService } from '../../../../src/services/notation'
 import { GenomeNotationElement } from '../../../../src/ui/options/notation/genome-notation.element'
 import { CustomElementRegistrar } from '../../../helpers/custom-element-registrar'
 
@@ -64,7 +64,25 @@ describe('GenomeNotationElement', () => {
                 .toHaveBeenCalledWith({
                     genome,
                     options: defaultOptions,
-                    element: el.notesRenderContainer as HTMLElement
+                    element: el.notesRenderContainer as HTMLElement,
+                    clickListener: undefined
+                })
+        })
+
+        it('should call drawNotes with clickListener', async () => {
+            const clickListener = jasmine.createSpy<(note: DenominatedNote) => void>()
+            const genome = [ 1, 2 ]
+            el.clickListener = clickListener
+            el.genome = genome
+            el.options = defaultOptions
+            await elementUpdated(el)
+
+            expect(notationService.drawNotes)
+                .toHaveBeenCalledWith({
+                    genome,
+                    options: defaultOptions,
+                    element: el.notesRenderContainer as HTMLElement,
+                    clickListener
                 })
         })
     })
@@ -88,7 +106,25 @@ describe('GenomeNotationElement', () => {
                 .toHaveBeenCalledWith({
                     genome,
                     options: defaultOptions,
-                    element: el.notesRenderContainer as HTMLElement
+                    element: el.notesRenderContainer as HTMLElement,
+                    clickListener: undefined
+                })
+        })
+
+        it('should call drawNotes with clickListener', async () => {
+            const clickListener = jasmine.createSpy<(note: DenominatedNote) => void>()
+            const genome = [ 0, 0, 0 ]
+            el.clickListener = clickListener
+            el.options = defaultOptions
+            el.genome = genome
+            await elementUpdated(el)
+
+            expect(notationService.drawNotes)
+                .toHaveBeenCalledWith({
+                    genome,
+                    options: defaultOptions,
+                    element: el.notesRenderContainer as HTMLElement,
+                    clickListener
                 })
         })
     })
