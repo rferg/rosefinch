@@ -1,3 +1,4 @@
+import { AbcClickListener } from 'abcjs'
 import { GeneUtil } from '../../../src/common/gene-util'
 import { Pitch } from '../../../src/common/pitch'
 import { CrossoverMethod, MutationMethod, SelectionMethod, SerializedGeneticAlgorithmOptions } from '../../../src/genetic-algorithm'
@@ -98,8 +99,19 @@ describe('NotationService', () => {
             expect(args[0]).toEqual(inputs.element)
             expect(args[2]).toEqual({
                 add_classes: true,
-                responsive: 'resize'
+                responsive: 'resize',
+                clickListener: undefined
             })
+        })
+
+        it('should call renderer with clickListener if given', () => {
+            const clickListener: AbcClickListener = (_, __, ___, ____) => {}
+            const inputsWithListener = { ...inputs, clickListener }
+            service.drawNotes(inputsWithListener)
+
+            const args = abcRenderer.render.calls.mostRecent().args
+
+            expect(args[2].clickListener).toEqual(clickListener)
         })
 
         it('should create header string with time signature, default note length, and key', () => {

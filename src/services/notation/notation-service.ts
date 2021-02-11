@@ -8,6 +8,7 @@ import { SerializedGeneticAlgorithmOptions } from '../../genetic-algorithm'
 import { DurationDenomination } from '../../common/duration-denomination'
 import { Uint8 } from '../../common/uint8'
 import { AbcNotationRenderer } from './abc-notation-renderer'
+import { AbcClickListener } from 'abcjs'
 @Injectable()
 export class NotationService {
     private readonly referenceOctave = 4
@@ -22,11 +23,13 @@ export class NotationService {
     drawNotes({
         genome,
         options: { timeSignature, shortestNoteDuration },
-        element
+        element,
+        clickListener
     }: {
         genome: number[],
         options: SerializedGeneticAlgorithmOptions,
-        element: HTMLElement
+        element: HTMLElement,
+        clickListener?: AbcClickListener
     }): void {
         if (!element) {
             throw new Error(`Attempted to draw notes by HTMLElement was ${element}`)
@@ -48,7 +51,7 @@ export class NotationService {
         this.abcRenderer.render(
             element,
             abcString,
-            { add_classes: true, responsive: 'resize' })
+            { add_classes: true, responsive: 'resize', clickListener })
     }
 
     private getMedianOctave(genome: number[]) {
