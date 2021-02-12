@@ -5,6 +5,7 @@ import { DenominatedNote, NotationService } from '../../../services/notation'
 import { animationsStyles } from '../../common/animations.styles'
 import { BaseElement } from '../../core/base-element'
 
+type NoteSequence = number[] | number[][]
 @Injectable()
 export class GenomeNotationElement extends BaseElement {
     static get styles() {
@@ -57,12 +58,12 @@ export class GenomeNotationElement extends BaseElement {
         }
     }
 
-    private _genome?: number[]
+    private _genome?: NoteSequence
     @property()
-    get genome(): number[] {
+    get genome(): NoteSequence {
         return this._genome || []
     }
-    set genome(newVal: number[]) {
+    set genome(newVal: NoteSequence) {
         if (newVal !== this._genome) {
             const oldVal = this._genome
             this._genome = newVal
@@ -85,7 +86,7 @@ export class GenomeNotationElement extends BaseElement {
             </div>`
     }
 
-    private drawNotes(genome: number[], options: SerializedGeneticAlgorithmOptions) {
+    private drawNotes(genome: NoteSequence, options: SerializedGeneticAlgorithmOptions) {
         if (this.notesRenderContainer) {
             this.service.drawNotes({
                 genome,
