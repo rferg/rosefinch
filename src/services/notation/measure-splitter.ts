@@ -1,6 +1,6 @@
 import { Injectable } from 'cewdi'
 import { DurationDenomination } from '../../common/duration-denomination'
-import { PlayableNote } from '../playable-note'
+import { PlayableChord } from '../playable-chord'
 import { DenominatedNote } from './denominated-note'
 
 @Injectable()
@@ -12,7 +12,7 @@ export class MeasureSplitter {
         timeSignature,
         shortestNoteDuration
     }: {
-        sequence: PlayableNote[],
+        sequence: PlayableChord[],
         timeSignature: [number, DurationDenomination ],
         shortestNoteDuration: DurationDenomination
     }): DenominatedNote[][] {
@@ -35,7 +35,7 @@ export class MeasureSplitter {
     }
 
     private splitIntoMeasures(
-        notes: PlayableNote[],
+        notes: PlayableChord[],
         shortestNoteDuration: DurationDenomination,
         timeSignature: [ number, DurationDenomination ]): DenominatedNote[][] {
             const sixteenthsPerMeasure = this.getSixteenthNotesPerMeasure(timeSignature)
@@ -55,8 +55,8 @@ export class MeasureSplitter {
                             currentMeasure[currentMeasure.length - 1].durationInSixteenths += denomination
                         } else {
                             currentMeasure.push({
-                                pitch: note.pitch,
-                                octave: note.octave,
+                                pitches: note.pitches,
+                                octaves: note.octaves,
                                 durationInSixteenths: denomination,
                                 originalNoteIndex: i
                             })

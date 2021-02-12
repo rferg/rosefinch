@@ -6,7 +6,7 @@ import { GenomeConverterService } from '../../../src/services/genome-converter-s
 import { DenominatedNote, NotationService } from '../../../src/services/notation'
 import { AbcNotationRenderer } from '../../../src/services/notation/abc-notation-renderer'
 import { MeasureSplitter } from '../../../src/services/notation/measure-splitter'
-import { PlayableNote } from '../../../src/services/playable-note'
+import { PlayableChord } from '../../../src/services/playable-chord'
 
 describe('NotationService', () => {
     let defaultOptions: SerializedGeneticAlgorithmOptions
@@ -18,7 +18,7 @@ describe('NotationService', () => {
     beforeEach(() => {
         genomeConverter = jasmine.createSpyObj<GenomeConverterService>(
             'GenomeConverterService',
-            [ 'convertGenesToPlayableSequence' ]
+            [ 'convertChordsToPlayableSequence' ]
         )
         splitter = jasmine.createSpyObj<MeasureSplitter>(
             'MeasureSplitter',
@@ -50,7 +50,7 @@ describe('NotationService', () => {
         service = new NotationService(genomeConverter, splitter, abcRenderer)
 
         splitter.splitMeasures.and.returnValue([])
-        genomeConverter.convertGenesToPlayableSequence.and.returnValue([])
+        genomeConverter.convertChordsToPlayableSequence.and.returnValue([])
     })
 
     describe('drawNotes', () => {
@@ -69,20 +69,20 @@ describe('NotationService', () => {
         })
 
         it('should convert genes to playable sequence and split measures', () => {
-            const playableSequence: PlayableNote[] = [
+            const playableSequence: PlayableChord[] = [
                 {
-                    pitch: Pitch.C,
-                    pitchName: Pitch[Pitch.C],
-                    octave: 1,
+                    pitches: [ Pitch.C ],
+                    pitchNames: [ Pitch[Pitch.C] ],
+                    octaves: [ 1 ],
                     numberOfShortestDurations: 1
                 }
             ]
-            genomeConverter.convertGenesToPlayableSequence.and.returnValue(playableSequence)
+            genomeConverter.convertChordsToPlayableSequence.and.returnValue(playableSequence)
 
             service.drawNotes(inputs)
 
-            expect(genomeConverter.convertGenesToPlayableSequence)
-                .toHaveBeenCalledWith(inputs.genome)
+            expect(genomeConverter.convertChordsToPlayableSequence)
+                .toHaveBeenCalledWith(inputs.genome.map(g => [ g ]))
             expect(splitter.splitMeasures)
                 .toHaveBeenCalledWith({
                     sequence: playableSequence,
@@ -187,8 +187,8 @@ describe('NotationService', () => {
                 notes: [
                     [
                         {
-                            pitch: Pitch.C,
-                            octave: 4,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 4 ],
                             durationInSixteenths: 1,
                             originalNoteIndex: 0
                         }
@@ -201,20 +201,20 @@ describe('NotationService', () => {
                 notes: [
                     [
                         {
-                            pitch: Pitch.C,
-                            octave: 0,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 0 ],
                             durationInSixteenths: 1,
                             originalNoteIndex: 0
                         },
                         {
-                            pitch: Pitch.C,
-                            octave: 1,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 1 ],
                             durationInSixteenths: 1,
                             originalNoteIndex: 1
                         },
                         {
-                            pitch: Pitch.C,
-                            octave: 3,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 3 ],
                             durationInSixteenths: 1,
                             originalNoteIndex: 2
                         }
@@ -227,20 +227,20 @@ describe('NotationService', () => {
                 notes: [
                     [
                         {
-                            pitch: Pitch.C,
-                            octave: 5,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 5 ],
                             durationInSixteenths: 1,
                             originalNoteIndex: 0
                         },
                         {
-                            pitch: Pitch.C,
-                            octave: 6,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 6 ],
                             durationInSixteenths: 1,
                             originalNoteIndex: 1
                         },
                         {
-                            pitch: Pitch.C,
-                            octave: 8,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 8 ],
                             durationInSixteenths: 1,
                             originalNoteIndex: 2
                         }
@@ -253,20 +253,20 @@ describe('NotationService', () => {
                 notes: [
                     [
                         {
-                            pitch: Pitch.C,
-                            octave: 4,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 4 ],
                             durationInSixteenths: 1,
                             originalNoteIndex: 0
                         },
                         {
-                            pitch: Pitch.C,
-                            octave: 4,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 4 ],
                             durationInSixteenths: 3,
                             originalNoteIndex: 1
                         },
                         {
-                            pitch: Pitch.C,
-                            octave: 4,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 4 ],
                             durationInSixteenths: 16,
                             originalNoteIndex: 2
                         }
@@ -279,24 +279,24 @@ describe('NotationService', () => {
                 notes: [
                     [
                         {
-                            pitch: Pitch.C,
-                            octave: 4,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 4 ],
                             durationInSixteenths: 1,
                             originalNoteIndex: 0
                         }
                     ],
                     [
                         {
-                            pitch: Pitch.C,
-                            octave: 4,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 4 ],
                             durationInSixteenths: 3,
                             originalNoteIndex: 1
                         }
                     ],
                     [
                         {
-                            pitch: Pitch.C,
-                            octave: 4,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 4 ],
                             durationInSixteenths: 16,
                             originalNoteIndex: 2
                         }
@@ -309,20 +309,20 @@ describe('NotationService', () => {
                 notes: [
                     [
                         {
-                            pitch: Pitch.Ab,
-                            octave: 4,
+                            pitches: [ Pitch.Ab ],
+                            octaves: [ 4 ],
                             durationInSixteenths: 1,
                             originalNoteIndex: 0
                         },
                         {
-                            pitch: Pitch.C,
-                            octave: 4,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 4 ],
                             durationInSixteenths: 1,
                             originalNoteIndex: 1
                         },
                         {
-                            pitch: Pitch.Eb,
-                            octave: 4,
+                            pitches: [ Pitch.Eb ],
+                            octaves: [ 4 ],
                             durationInSixteenths: 1,
                             originalNoteIndex: 2
                         }
@@ -335,20 +335,20 @@ describe('NotationService', () => {
                 notes: [
                     [
                         {
-                            pitch: Pitch.Rest,
-                            octave: 4,
+                            pitches: [ Pitch.Rest ],
+                            octaves: [ 4 ],
                             durationInSixteenths: 1,
                             originalNoteIndex: 0
                         },
                         {
-                            pitch: Pitch.Rest,
-                            octave: 2,
+                            pitches: [ Pitch.Rest ],
+                            octaves: [ 2 ],
                             durationInSixteenths: 3,
                             originalNoteIndex: 1
                         },
                         {
-                            pitch: Pitch.Rest,
-                            octave: 4,
+                            pitches: [ Pitch.Rest ],
+                            octaves: [ 4 ],
                             durationInSixteenths: 4,
                             originalNoteIndex: 2
                         }
@@ -361,22 +361,22 @@ describe('NotationService', () => {
                 notes: [
                     [
                         {
-                            pitch: Pitch.C,
-                            octave: 4,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 4 ],
                             durationInSixteenths: 16,
                             originalNoteIndex: 0
                         }
                     ],
                     [
                         {
-                            pitch: Pitch.C,
-                            octave: 4,
+                            pitches: [ Pitch.C ],
+                            octaves: [ 4 ],
                             durationInSixteenths: 4,
                             originalNoteIndex: 0
                         },
                         {
-                            pitch: Pitch.Rest,
-                            octave: 4,
+                            pitches: [ Pitch.Rest ],
+                            octaves: [ 4 ],
                             durationInSixteenths: 12,
                             originalNoteIndex: 2
                         }
@@ -384,6 +384,20 @@ describe('NotationService', () => {
                 ],
                 expected: 'C16-|C4z12',
                 caseDescription: 'so that ties across measures are indicated by appending "-" to the first measure'
+            },
+            {
+                notes: [
+                    [
+                        {
+                            pitches: [ Pitch.C, Pitch.E, Pitch.A ],
+                            octaves: [ 4, 4, 4 ],
+                            durationInSixteenths: 1,
+                            originalNoteIndex: 0
+                        }
+                    ]
+                ],
+                expected: '[C1E1A1]',
+                caseDescription: 'should bracket chords'
             }
         ]
 
@@ -406,24 +420,24 @@ describe('NotationService', () => {
             const notes: DenominatedNote[][] = [
                 [
                     {
-                        pitch: Pitch.C,
-                        octave: 4,
+                        pitches: [ Pitch.C ],
+                        octaves: [ 4 ],
                         durationInSixteenths: 1,
                         originalNoteIndex: 0
                     }
                 ],
                 [
                     {
-                        pitch: Pitch.C,
-                        octave: 4,
+                        pitches: [ Pitch.C ],
+                        octaves: [ 4 ],
                         durationInSixteenths: 3,
                         originalNoteIndex: 1
                     }
                 ],
                 [
                     {
-                        pitch: Pitch.C,
-                        octave: 4,
+                        pitches: [ Pitch.C ],
+                        octaves: [ 4 ],
                         durationInSixteenths: 16,
                         originalNoteIndex: 2
                     }
