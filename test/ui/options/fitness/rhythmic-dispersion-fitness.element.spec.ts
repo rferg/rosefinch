@@ -1,12 +1,12 @@
 import { elementUpdated, fixture, oneEvent } from '@open-wc/testing-helpers'
 import { html } from 'lit-element'
-import { RhythmicDispersionOptions } from '../../../src/genetic-algorithm'
-import { ValueChangeEvent } from '../../../src/ui/common/value-change-event'
-import { FormSubmitEvent } from '../../../src/ui/options/form-submit-event'
-import { RhythmicDispersionFitnessElement } from '../../../src/ui/options/fitness/rhythmic-dispersion-fitness.element'
-import { CustomElementRegistrar } from '../../helpers/custom-element-registrar'
-import { FitnessFormItemButtonsElementStub } from '../../helpers/fitness-form-item-buttons-element-stub'
-import { RangeInputElementStub } from '../../helpers/range-input-element-stub'
+import { RhythmicDispersionOptions } from '../../../../src/genetic-algorithm'
+import { ValueChangeEvent } from '../../../../src/ui/common/value-change-event'
+import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
+import { RhythmicDispersionFitnessElement } from '../../../../src/ui/options/fitness/rhythmic-dispersion-fitness.element'
+import { CustomElementRegistrar } from '../../../helpers/custom-element-registrar'
+import { FitnessFormItemButtonsElementStub } from '../../../helpers/fitness-form-item-buttons-element-stub'
+import { RangeInputElementStub } from '../../../helpers/range-input-element-stub'
 
 describe('RhythmicDispersionFitnessElement', () => {
     let el: RhythmicDispersionFitnessElement

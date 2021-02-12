@@ -16,6 +16,7 @@ import { RestProportionFitnessElement } from './fitness/rest-proportion-fitness.
 import { FitnessFormItemButtonsElement } from './fitness/fitness-form-item-buttons.element'
 import { RhythmicDispersionFitnessElement } from './fitness/rhythmic-dispersion-fitness.element'
 import { PitchSequenceDirectionFitnessElement } from './fitness/pitch-sequence-direction-fitness.element'
+import { ChordSelectorElement } from './fitness/chord-selector.element'
 
 export default {
     providers: [
@@ -80,6 +81,10 @@ export default {
         {
             element: PitchSequenceDirectionFitnessElement,
             name: 'rf-pitch-sequence-direction-fitness'
+        },
+        {
+            element: ChordSelectorElement,
+            name: 'rf-chord-selector'
         }
     ]
 } as Module

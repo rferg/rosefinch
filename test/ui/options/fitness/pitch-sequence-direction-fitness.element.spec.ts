@@ -1,13 +1,13 @@
 import { elementUpdated, fixture, oneEvent } from '@open-wc/testing-helpers'
 import { html } from 'lit-element'
-import { PitchSequenceDirectionOptions } from '../../../src/genetic-algorithm'
-import { PitchSequenceType } from '../../../src/genetic-algorithm/fitness/pitch-sequence-type'
-import { ValueChangeEvent } from '../../../src/ui/common/value-change-event'
-import { FormSubmitEvent } from '../../../src/ui/options/form-submit-event'
-import { PitchSequenceDirectionFitnessElement } from '../../../src/ui/options/fitness/pitch-sequence-direction-fitness.element'
-import { CustomElementRegistrar } from '../../helpers/custom-element-registrar'
-import { FitnessFormItemButtonsElementStub } from '../../helpers/fitness-form-item-buttons-element-stub'
-import { RangeInputElementStub } from '../../helpers/range-input-element-stub'
+import { PitchSequenceDirectionOptions } from '../../../../src/genetic-algorithm'
+import { PitchSequenceType } from '../../../../src/genetic-algorithm/fitness/pitch-sequence-type'
+import { ValueChangeEvent } from '../../../../src/ui/common/value-change-event'
+import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
+import { PitchSequenceDirectionFitnessElement } from '../../../../src/ui/options/fitness/pitch-sequence-direction-fitness.element'
+import { CustomElementRegistrar } from '../../../helpers/custom-element-registrar'
+import { FitnessFormItemButtonsElementStub } from '../../../helpers/fitness-form-item-buttons-element-stub'
+import { RangeInputElementStub } from '../../../helpers/range-input-element-stub'
 
 describe('PitchSequenceDirectionFitnessElement', () => {
     let el: PitchSequenceDirectionFitnessElement
