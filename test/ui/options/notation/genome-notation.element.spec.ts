@@ -111,6 +111,21 @@ describe('GenomeNotationElement', () => {
                 })
         })
 
+        it('should call drawNotes if given 2D array', async () => {
+            const genome = [ [ 0 ], [ 0 ], [ 0, 1, 2 ] ]
+            el.options = defaultOptions
+            el.genome = genome
+            await elementUpdated(el)
+
+            expect(notationService.drawNotes)
+                .toHaveBeenCalledWith({
+                    genome,
+                    options: defaultOptions,
+                    element: el.notesRenderContainer as HTMLElement,
+                    clickListener: undefined
+                })
+        })
+
         it('should call drawNotes with clickListener', async () => {
             const clickListener = jasmine.createSpy<(note: DenominatedNote) => void>()
             const genome = [ 0, 0, 0 ]

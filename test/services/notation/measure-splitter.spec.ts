@@ -2,7 +2,7 @@ import { DurationDenomination } from '../../../src/common/duration-denomination'
 import { Pitch } from '../../../src/common/pitch'
 import { DenominatedNote } from '../../../src/services/notation'
 import { MeasureSplitter } from '../../../src/services/notation/measure-splitter'
-import { PlayableNote } from '../../../src/services/playable-note'
+import { PlayableChord } from '../../../src/services/playable-chord'
 
 interface CaseCategory {
     description: string
@@ -11,7 +11,7 @@ interface CaseCategory {
 }
 interface TestCase {
     input: {
-        sequence: PlayableNote[],
+        sequence: PlayableChord[],
         timeSignature: [number, DurationDenomination ],
         shortestNoteDuration: DurationDenomination
     }
@@ -39,130 +39,260 @@ describe('MeasureSplitter', () => {
         {
             input: {
                 sequence: [
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 }
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    }
                 ],
                 timeSignature: [ 4, 4 ],
                 shortestNoteDuration: 4
             },
             expected: [
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 0 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 1 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 2 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 3 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 0 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 1 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 2 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 3 }
                 ]
             ]
         },
         {
             input: {
                 sequence: [
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 4 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 4 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 4 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 4 }
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 4
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 4
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 4
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 4
+                    }
                 ],
                 timeSignature: [ 4, 4 ],
                 shortestNoteDuration: 8
             },
             expected: [
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 8, originalNoteIndex: 0 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 8, originalNoteIndex: 1 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 8, originalNoteIndex: 0 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 8, originalNoteIndex: 1 }
                 ],
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 8, originalNoteIndex: 2 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 8, originalNoteIndex: 3 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 8, originalNoteIndex: 2 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 8, originalNoteIndex: 3 }
                 ]
             ]
         },
         {
             input: {
                 sequence: [
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 4 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 4 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 4 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 4 }
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 4
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 4
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 4
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 4
+                    }
                 ],
                 timeSignature: [ 4, 4 ],
                 shortestNoteDuration: 16
             },
             expected: [
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 0 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 1 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 2 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 3 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 0 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 1 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 2 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 3 }
                 ]
             ]
         },
         {
             input: {
                 sequence: [
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 2 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 2 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 }
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 2
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 2
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    }
                 ],
                 timeSignature: [ 6, 8 ],
                 shortestNoteDuration: 8
             },
             expected: [
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 2, originalNoteIndex: 0 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 1 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 2 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 2, originalNoteIndex: 3 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 2, originalNoteIndex: 0 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 1 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 2 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 2, originalNoteIndex: 3 }
                 ]
             ]
         },
         {
             input: {
                 sequence: [
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 2 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 2 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 2 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 2 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 }
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 2
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 2
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 2
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 2
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    }
                 ],
                 timeSignature: [ 6, 8 ],
                 shortestNoteDuration: 8
             },
             expected: [
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 2, originalNoteIndex: 0 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 1 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 2 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 2, originalNoteIndex: 3 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 2, originalNoteIndex: 0 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 1 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 2 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 2, originalNoteIndex: 3 }
                 ],
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 2, originalNoteIndex: 4 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 5 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 6 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 2, originalNoteIndex: 7 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 2, originalNoteIndex: 4 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 5 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 6 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 2, originalNoteIndex: 7 }
                 ]
             ]
         },
         {
             input: {
                 sequence: [
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 }
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    }
                 ],
                 timeSignature: [ 4, 4 ],
                 shortestNoteDuration: 1
             },
             expected: [
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 16, originalNoteIndex: 0 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 16, originalNoteIndex: 0 }
                 ],
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 16, originalNoteIndex: 1 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 16, originalNoteIndex: 1 }
                 ]
             ]
         }
@@ -172,94 +302,174 @@ describe('MeasureSplitter', () => {
         {
             input: {
                 sequence: [
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 3 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 }
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 3
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    }
                 ],
                 timeSignature: [ 4, 4 ],
                 shortestNoteDuration: 4
             },
             expected: [
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 12, originalNoteIndex: 0 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 1 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 12, originalNoteIndex: 0 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 1 }
                 ]
             ]
         },
         {
             input: {
                 sequence: [
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 3 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 3 }
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 3
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 3
+                    }
                 ],
                 timeSignature: [ 3, 4 ],
                 shortestNoteDuration: 8
             },
             expected: [
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 6, originalNoteIndex: 0 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 6, originalNoteIndex: 1 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 6, originalNoteIndex: 0 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 6, originalNoteIndex: 1 }
                 ]
             ]
         },
         {
             input: {
                 sequence: [
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 2 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 3 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 2 }
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 2
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 3
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 2
+                    }
                 ],
                 timeSignature: [ 7, 8 ],
                 shortestNoteDuration: 8
             },
             expected: [
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 0 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 6, originalNoteIndex: 1 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 2 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 0 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 6, originalNoteIndex: 1 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 2 }
                 ]
             ]
         },
         {
             input: {
                 sequence: [
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 4 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 6 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 4 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 12 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 }
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 4
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 6
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 4
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 12
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    }
                 ],
                 timeSignature: [ 7, 8 ],
                 shortestNoteDuration: 16
             },
             expected: [
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 0 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 6, originalNoteIndex: 1 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 2 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 0 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 6, originalNoteIndex: 1 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 2 }
                 ],
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 12, originalNoteIndex: 3 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 1, originalNoteIndex: 4 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 1, originalNoteIndex: 5 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 12, originalNoteIndex: 3 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 1, originalNoteIndex: 4 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 1, originalNoteIndex: 5 }
                 ]
             ]
         },
         {
             input: {
                 sequence: [
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 3 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 3 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 6 }
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 3
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 3
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 6
+                    }
                 ],
                 timeSignature: [ 6, 2 ],
                 shortestNoteDuration: 4
             },
             expected: [
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 12, originalNoteIndex: 0 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 12, originalNoteIndex: 1 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 24, originalNoteIndex: 2 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 12, originalNoteIndex: 0 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 12, originalNoteIndex: 1 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 24, originalNoteIndex: 2 }
                 ]
             ]
         }
@@ -269,79 +479,172 @@ describe('MeasureSplitter', () => {
         {
             input: {
                 sequence: [
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 8 }
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 8
+                    }
                 ],
                 timeSignature: [ 4, 4 ],
                 shortestNoteDuration: 4
             },
             expected: [
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 16, originalNoteIndex: 0 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 16, originalNoteIndex: 0 }
                 ],
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 16, originalNoteIndex: 0 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 16, originalNoteIndex: 0 }
                 ]
             ]
         },
         {
             input: {
                 sequence: [
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 12 }
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 12
+                    }
                 ],
                 timeSignature: [ 4, 4 ],
                 shortestNoteDuration: 4
             },
             expected: [
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 16, originalNoteIndex: 0 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 16, originalNoteIndex: 0 }
                 ],
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 16, originalNoteIndex: 0 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 16, originalNoteIndex: 0 }
                 ],
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 16, originalNoteIndex: 0 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 16, originalNoteIndex: 0 }
                 ]
             ]
         },
         {
             input: {
                 sequence: [
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 10 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 2 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 2 }
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 10
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 2
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 2
+                    }
                 ],
                 timeSignature: [ 7, 8 ],
                 shortestNoteDuration: 8
             },
             expected: [
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 14, originalNoteIndex: 0 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 14, originalNoteIndex: 0 }
                 ],
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 6, originalNoteIndex: 0 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 1 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 4, originalNoteIndex: 2 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 6, originalNoteIndex: 0 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 1 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 2 }
                 ]
             ]
         },
         {
             input: {
                 sequence: [
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 1 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 12 },
-                    { pitch: Pitch.A, pitchName: Pitch[Pitch.A], octave: 1, numberOfShortestDurations: 11 }
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 12
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 11
+                    }
                 ],
                 timeSignature: [ 3, 4 ],
                 shortestNoteDuration: 16
             },
             expected: [
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 1, originalNoteIndex: 0 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 11, originalNoteIndex: 1 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 1, originalNoteIndex: 0 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 11, originalNoteIndex: 1 }
                 ],
                 [
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 1, originalNoteIndex: 1 },
-                    { pitch: Pitch.A, octave: 1, durationInSixteenths: 11, originalNoteIndex: 2 }
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 1, originalNoteIndex: 1 },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 11, originalNoteIndex: 2 }
+                ]
+            ]
+        }
+    ]
+
+    const chordCases: TestCase[] = [
+        {
+            input: {
+                sequence: [
+                    {
+                        pitches: [ Pitch.A, Pitch.B, Pitch.C ],
+                        pitchNames: [ Pitch[Pitch.A], Pitch[Pitch.B], Pitch[Pitch.C] ],
+                        octaves: [ 1, 1, 2 ],
+                        numberOfShortestDurations: 1
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    },
+                    {
+                        pitches: [ Pitch.A, Pitch.B, Pitch.C ],
+                        pitchNames: [ Pitch[Pitch.A], Pitch[Pitch.B], Pitch[Pitch.C] ],
+                        octaves: [ 1, 2, 1 ],
+                        numberOfShortestDurations: 1
+                    },
+                    {
+                        pitches: [ Pitch.A ],
+                        pitchNames: [ Pitch[Pitch.A] ],
+                        octaves: [ 1 ],
+                        numberOfShortestDurations: 1
+                    }
+                ],
+                timeSignature: [ 4, 4 ],
+                shortestNoteDuration: 4
+            },
+            expected: [
+                [
+                    {
+                        pitches: [ Pitch.A, Pitch.B, Pitch.C ],
+                        octaves: [ 1, 1, 2 ],
+                        durationInSixteenths: 4,
+                        originalNoteIndex: 0
+                    },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 1 },
+                    {
+                        pitches: [ Pitch.A, Pitch.B, Pitch.C ],
+                        octaves: [ 1, 2, 1 ],
+                        durationInSixteenths: 4,
+                        originalNoteIndex: 2
+                    },
+                    { pitches: [ Pitch.A ], octaves: [ 1 ], durationInSixteenths: 4, originalNoteIndex: 3 }
                 ]
             ]
         }
@@ -365,6 +668,12 @@ describe('MeasureSplitter', () => {
             testDescriptionFactory: ({ expected }, i) =>
                 `should correctly split case ${i} into ${expected.length} measures`,
             cases: tieOverMeasureCases
+        },
+        {
+            description: 'sequences with chords',
+            testDescriptionFactory: ({ expected }, i) =>
+                `should correctly split case ${i} into ${expected.length} measures`,
+            cases: chordCases
         }
     ]
 

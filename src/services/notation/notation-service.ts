@@ -28,7 +28,7 @@ export class NotationService {
         element,
         clickListener
     }: {
-        genome: number[],
+        genome: number[] | number[][],
         options: SerializedGeneticAlgorithmOptions,
         element: HTMLElement,
         clickListener?: GeneClickListener
@@ -37,7 +37,8 @@ export class NotationService {
             throw new Error(`Attempted to draw notes by HTMLElement was ${element}`)
         }
 
-        const measures = this.splitMeasures({ genes: genome, timeSignature, shortestNoteDuration })
+        const chords = this.convertToChords(genome)
+        const measures = this.splitMeasures({ chords: chords, timeSignature, shortestNoteDuration })
         const measureStrings: string[] = []
         for (let measureIndex = 0; measureIndex < measures.length; measureIndex++) {
             const measure = measures[measureIndex]
@@ -47,7 +48,7 @@ export class NotationService {
             }
             measureStrings.push(measureString)
         }
-        const medianOctave = this.getMedianOctave(genome)
+        const medianOctave = this.getMedianOctave(chords)
         const abcString = `${this.getAbcStringHeader(medianOctave, timeSignature)}${measureStrings.join('|')}`
 
         this.abcRenderer.render(
@@ -60,11 +61,19 @@ export class NotationService {
             })
     }
 
-    private getMedianOctave(genome: number[]) {
-        if (!(genome && genome.length)) {
+    convertToChords(genome: number[] | number[][]): number[][] {
+        return (genome as number[][]).map(geneOrChord => {
+            if (Array.isArray(geneOrChord)) { return geneOrChord }
+            return [ geneOrChord ]
+        })
+    }
+
+    private getMedianOctave(chords: number[][]): number {
+        if (!(chords && chords.length)) {
             return 0
         }
-        const sortedOctaves = [ ...genome ]
+        const sortedOctaves = [ ...chords ]
+            .reduce((prev, curr) => prev.concat(curr), [])
             .map(pitch => GeneUtil.getOctave(pitch as Uint8))
             .sort((a, b) => a - b)
         const midPoint = Math.floor(sortedOctaves.length / 2)
@@ -75,15 +84,15 @@ export class NotationService {
     }
 
     private splitMeasures({
-        genes,
+        chords,
         timeSignature,
         shortestNoteDuration
     }: {
-        genes: number[],
+        chords: number[][],
         timeSignature: [number, DurationDenomination ],
         shortestNoteDuration: DurationDenomination
     }): DenominatedNote[][] {
-        const sequence = this.genomeConverter.convertGenesToPlayableSequence(genes)
+        const sequence = this.genomeConverter.convertChordsToPlayableSequence(chords)
         return this.splitter.splitMeasures({
             timeSignature,
             shortestNoteDuration,
@@ -102,21 +111,29 @@ export class NotationService {
             return `M:${meterTop}/${meterBottom}\nL:1/16\nK:C clef=${clef}\n`
     }
 
-    private getNoteString({ pitch, octave, durationInSixteenths: duration }: DenominatedNote): string {
-        if (this.isRest(pitch)) {
+    private getNoteString({ pitches, octaves, durationInSixteenths: duration }: DenominatedNote): string {
+        if (!pitches?.length) { return '' }
+
+        if (this.isRest(pitches[0])) {
             return `z${duration}`
         }
 
-        let pitchString = Pitch[pitch]
-        if (pitchString.endsWith('b')) {
-            pitchString = `_${pitchString.substr(0, 1)}`
-        }
+        const noteStrings: string[] = pitches.map((pitch, i) => {
+            let pitchString = Pitch[pitch]
+            if (pitchString.endsWith('b')) {
+                pitchString = `_${pitchString.substr(0, 1)}`
+            }
 
-        const octaveDifference = octave - this.referenceOctave
-        const octaveString = (octaveDifference > 0 ? this.incrementOctaveSymbol : this.decrementOctaveSymbol)
-            .repeat(Math.abs(octaveDifference))
+            const octave = octaves[i]
+            const octaveDifference = octave - this.referenceOctave
+            const octaveString = (octaveDifference > 0 ? this.incrementOctaveSymbol : this.decrementOctaveSymbol)
+                .repeat(Math.abs(octaveDifference))
 
-        return `${pitchString}${octaveString}${duration}`
+            return `${pitchString}${octaveString}${duration}`
+        })
+
+        if (noteStrings.length === 1) { return noteStrings[0] }
+        return `[${noteStrings.join('')}]`
     }
 
     private measureNeedsTie(measures: DenominatedNote[][], measureIndex: number): boolean {

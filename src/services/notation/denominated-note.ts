@@ -1,8 +1,8 @@
 import { Pitch } from '../../common/pitch'
 
 export interface DenominatedNote {
-    pitch: Pitch,
-    octave: number,
+    pitches: Pitch[],
+    octaves: number[],
     durationInSixteenths: number
     originalNoteIndex: number
 }
