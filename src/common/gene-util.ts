@@ -26,7 +26,16 @@ export class GeneUtil {
     }
 
     static convertToGene(pitch: Pitch, octave: number): Uint8 {
-        const octaveInRange = Math.max(Math.min(octave, this.MAX_OCTAVE), this.MIN_OCTAVE)
+        const octaveInRange = this.getOctaveInRange(octave)
         return ((octaveInRange * this.OCTAVE_LENGTH) + pitch) as Uint8
+    }
+
+    static createAtOctave(pitch: Pitch, octave: number): Uint8 {
+        const octaveInRange = this.getOctaveInRange(octave)
+        return pitch + (octaveInRange * this.OCTAVE_LENGTH) as Uint8
+    }
+
+    private static getOctaveInRange(octave: number): number {
+        return Math.max(Math.min(octave, this.MAX_OCTAVE), this.MIN_OCTAVE)
     }
 }

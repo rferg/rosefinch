@@ -1,5 +1,5 @@
 import { BaseElement } from '../core/base-element'
-import { css, html, property } from 'lit-element'
+import { css, html, internalProperty, property } from 'lit-element'
 import { headingsStyles } from '../common/headings.styles'
 import { Icon } from '../common/icon'
 import { SizeForm } from './size/size-form'
@@ -7,11 +7,12 @@ import { FormSubmitEvent } from './form-submit-event'
 import { FitnessForm } from './fitness/fitness-form'
 import { animationsStyles } from '../common/animations.styles'
 import { Inject, Injectable } from 'cewdi'
-import { FitnessMethod } from '../../genetic-algorithm'
+import { FitnessMethod, SerializedGeneticAlgorithmOptions } from '../../genetic-algorithm'
 import { OptionsFormMapperService } from '../../services/options-form-mapper-service'
 import { Router } from '../core/router'
 import { PipelineRunParams, StateTopic, UpdateStateEvent } from '../../services/state'
 import { globalEventTargetToken } from '../../common/global-event-target-token'
+import { calculateGenomeSize } from '../../common/calculate-genome-size'
 
 @Injectable()
 export class OptionsElement extends BaseElement {
@@ -123,6 +124,9 @@ export class OptionsElement extends BaseElement {
         rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 0 } }
     }
 
+    @internalProperty()
+    private geneticAlgorithmOptions: SerializedGeneticAlgorithmOptions | undefined
+
     constructor(
         private readonly mapper: OptionsFormMapperService,
         private readonly router: Router,
@@ -151,7 +155,10 @@ export class OptionsElement extends BaseElement {
                         .backButton=${{ role: 'primary' as 'primary', icon: Icon.LeftArrow }}
                         @tab-back=${this.onFitnessBack}
                         @form-submit=${this.onFitnessSubmit}>
-                        <rf-fitness-form .value=${this.fitnessForm} slot="form"></rf-fitness-form>
+                        <rf-fitness-form
+                            .value=${this.fitnessForm}
+                            .geneticAlgorithmOptions=${this.geneticAlgorithmOptions}
+                            slot="form"></rf-fitness-form>
                     </rf-form-tab>
                 </div>
             </rf-container>
@@ -164,6 +171,7 @@ export class OptionsElement extends BaseElement {
 
     private onSizeSubmit(ev: FormSubmitEvent<SizeForm>) {
         this.sizeForm = { ...this.sizeForm, ...ev.value }
+        this.updateGeneticAlgorithmOptions()
         this.activeTab = 'fitness'
     }
 
@@ -173,28 +181,39 @@ export class OptionsElement extends BaseElement {
 
     private onFitnessSubmit(ev: FormSubmitEvent<FitnessForm>) {
         this.fitnessForm = { ...this.fitnessForm, ...ev.value }
+        this.updateGeneticAlgorithmOptions()
         this.showConfirm = true
     }
 
     private onRunConfirmed(
         { value: { numberOfGenerations } }: FormSubmitEvent<{ numberOfGenerations: number }>) {
         this.showConfirm = false
-        const options = this.mapper.mapFitnessForm(this.fitnessForm, this.mapper.mapSizeForm(this.sizeForm))
-        const params: PipelineRunParams = {
-            size: this.sizeForm.populationSize,
-            genomeSize: this.getGenomeSize(options.measures, options.timeSignature, options.shortestNoteDuration),
-            options,
-            numberOfGenerations
+        const options = this.geneticAlgorithmOptions
+        if (options) {
+            const params: PipelineRunParams = {
+                size: this.sizeForm.populationSize,
+                genomeSize: this.getGenomeSize(options.measures, options.timeSignature, options.shortestNoteDuration),
+                options,
+                numberOfGenerations
+            }
+            this.eventTarget.dispatchEvent(new UpdateStateEvent(StateTopic.PipelineRunParams, params))
+            this.router.navigate('/run')
+        } else {
+            throw new Error('GeneticAlgorithm options were undefined')
         }
-        this.eventTarget.dispatchEvent(new UpdateStateEvent(StateTopic.PipelineRunParams, params))
-        this.router.navigate('/run')
     }
 
     private getGenomeSize(
         measures: number,
-        [ timeSignatureTop, timeSignatureBottom ]: [number, 1 | 2 | 4 | 8 | 16],
+        timeSignature: [number, 1 | 2 | 4 | 8 | 16],
         shortestNoteDuration: 1 | 2 | 4 | 8 | 16): number {
-            return Math.floor(measures * timeSignatureTop * (shortestNoteDuration / timeSignatureBottom))
+            return calculateGenomeSize(measures, timeSignature, shortestNoteDuration)
+    }
+
+    private updateGeneticAlgorithmOptions(): void {
+        this.geneticAlgorithmOptions = this.mapper.mapFitnessForm(
+            this.fitnessForm,
+            this.mapper.mapSizeForm(this.sizeForm))
     }
 
 }

@@ -1,5 +1,5 @@
 import { FormElement } from '../form.element'
-import { css, html, internalProperty, TemplateResult } from 'lit-element'
+import { css, html, internalProperty, property, TemplateResult } from 'lit-element'
 import { FitnessForm } from './fitness-form'
 import { Injectable } from 'cewdi'
 import { ValueChangeEvent } from '../../common/value-change-event'
@@ -10,7 +10,8 @@ import {
     PitchSequenceDirectionOptions,
     RestProportionOptions,
     RhythmicDispersionOptions,
-    ScaleIntervalOptions
+    ScaleIntervalOptions,
+    SerializedGeneticAlgorithmOptions
 } from '../../../genetic-algorithm'
 import { animationsStyles } from '../../common/animations.styles'
 import { Pitch } from '../../../common/pitch'
@@ -20,7 +21,9 @@ interface FormItemConfig {
     key: keyof FitnessForm
     title: string
     valueTextFactory: (options: FitnessConfigOptions | undefined) => string
-    editTemplateFactory: (options: FitnessConfigOptions | undefined) => TemplateResult
+    editTemplateFactory: (
+        options: FitnessConfigOptions | undefined,
+        geneticAlgorithmOptions?: SerializedGeneticAlgorithmOptions) => TemplateResult
 }
 
 type FitnessConfigOptions = ChordFitOptions | ScaleIntervalOptions |
@@ -73,7 +76,26 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
         ]
     }
 
+    @property()
+    geneticAlgorithmOptions: SerializedGeneticAlgorithmOptions | undefined
+
     private readonly itemConfigs: FormItemConfig[] = [
+        {
+            key: 'chords',
+            title: 'Chords',
+            valueTextFactory: (_: FitnessConfigOptions | undefined) => {
+                // TODO
+                return ''
+            },
+            editTemplateFactory: (
+                options: FitnessConfigOptions | undefined,
+                geneticAlgorithmOptions: SerializedGeneticAlgorithmOptions | undefined) => {
+                return html`<rf-chord-fitness
+                    .options=${{ ...options }}
+                    .geneticAlgorithmOptions=${{ ...geneticAlgorithmOptions }}>
+                </rf-chord-fitness>`
+            }
+        },
         {
             key: 'scale',
             title: 'Scale Degree Changes',
@@ -88,8 +110,10 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
                     }, '')
                     return `${rootName}${name} | ${pitchIntervalText}...`
                 },
-            editTemplateFactory: (options: FitnessConfigOptions | undefined) =>
-                html`<rf-scale-fitness .options=${{ ...options }}></rf-scale-fitness>`
+            editTemplateFactory: (
+                options: FitnessConfigOptions | undefined) =>
+                html`<rf-scale-fitness .options=${{ ...options }}>
+                    </rf-scale-fitness>`
         },
         {
             key: 'restProportion',
@@ -140,7 +164,11 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
                         .itemTitle=${title}
                         .valueText=${valueTextFactory(value?.options)}
                         @edit=${() =>
-                            this.onEditOptions(key, editTemplateFactory(value ? { ...value.options } : undefined))}
+                            this.onEditOptions(
+                                key,
+                                editTemplateFactory(
+                                    value ? { ...value.options } : undefined,
+                                    this.geneticAlgorithmOptions))}
                         @value-change=${(ev: ValueChangeEvent<number>) =>
                             this.onWeightChange(key, ev)}>
                         </rf-fitness-form-item>`

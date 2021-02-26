@@ -21,13 +21,20 @@ export class GenomeNotationElement extends BaseElement {
                     align-items: center;
                     overflow-x: auto;
                 }
-                svg .abcjs-note, .abcjs-beam-elem, .abcjs-rest, .abcjs-slur {
+                .abcjs-note, .abcjs-beam-elem, .abcjs-rest, .abcjs-slur {
                     fill: var(--primary-color);
                     animation: fadeIn var(--animation-duration) var(--easing);
                 }
-                svg .abcjs-staff, .abcjs-staff-extra, .abcjs-bar {
+                .abcjs-staff, .abcjs-staff-extra, .abcjs-bar {
                     fill: var(--danger-color);
                     animation: fadeIn var(--animation-duration) var(--easing);
+                }
+                :host([clickable]) .abcjs-note + rect, :host([clickable]) .abcjs-rest + rect {
+                    cursor: pointer;
+                }
+                :host([clickable]) .abcjs-note_selected {
+                    fill: var(--success-color);
+                    box-shadow: var(--focus-shadow);
                 }
             `
         ]

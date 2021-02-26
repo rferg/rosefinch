@@ -37,17 +37,19 @@ export class ChordSelectorElement extends BaseElement {
         { value: ChordName.MinorSeventhFlatFive, label: 'Minor 7th Flat 5' }
     ]
 
+    private readonly defaultOctave = 4
+
     private readonly pitchOptions: { value: Pitch, label: string }[] =
         [ ...new Array(GeneUtil.OCTAVE_LENGTH - 1) ]
             .map((_, i) => GeneUtil.getPitch(i as Uint8))
             .filter(pitch => pitch !== Pitch.Rest && pitch !== Pitch.Hold)
-            .map(pitch => ({ value: pitch, label: Pitch[pitch] }))
+            .map(pitch => ({ value: GeneUtil.createAtOctave(pitch, this.defaultOctave), label: Pitch[pitch] }))
 
     @internalProperty()
     private chord: ChordName = ChordName.Major
 
     @internalProperty()
-    private root: Pitch = Pitch.C
+    private root: Pitch = GeneUtil.createAtOctave(Pitch.C, this.defaultOctave)
 
     constructor(private readonly chordService: ChordService) {
         super()
