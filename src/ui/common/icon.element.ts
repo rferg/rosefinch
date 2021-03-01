@@ -5,12 +5,14 @@ import { Icon } from './icon'
 import check from '../../../assets/images/icons/check.svg'
 import cross from '../../../assets/images/icons/cross.svg'
 import download from '../../../assets/images/icons/download.svg'
+import downChevron from '../../../assets/images/icons/down-chevron.svg'
 import leftArrow from '../../../assets/images/icons/left-arrow.svg'
 import pause from '../../../assets/images/icons/pause.svg'
 import play from '../../../assets/images/icons/play.svg'
 import plus from '../../../assets/images/icons/plus.svg'
 import rightArrow from '../../../assets/images/icons/right-arrow.svg'
 import sliders from '../../../assets/images/icons/sliders.svg'
+import upChevron from '../../../assets/images/icons/up-chevron.svg'
 import volume from '../../../assets/images/icons/volume.svg'
 import { Injectable } from 'cewdi'
 
@@ -40,12 +42,14 @@ export class IconElement extends BaseElement {
         [Icon.Check]: check,
         [Icon.Cross]: cross,
         [Icon.Download]: download,
+        [Icon.DownChevron]: downChevron,
         [Icon.LeftArrow]: leftArrow,
         [Icon.Pause]: pause,
         [Icon.Play]: play,
         [Icon.Plus]: plus,
         [Icon.RightArrow]: rightArrow,
         [Icon.Sliders]: sliders,
+        [Icon.UpChevron]: upChevron,
         [Icon.Volume]: volume
     }
 
