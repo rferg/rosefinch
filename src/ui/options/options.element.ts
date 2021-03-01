@@ -188,6 +188,7 @@ export class OptionsElement extends BaseElement {
     private onRunConfirmed(
         { value: { numberOfGenerations } }: FormSubmitEvent<{ numberOfGenerations: number }>) {
         this.showConfirm = false
+        if (!this.geneticAlgorithmOptions) { this.updateGeneticAlgorithmOptions() }
         const options = this.geneticAlgorithmOptions
         if (options) {
             const params: PipelineRunParams = {
@@ -214,6 +215,7 @@ export class OptionsElement extends BaseElement {
         this.geneticAlgorithmOptions = this.mapper.mapFitnessForm(
             this.fitnessForm,
             this.mapper.mapSizeForm(this.sizeForm))
+        console.log(this.geneticAlgorithmOptions)
     }
 
 }
