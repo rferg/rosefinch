@@ -215,7 +215,6 @@ export class OptionsElement extends BaseElement {
         this.geneticAlgorithmOptions = this.mapper.mapFitnessForm(
             this.fitnessForm,
             this.mapper.mapSizeForm(this.sizeForm))
-        console.log(this.geneticAlgorithmOptions)
     }
 
 }
