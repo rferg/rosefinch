@@ -3,8 +3,11 @@ import { css, html, internalProperty, property } from 'lit-element'
 import { calculateGenomeSize } from '../../../common/calculate-genome-size'
 import { GeneUtil } from '../../../common/gene-util'
 import { Pitch } from '../../../common/pitch'
+import { Uint8 } from '../../../common/uint8'
 import { ChordFitOptions, SerializedGeneticAlgorithmOptions } from '../../../genetic-algorithm'
 import { DenominatedNote } from '../../../services/notation'
+import { animationsStyles } from '../../common/animations.styles'
+import { Icon } from '../../common/icon'
 import { BaseElement } from '../../core/base-element'
 import { FormFieldChangeEvent } from '../form-field-change-event'
 import { FormSubmitEvent } from '../form-submit-event'
@@ -14,6 +17,7 @@ export class ChordFitnessElement extends BaseElement {
     static get styles() {
         return [
             super.styles,
+            animationsStyles,
             css`
                 :host {
                     width: 100%;
@@ -24,6 +28,29 @@ export class ChordFitnessElement extends BaseElement {
                 }
                 :host > * {
                     width: 100%;
+                }
+                h5 {
+                    text-align: center;
+                }
+                div {
+                    display: flex;
+                    flex-flow: row wrap;
+                    justify-content: center;
+                    align-items: center;
+                }
+                div rf-button[buttonRole="success"] {
+                    margin: var(--small-padding);
+                }
+                rf-inside-container.note {
+                    flex-flow: row nowrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    width: auto;
+                    padding: var(--small-padding);
+                    animation: fadeIn var(--animation-duration) var(--easing);
+                }
+                rf-inside-container.note rf-button[buttonRole="danger"] {
+                    margin-left: var(--small-padding);
                 }
             `
         ]
@@ -73,9 +100,10 @@ export class ChordFitnessElement extends BaseElement {
     @internalProperty()
     private noteIndexSelected: number | undefined
 
-    private get noteIsSelected(): boolean {
-        return this.noteIndexSelected !== undefined
-    }
+    @internalProperty()
+    private selectedNotes: number[] = []
+
+    private lastChordSelectedForChange: number[] | undefined
 
     render() {
         return html`
@@ -86,10 +114,43 @@ export class ChordFitnessElement extends BaseElement {
                 .genome=${this.notes}
                 .clickListener=${(note: DenominatedNote) => this.onNoteClick(note)}>
             </rf-genome-notation>
-            ${this.noteIsSelected ?
+            ${this.noteIndexSelected !== undefined ?
                 html`
-                    <p>Change chord:</p>
-                    <rf-chord-selector @form-field-change=${this.onChordSelected}></rf-chord-selector>
+                    <div class="notes-container">
+                        <p>Notes:</p>
+                        ${this.selectedNotes.map((note, i) =>
+                            html`
+                                <rf-inside-container class="note">
+                                    <rf-note-adjuster
+                                        .note=${note}
+                                        @form-field-change=${(ev: FormFieldChangeEvent) => this.onNoteChange(ev, i)}>
+                                    </rf-note-adjuster>
+                                    <rf-button
+                                        size="small"
+                                        buttonRole="danger"
+                                        title="Remove note"
+                                        @click=${() => this.removeNote(i)}>
+                                        <rf-icon icon=${Icon.Cross}></rf-icon>
+                                    </rf-button>
+                                </rf-inside-container>
+                            `)}
+                        <rf-button
+                            buttonRole="success"
+                            title="Add note"
+                            @click=${() => this.addNote()}>
+                            <rf-icon icon=${Icon.Plus}></rf-icon>
+                        </rf-button>
+                    </div>
+                    <rf-inside-container class="chord-selector-container">
+                        <p>Insert Chord:</p>
+                        <rf-chord-selector @form-field-change=${this.onChordChange}></rf-chord-selector>
+                        <rf-button
+                            buttonRole="success"
+                            title="Insert chord"
+                            @click=${this.onChordSelected}>
+                            <rf-icon icon=${Icon.Check} height="var(--font-size-small)"></rf-icon>
+                        </rf-button>
+                    </rf-inside-container>
                 `
                 : html``}
             <rf-fitness-form-item-buttons @cancel=${this.onCancel} @submit=${this.onSubmit}>
@@ -108,23 +169,35 @@ export class ChordFitnessElement extends BaseElement {
             newNotes.push(chord && chord.length ? chord : [ GeneUtil.createAtOctave(Pitch.Rest, 4) ])
         }
         this.notes = newNotes
+
+        if (this.noteIndexSelected !== undefined) {
+            this.updateSelectedNotes(this.noteIndexSelected || 0, this.options)
+        }
     }
 
     private onNoteClick({ originalNoteIndex }: DenominatedNote) {
         this.noteIndexSelected = originalNoteIndex
+        this.updateSelectedNotes(this.noteIndexSelected, this.options)
     }
 
-    private onChordSelected(ev: FormFieldChangeEvent) {
+    private updateSelectedNotes(selectedIndex: number, options?: ChordFitOptions) {
+        let notes: number[] = []
+        const chord = (options && options.chords && options.chords[selectedIndex])
+        if (chord && chord.length && chord[0] && GeneUtil.getPitch(chord[0]) !== Pitch.Rest) {
+            notes = [ ...chord ]
+        }
+        this.selectedNotes = notes
+    }
+
+    private onChordChange(ev: FormFieldChangeEvent) {
         ev.stopPropagation()
-        if (this.noteIsSelected) {
-            const pitches = (ev.value?.pitches ?? []) as Pitch[]
-            this.options = {
-                ...this.options,
-                chords: {
-                    ...this.options?.chords,
-                    [this.noteIndexSelected || 0]: pitches
-                }
-            }
+        this.lastChordSelectedForChange = ev.value?.pitches
+    }
+
+    private onChordSelected() {
+        if (this.noteIndexSelected !== undefined && this.lastChordSelectedForChange) {
+            const chord = this.lastChordSelectedForChange
+            this.updateChord(chord, this.noteIndexSelected)
         }
     }
 
@@ -135,6 +208,42 @@ export class ChordFitnessElement extends BaseElement {
     private onSubmit() {
         if (this.options) {
             this.dispatchEvent(new FormSubmitEvent<ChordFitOptions>({ value: { ...this.options } }))
+        }
+    }
+
+    private onNoteChange(ev: FormFieldChangeEvent, noteIndex: number) {
+        ev.stopPropagation()
+        const note = ev.value.note
+        if (!note) { return }
+        if (this.noteIndexSelected === undefined) { return }
+        const chord = [ ...this.selectedNotes ]
+        chord.splice(noteIndex, 1, note)
+        this.updateChord(chord, this.noteIndexSelected)
+    }
+
+    private removeNote(noteIndex: number) {
+        if (this.noteIndexSelected === undefined) { return }
+        const chord = [ ...this.selectedNotes ]
+        chord.splice(noteIndex, 1)
+        this.updateChord(chord, this.noteIndexSelected)
+    }
+
+    private addNote() {
+        if (this.noteIndexSelected === undefined) { return }
+        const chord = [ ...this.selectedNotes ]
+        const lastNote = chord[chord.length - 1] || GeneUtil.createAtOctave(Pitch.Rest, 4)
+        chord.push(GeneUtil.getNextNote(lastNote as Uint8))
+        this.updateChord(chord, this.noteIndexSelected)
+    }
+
+    private updateChord(chord: number[], index: number) {
+        chord.sort((a, b) => a - b)
+        this.options = {
+            ...this.options,
+            chords: {
+                ...this.options?.chords,
+                [index]: chord
+            }
         }
     }
 }

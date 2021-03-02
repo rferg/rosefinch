@@ -18,6 +18,10 @@ export class NoteAdjusterElement extends BaseElement {
                     flex-flow: column nowrap;
                     align-items: stretch;
                     justify-content: center;
+                    text-align: center;
+                }
+                span {
+                    margin: calc(var(--small-padding) / 4) 0;
                 }
             `
         ]
@@ -30,7 +34,9 @@ export class NoteAdjusterElement extends BaseElement {
         return html`
             <rf-button
                 data-action="increment"
+                size="small"
                 title="Increase pitch"
+                buttonRole="outline"
                 @click=${this.incrementNote}
                 ?disabled=${this.isMax(this.note)}>
                 <rf-icon icon=${Icon.UpChevron}></rf-icon>
@@ -40,7 +46,9 @@ export class NoteAdjusterElement extends BaseElement {
             </span>
             <rf-button
                 data-action="decrement"
+                size="small"
                 title="Decrease pitch"
+                buttonRole="outline"
                 @click=${this.decrementNote}
                 ?disabled=${this.isMin(this.note)}>
                 <rf-icon icon=${Icon.DownChevron}></rf-icon>
@@ -49,10 +57,7 @@ export class NoteAdjusterElement extends BaseElement {
     }
 
     private incrementNote() {
-        let next = this.note + 1
-        while (!this.isNote(next) && !this.isMax(next)) {
-            next++
-        }
+        const next = GeneUtil.getNextNote(this.note as Uint8)
         if (next !== this.note) {
             this.dispatchEvent(new FormFieldChangeEvent({
                 value: { note: next },
@@ -62,28 +67,20 @@ export class NoteAdjusterElement extends BaseElement {
     }
 
     private decrementNote() {
-        let next = this.note - 1
-        while (!this.isNote(next) && !this.isMin(next)) {
-            next--
-        }
-        if (this.note !== next) {
+        const previous = GeneUtil.getPreviousNote(this.note as Uint8)
+        if (this.note !== previous) {
             this.dispatchEvent(new FormFieldChangeEvent({
-                value: { note: next },
+                value: { note: previous },
                 isValid: true
             }))
         }
     }
 
-    private isNote(note: number): boolean {
-        const pitch = GeneUtil.getPitch(note as Uint8)
-        return !(pitch === Pitch.Hold || pitch === Pitch.Rest)
-    }
-
     private isMax(note: number): boolean {
-        return note >= GeneUtil.MAX_NOTE_VALUE - 1
+        return GeneUtil.isMaxNote(note as Uint8)
     }
 
     private isMin(note: number): boolean {
-        return note <= 1
+        return GeneUtil.isMinNote(note as Uint8)
     }
 }

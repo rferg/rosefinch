@@ -83,9 +83,17 @@ export class FitnessFormElement extends FormElement<FitnessForm> {
         {
             key: 'chords',
             title: 'Chords',
-            valueTextFactory: (_: FitnessConfigOptions | undefined) => {
-                // TODO
-                return ''
+            valueTextFactory: (options: FitnessConfigOptions | undefined) => {
+                const { chords } = (options as ChordFitOptions)
+                if (!chords) { return '' }
+                const results: string[] = []
+                for (const noteIndex in chords) {
+                    const value = chords[noteIndex]
+                    if (value && value.length) {
+                        results.push(value.map(p => Pitch[GeneUtil.getPitch(p as Uint8)]).join(' '))
+                    }
+                }
+                return results.join(' | ')
             },
             editTemplateFactory: (
                 options: FitnessConfigOptions | undefined,

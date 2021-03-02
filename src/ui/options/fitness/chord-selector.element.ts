@@ -15,7 +15,6 @@ export class ChordSelectorElement extends BaseElement {
             css`
                 :host {
                     display: flex;
-                    width: 100%;
                     flex-flow: row wrap;
                     justify-content: center;
                     align-items: center;
@@ -53,6 +52,17 @@ export class ChordSelectorElement extends BaseElement {
 
     constructor(private readonly chordService: ChordService) {
         super()
+    }
+
+    connectedCallback() {
+        super.connectedCallback()
+        this.onChange(new FormFieldChangeEvent({
+            value: {
+                root: this.root,
+                chordName: this.chord
+            },
+            isValid: true
+        }))
     }
 
     render() {

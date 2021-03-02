@@ -19,6 +19,7 @@ import { RepresentativeElement } from '../../../src/ui/representatives/represent
 import { RepresentativesElement } from '../../../src/ui/representatives/representatives.element'
 import { ContainerElementStub } from '../../helpers/container-element-stub'
 import { CustomElementRegistrar } from '../../helpers/custom-element-registrar'
+import { GenomeNotationElementStub } from '../../helpers/genome-notation-element-stub'
 import { PopupElementStub } from '../../helpers/popup-element-stub'
 import { RunConfirmFormElementStub } from '../../helpers/run-confirm-form-element-stub'
 
@@ -54,16 +55,6 @@ class PlaybackOptionsElementStub extends BaseElement {
 
 class RepresentativesFitnessFormElementStub extends BaseElement {
     static get is() { return 'rf-representatives-fitness-form' }
-
-    @property()
-    options?: SerializedGeneticAlgorithmOptions
-}
-
-class GenomeNotationElementStub extends BaseElement {
-    static get is() { return 'rf-genome-notation' }
-
-    @property()
-    genome?: number[]
 
     @property()
     options?: SerializedGeneticAlgorithmOptions

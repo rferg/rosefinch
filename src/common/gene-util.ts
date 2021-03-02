@@ -35,6 +35,37 @@ export class GeneUtil {
         return pitch + (octaveInRange * this.OCTAVE_LENGTH) as Uint8
     }
 
+    static getNextNote(gene: Uint8): Uint8 {
+        if (this.isMaxNote(gene)) { return gene }
+        let next = gene + 1 as Uint8
+        while (!this.isNote(next) && !this.isMaxNote(next)) {
+            next++
+        }
+        return next
+    }
+
+    static getPreviousNote(gene: Uint8): Uint8 {
+        if (this.isMinNote(gene)) { return gene }
+        let previous = gene - 1 as Uint8
+        while (!this.isNote(previous) && !this.isMinNote(previous)) {
+            previous--
+        }
+        return previous
+    }
+
+    static isNote(gene: Uint8): boolean {
+        const pitch = this.getPitch(gene)
+        return pitch !== Pitch.Rest && pitch !== Pitch.Hold
+    }
+
+    static isMaxNote(gene: Uint8): boolean {
+        return gene >= this.MAX_NOTE_VALUE - 1
+    }
+
+    static isMinNote(gene: Uint8): boolean {
+        return gene <= 1
+    }
+
     private static getOctaveInRange(octave: number): number {
         return Math.max(Math.min(octave, this.MAX_OCTAVE), this.MIN_OCTAVE)
     }
