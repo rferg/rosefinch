@@ -17,6 +17,10 @@ export class ButtonElement extends BaseElement {
                 :host([buttonRole="danger"]) button {
                     background-color: var(--danger-color);
                 }
+                :host([buttonRole="outline"]) button {
+                    background-color: var(--container-background-color);
+                    box-shadow: none;
+                }
                 :host([disabled]) button {
                     opacity: 0.5;
                     cursor: not-allowed;
@@ -46,18 +50,21 @@ export class ButtonElement extends BaseElement {
                 :host([size="large"]) button {
                     padding: var(--padding);
                 }
+                :host([size="small"]) button {
+                    padding: calc(var(--small-padding) / 4);
+                }
             `
         ]
     }
 
     @property()
-    buttonRole: 'primary' | 'success' | 'danger' = 'primary'
+    buttonRole: 'primary' | 'success' | 'danger' | 'outline' = 'primary'
 
     @property({ type: Boolean })
     disabled = false
 
     @property({ type: String })
-    size: 'large' | 'medium' = 'medium'
+    size: 'large' | 'medium' | 'small' = 'medium'
 
     render() {
         return html`<button type="button" ?disabled=${this.disabled}><slot></slot></button>`

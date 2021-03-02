@@ -17,6 +17,8 @@ import { FitnessFormItemButtonsElement } from './fitness/fitness-form-item-butto
 import { RhythmicDispersionFitnessElement } from './fitness/rhythmic-dispersion-fitness.element'
 import { PitchSequenceDirectionFitnessElement } from './fitness/pitch-sequence-direction-fitness.element'
 import { ChordSelectorElement } from './fitness/chord-selector.element'
+import { ChordFitnessElement } from './fitness/chord-fitness.element'
+import { NoteAdjusterElement } from './fitness/note-adjuster.element'
 
 export default {
     providers: [
@@ -85,6 +87,14 @@ export default {
         {
             element: ChordSelectorElement,
             name: 'rf-chord-selector'
+        },
+        {
+            element: ChordFitnessElement,
+            name: 'rf-chord-fitness'
+        },
+        {
+            element: NoteAdjusterElement,
+            name: 'rf-note-adjuster'
         }
     ]
 } as Module

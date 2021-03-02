@@ -20,14 +20,19 @@ export class GenomeNotationElement extends BaseElement {
                     justify-content: center;
                     align-items: center;
                     overflow-x: auto;
+                    animation: fadeIn var(--animation-duration) var(--easing);
                 }
-                svg .abcjs-note, .abcjs-beam-elem, .abcjs-rest, .abcjs-slur {
+                .abcjs-note, .abcjs-beam-elem, .abcjs-rest, .abcjs-slur {
                     fill: var(--primary-color);
-                    animation: fadeIn var(--animation-duration) var(--easing);
                 }
-                svg .abcjs-staff, .abcjs-staff-extra, .abcjs-bar {
+                .abcjs-staff, .abcjs-staff-extra, .abcjs-bar {
                     fill: var(--danger-color);
-                    animation: fadeIn var(--animation-duration) var(--easing);
+                }
+                :host([clickable]) .abcjs-note + rect, :host([clickable]) .abcjs-rest + rect {
+                    cursor: pointer;
+                }
+                :host([clickable]) .abcjs-note_selected {
+                    fill: var(--success-color);
                 }
             `
         ]
@@ -48,12 +53,13 @@ export class GenomeNotationElement extends BaseElement {
         if (newVal !== this._options) {
             const oldVal = this._options
             this._options = newVal
-            // tslint:disable-next-line: no-floating-promises
-            this.requestUpdate('options', oldVal).then(() => {
-                if (this.genome && this.options) {
-                    this.drawNotes(this.genome, this.options)
-                }
-            }).catch(err => console.error(err))
+            this.requestUpdate('options', oldVal)
+                .then(() => {
+                    if (this.genome && this.options) {
+                        this.drawNotes(this.genome, this.options)
+                    }
+                })
+                .catch(err => console.error(err))
 
         }
     }
@@ -67,11 +73,13 @@ export class GenomeNotationElement extends BaseElement {
         if (newVal !== this._genome) {
             const oldVal = this._genome
             this._genome = newVal
-            this.requestUpdate('genome', oldVal).then(() => {
-                if (this.genome && this.options) {
-                    this.drawNotes(this.genome, this.options)
-                }
-            }).catch(err => console.error(err))
+            this.requestUpdate('genome', oldVal)
+                .then(() => {
+                    if (this.genome && this.options) {
+                        this.drawNotes(this.genome, this.options)
+                    }
+                })
+                .catch(err => console.error(err))
         }
     }
 

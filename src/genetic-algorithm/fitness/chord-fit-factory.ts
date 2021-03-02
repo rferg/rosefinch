@@ -17,7 +17,10 @@ export function chordFitFactory({
             let lastNote: Pitch | undefined
             for (let geneIndex = 0; geneIndex < genome.length; geneIndex++) {
                 let pitch: Pitch | undefined = GeneUtil.getPitch(genome[geneIndex] as Uint8)
-                currentChord = chords[geneIndex] || currentChord
+                const indexChord = chords[geneIndex]
+                currentChord = indexChord && indexChord.length
+                    ? indexChord.map(p => GeneUtil.getPitch(p as Uint8))
+                    : currentChord
                 if (pitch === Pitch.Hold) {
                     pitch = lastNote
                 } else {

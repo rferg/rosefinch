@@ -1,5 +1,6 @@
 import { fixture, oneEvent } from '@open-wc/testing-helpers'
 import { html } from 'lit-element'
+import { GeneUtil } from '../../../../src/common/gene-util'
 import { Pitch } from '../../../../src/common/pitch'
 import { ChordName, ChordService } from '../../../../src/services'
 import { ChordSelectorElement } from '../../../../src/ui/options/fitness/chord-selector.element'
@@ -56,7 +57,7 @@ describe('ChordSelectorElement', () => {
         const event = (await oneEvent(el, 'form-field-change')) as FormFieldChangeEvent
 
         expect(event.value.pitches).toEqual(pitches)
-        expect(chordService.getPitches).toHaveBeenCalledWith(Pitch.C, chordName)
+        expect(chordService.getPitches).toHaveBeenCalledWith(GeneUtil.createAtOctave(Pitch.C, 4), chordName)
     })
 
     it('should emit updated pitches on root change', async () => {

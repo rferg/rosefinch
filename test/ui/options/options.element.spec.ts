@@ -222,71 +222,73 @@ describe('OptionsElement', () => {
             expect(routerSpy.navigate).toHaveBeenCalledWith('/run')
         })
 
-        it('should calculate the correct genome size and pass in run params', () => {
-            const cases: {
-                measures: number,
-                timeSignature: [number, 1 | 2 | 4 | 8 | 16 ],
-                shortestNoteDuration: 1 | 2 | 4 | 8 | 16,
-                expected: number
-            }[] = [
-                {
-                    measures: 4,
-                    timeSignature: [ 4, 4 ],
-                    shortestNoteDuration: 16,
-                    expected: 64
-                },
-                {
-                    measures: 1,
-                    timeSignature: [ 7, 8 ],
-                    shortestNoteDuration: 4,
-                    expected: 3
-                },
-                {
-                    measures: 1,
-                    timeSignature: [ 7, 8 ],
-                    shortestNoteDuration: 16,
-                    expected: 14
-                },
-                {
-                    measures: 3,
-                    timeSignature: [ 7, 8 ],
-                    shortestNoteDuration: 16,
-                    expected: 42
-                },
-                {
-                    measures: 3,
-                    timeSignature: [ 6, 8 ],
-                    shortestNoteDuration: 16,
-                    expected: 36
-                },
-                {
-                    measures: 3,
-                    timeSignature: [ 3, 4 ],
-                    shortestNoteDuration: 16,
-                    expected: 36
-                },
-                {
-                    measures: 3,
-                    timeSignature: [ 4, 2 ],
-                    shortestNoteDuration: 4,
-                    expected: 24
-                },
-                {
-                    measures: 3,
-                    timeSignature: [ 4, 4 ],
-                    shortestNoteDuration: 1,
-                    expected: 3
-                },
-                {
-                    measures: 2,
-                    timeSignature: [ 5, 4 ],
-                    shortestNoteDuration: 8,
-                    expected: 20
-                }
-            ]
+        const cases: {
+            measures: number,
+            timeSignature: [number, 1 | 2 | 4 | 8 | 16 ],
+            shortestNoteDuration: 1 | 2 | 4 | 8 | 16,
+            expected: number
+        }[] = [
+            {
+                measures: 4,
+                timeSignature: [ 4, 4 ],
+                shortestNoteDuration: 16,
+                expected: 64
+            },
+            {
+                measures: 1,
+                timeSignature: [ 7, 8 ],
+                shortestNoteDuration: 4,
+                expected: 3
+            },
+            {
+                measures: 1,
+                timeSignature: [ 7, 8 ],
+                shortestNoteDuration: 16,
+                expected: 14
+            },
+            {
+                measures: 3,
+                timeSignature: [ 7, 8 ],
+                shortestNoteDuration: 16,
+                expected: 42
+            },
+            {
+                measures: 3,
+                timeSignature: [ 6, 8 ],
+                shortestNoteDuration: 16,
+                expected: 36
+            },
+            {
+                measures: 3,
+                timeSignature: [ 3, 4 ],
+                shortestNoteDuration: 16,
+                expected: 36
+            },
+            {
+                measures: 3,
+                timeSignature: [ 4, 2 ],
+                shortestNoteDuration: 4,
+                expected: 24
+            },
+            {
+                measures: 3,
+                timeSignature: [ 4, 4 ],
+                shortestNoteDuration: 1,
+                expected: 3
+            },
+            {
+                measures: 2,
+                timeSignature: [ 5, 4 ],
+                shortestNoteDuration: 8,
+                expected: 20
+            }
+        ]
 
-            cases.forEach(c => {
-                mapperSpy.mapFitnessForm.and.returnValue({ ...defaultOptions, ...c })
+        cases.forEach(c => {
+            it('should calculate the correct genome size and pass in run params', () => {
+                const mapped = { ...defaultOptions, ...c }
+                mapperSpy.mapSizeForm.and.returnValue(mapped)
+                mapperSpy.mapFitnessForm.and.returnValue(mapped)
                 runConfirm.dispatchEvent(submitEvent)
 
                 const genomeSize = ((eventSpy.dispatchEvent.calls.mostRecent()

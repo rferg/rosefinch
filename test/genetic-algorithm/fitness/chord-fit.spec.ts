@@ -1,3 +1,4 @@
+import { GeneUtil } from '../../../src/common/gene-util'
 import { Pitch } from '../../../src/common/pitch'
 import { chordFitFactory } from '../../../src/genetic-algorithm/fitness/chord-fit-factory'
 import { Population } from '../../../src/genetic-algorithm/population'
@@ -171,6 +172,27 @@ describe('chordFit', () => {
             chords: {
                 0: [ Pitch.C, Pitch.E, Pitch.F ],
                 2: [ Pitch.B, Pitch.F, Pitch.G ]
+            },
+            pitches: [
+                Pitch.Bb,
+                Pitch.C,
+                Pitch.C,
+                Pitch.Rest
+            ],
+            expectedFitness: 33
+        },
+        {
+            chords: {
+                0: [
+                    GeneUtil.createAtOctave(Pitch.C, 4),
+                    GeneUtil.createAtOctave(Pitch.E, 4),
+                    GeneUtil.createAtOctave(Pitch.F, 5)
+                ],
+                2: [
+                    GeneUtil.createAtOctave(Pitch.B, 4),
+                    GeneUtil.createAtOctave(Pitch.F, 4),
+                    GeneUtil.createAtOctave(Pitch.G, 6)
+                ]
             },
             pitches: [
                 Pitch.Bb,
