@@ -6,6 +6,7 @@ import { Module } from './module'
 import { customElementRegistryToken } from './custom-element-registry-token'
 import { globalEventTargetToken } from '../../common/global-event-target-token'
 import { PendingStateEvent } from '../common/pending-state-event'
+import { Route } from './route'
 
 @Injectable()
 export class ModuleLoader {
@@ -28,9 +29,9 @@ export class ModuleLoader {
         }
     }
 
-    async load(name: ModuleName): Promise<void> {
+    async load(name: ModuleName): Promise<Route[] | undefined> {
         if (this.moduleContainers.has(name)) {
-            return
+            return undefined
         }
 
         if (!this.rootContainer) {
@@ -45,13 +46,15 @@ export class ModuleLoader {
 
         const parentContainer = await this.getParentContainer(this.rootContainer, config.parentModule)
 
-        const { providers, elements } = await this.callLoader(config.loader)
+        const { providers, elements, routes } = await this.callLoader(config.loader)
         const container = parentContainer.createChildContainer(providers)
         this.moduleContainers.set(name, container)
         if (elements.length) {
             new ElementRegistrar(container, this.customElementRegistry)
                 .register(...elements)
         }
+
+        return routes
     }
 
     private async getParentContainer(root: InjectionContainer, parentName?: ModuleName): Promise<InjectionContainer> {

@@ -257,5 +257,49 @@ describe('ModuleLoader', () => {
             expect(registrySpy.define).toHaveBeenCalledTimes(1)
             expect(config.Common.loader).toHaveBeenCalledTimes(1)
         })
+
+        it('should return any sub routes', async () => {
+            loader.registerRoot({ providers: [], elements: [] }, containerSpy)
+            const module: Module = {
+                providers: [],
+                elements: [
+                    {
+                        name: CustomEl.is,
+                        element: CustomEl
+                    }
+                ],
+                routes: [
+                    {
+                        path: 'test',
+                        elementName: CustomEl.is
+                    }
+                ]
+            };
+            (config.Common.loader as jasmine.Spy).and.returnValue(
+                Promise.resolve({ default: module }))
+
+            const routes = await loader.load(ModuleName.Common)
+
+            expect(routes).toEqual(module.routes)
+        })
+
+        it('should return undefined if no sub routes', async () => {
+            loader.registerRoot({ providers: [], elements: [] }, containerSpy)
+            const module: Module = {
+                providers: [],
+                elements: [
+                    {
+                        name: CustomEl.is,
+                        element: CustomEl
+                    }
+                ]
+            };
+            (config.Common.loader as jasmine.Spy).and.returnValue(
+                Promise.resolve({ default: module }))
+
+            const routes = await loader.load(ModuleName.Common)
+
+            expect(routes).toBeUndefined()
+        })
     })
 })

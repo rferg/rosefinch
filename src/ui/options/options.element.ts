@@ -13,6 +13,7 @@ import { Router } from '../core/router'
 import { PipelineRunParams, StateTopic, UpdateStateEvent } from '../../services/state'
 import { globalEventTargetToken } from '../../common/global-event-target-token'
 import { calculateGenomeSize } from '../../common/calculate-genome-size'
+import { ModuleName } from '../core/module-name'
 
 @Injectable()
 export class OptionsElement extends BaseElement {
@@ -136,6 +137,7 @@ export class OptionsElement extends BaseElement {
 
     render() {
         return html`
+            <rf-router-outlet moduleName="${ModuleName.Options}"></rf-router-outlet>
             <rf-container>
                 <h3>New Session</h3>
                 <div class="headings">
