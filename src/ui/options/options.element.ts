@@ -137,9 +137,6 @@ export class OptionsElement extends BaseElement {
 
     render() {
         return html`
-            <a href="/options">Back to options root</a>
-            <a href="/options/test">To test</a>
-            <a href="/options/othertest">To other test</a>
             <rf-router-outlet moduleName="${ModuleName.Options}"></rf-router-outlet>
             <rf-container>
                 <h3>New Session</h3>
