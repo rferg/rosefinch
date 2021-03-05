@@ -17,10 +17,38 @@ import { FitnessFormItemButtonsElement } from './fitness/fitness-form-item-butto
 import { RhythmicDispersionFitnessElement } from './fitness/rhythmic-dispersion-fitness.element'
 import { PitchSequenceDirectionFitnessElement } from './fitness/pitch-sequence-direction-fitness.element'
 import { ChordSelectorElement } from './fitness/chord-selector.element'
-import { ChordFitnessElement } from './fitness/chord-fitness.element'
 import { NoteAdjusterElement } from './fitness/note-adjuster.element'
+import { ChordFitnessElement } from './fitness/chord-fitness.element'
+import { BaseElement } from '../core/base-element'
+import { html } from 'lit-element'
+import { Injectable } from 'cewdi'
+
+// TEMPORARY REMOVE
+@Injectable()
+class TestElement extends BaseElement {
+    static get is() { return 'rf-test' }
+    render() { return html`<h1>Hello!!</h1>` }
+}
+@Injectable()
+class Test2Element extends BaseElement {
+    static get is() { return 'rf-test2' }
+    render() { return html`<h1>Hello number 2!!</h1>` }
+}
+//
 
 export default {
+    // TEMPORARY REMOVE
+    routes: [
+        {
+            path: 'test',
+            elementName: TestElement.is
+        },
+        {
+            path: 'othertest',
+            elementName: Test2Element.is
+        }
+    ],
+    //
     providers: [
         ChordService,
         OptionsFormMapperService,
@@ -28,6 +56,16 @@ export default {
         ...getNotationProviders()
     ],
     elements: [
+        // TEMPORARY REMOVE
+        {
+            element: TestElement,
+            name: TestElement.is
+        },
+        {
+            element: Test2Element,
+            name: Test2Element.is
+        },
+        //
         {
             element: OptionsElement,
             name: 'rf-options'

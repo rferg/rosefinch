@@ -68,5 +68,31 @@ export const rootModule: Module = {
         new ExplicitProvider(globalEventTargetToken, window),
         new ExplicitProvider(timerToken, window),
         PageWrapper
+    ],
+    routes: [
+        {
+            path: '/',
+            elementName: 'rf-new-session',
+            moduleName: ModuleName.NewSession
+        },
+        {
+            path: '/options',
+            elementName: 'rf-options',
+            moduleName: ModuleName.Options
+        },
+        {
+            path: '/run',
+            elementName: 'rf-pipeline',
+            moduleName: ModuleName.Pipeline
+        },
+        {
+            path: '/representatives/:id',
+            elementName: 'rf-representatives',
+            moduleName: ModuleName.Representatives
+        },
+        {
+            path: '*',
+            elementName: 'rf-404'
+        }
     ]
 }

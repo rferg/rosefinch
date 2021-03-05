@@ -3,6 +3,7 @@ import { routeEventType } from '../../../src/ui/core/route-event-type'
 import { RouteEvent } from '../../../src/ui/core/route-event'
 import { defineCE, fixture } from '@open-wc/testing-helpers'
 import { StateMediatorService } from '../../../src/services/state'
+import { ModuleName } from '../../../src/ui/core/module-name'
 
 describe('RouterOutletElement', () => {
     let eventSpy: jasmine.SpyObj<EventTarget>
@@ -50,6 +51,52 @@ describe('RouterOutletElement', () => {
             const newElementName = 'h1'
             listener(new RouteEvent({ elementName: oldElementName }))
             listener(new RouteEvent({ elementName: newElementName }))
+
+            expect(el.querySelector(newElementName)).toBeTruthy()
+            expect(el.querySelector(oldElementName)).toBeFalsy()
+        })
+
+        it('should not replace element if moduleName is undefined and event is sub route', () => {
+            const oldElementName = 'p'
+            const newElementName = 'h1'
+            listener(new RouteEvent({ elementName: oldElementName }))
+            listener(new RouteEvent({ elementName: newElementName, isSubRoute: true }))
+
+            expect(el.querySelector(newElementName)).toBeFalsy()
+            expect(el.querySelector(oldElementName)).toBeTruthy()
+        })
+
+        it('should remove element if moduleName is defined and event is not sub route', () => {
+            const moduleName = ModuleName.Common
+            el.setAttribute('moduleName', moduleName)
+            const oldElementName = 'p'
+            const newElementName = 'h1'
+            listener(new RouteEvent({ elementName: oldElementName, isSubRoute: true, moduleName }))
+            listener(new RouteEvent({ elementName: newElementName }))
+
+            expect(el.querySelector(newElementName)).toBeFalsy()
+            expect(el.querySelector(oldElementName)).toBeFalsy()
+        })
+
+        it('should not replace element if moduleName is defined and event moduleName does not match', () => {
+            const moduleName = ModuleName.Common
+            el.setAttribute('moduleName', moduleName)
+            const oldElementName = 'p'
+            const newElementName = 'h1'
+            listener(new RouteEvent({ elementName: oldElementName, isSubRoute: true, moduleName }))
+            listener(new RouteEvent({ elementName: newElementName, isSubRoute: true, moduleName: ModuleName.Audio }))
+
+            expect(el.querySelector(newElementName)).toBeFalsy()
+            expect(el.querySelector(oldElementName)).toBeTruthy()
+        })
+
+        it('should replace element if moduleName is defined and event moduleName matches', () => {
+            const moduleName = ModuleName.Common
+            el.setAttribute('moduleName', moduleName)
+            const oldElementName = 'p'
+            const newElementName = 'h1'
+            listener(new RouteEvent({ elementName: oldElementName, isSubRoute: true, moduleName }))
+            listener(new RouteEvent({ elementName: newElementName, isSubRoute: true, moduleName }))
 
             expect(el.querySelector(newElementName)).toBeTruthy()
             expect(el.querySelector(oldElementName)).toBeFalsy()

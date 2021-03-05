@@ -84,5 +84,52 @@ describe('Router', () => {
 
             expect(moduleLoaderSpy.load).toHaveBeenCalledWith(ModuleName.Common)
         })
+
+        describe('subRoutes', () => {
+            const route: Route = {
+                    elementName: 'root-el',
+                    path: 'a/*',
+                    moduleName: ModuleName.Common
+                }
+            const subRoutes: Route[] = [
+                {
+                    elementName: 'b-sub-el',
+                    path: 'b'
+                },
+                {
+                    elementName: 'c-sub-el',
+                    path: 'c'
+                }
+            ]
+            let callback: PageJS.Callback
+
+            beforeEach(() => {
+                moduleLoaderSpy.load.and.returnValue(Promise.resolve(subRoutes))
+                router.registerRoutes([ route ])
+                callback = pageSpy.register.calls.mostRecent().args[1]
+            })
+
+            it('should dispatch routing events to root element and then subRoute element', async () => {
+                const subRoutePath = 'b'
+                await callback({ params: { [0]: subRoutePath } } as PageJS.Context, jasmine.createSpy())
+
+                expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(new RouteEvent({ elementName: route.elementName }))
+                expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(new RouteEvent({
+                    elementName: subRoutes.find(r => r.path === subRoutePath)?.elementName ?? '',
+                    isSubRoute: true,
+                    moduleName: route.moduleName
+                }))
+
+                const secondSubRoutePath = 'c'
+                await callback({ params: { [0]: secondSubRoutePath } } as PageJS.Context, jasmine.createSpy())
+
+                expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(new RouteEvent({ elementName: route.elementName }))
+                expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(new RouteEvent({
+                    elementName: subRoutes.find(r => r.path === secondSubRoutePath)?.elementName ?? '',
+                    isSubRoute: true,
+                    moduleName: route.moduleName
+                }))
+            })
+        })
     })
 })

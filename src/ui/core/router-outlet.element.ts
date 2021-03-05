@@ -10,6 +10,9 @@ export class RouterOutletElement extends HTMLElement {
     private readonly routeListener: EventListener
     private currentElementName?: string
     private currentElement?: HTMLElement
+    private get moduleName(): string | null {
+        return this.getAttribute('moduleName')
+    }
 
     constructor(
         private readonly state: StateMediatorService,
@@ -27,20 +30,41 @@ export class RouterOutletElement extends HTMLElement {
     }
 
     private onRouteChange(event: Event): void {
-        if (this.isRouteEvent(event)) {
-            const { elementName } = event
-            if (elementName !== this.currentElementName) {
-                if (this.currentElement) {
-                    this.removeChild(this.currentElement)
-                }
-                this.currentElement = document.createElement(elementName)
-                this.appendChild(this.currentElement)
-                this.currentElementName = elementName
-            }
+        if (!this.isRouteEvent(event)) { return }
+
+        if (this.canHandleEvent(event)) {
+            this.replaceElement(event.elementName)
+        } else if (this.shouldRemoveSubRouteElement(event)) {
+            this.replaceElement(undefined)
         }
+    }
+
+    private replaceElement(elementName?: string) {
+        if (elementName === this.currentElementName) { return }
+
+        if (this.currentElement) {
+            this.removeChild(this.currentElement)
+            this.currentElement = undefined
+        }
+
+        if (elementName) {
+            this.currentElement = document.createElement(elementName)
+            this.appendChild(this.currentElement)
+        }
+
+        this.currentElementName = elementName
     }
 
     private isRouteEvent(event: Event): event is RouteEvent {
         return !!(event as RouteEvent)?.elementName
+    }
+
+    private canHandleEvent({ isSubRoute, moduleName }: RouteEvent): boolean {
+        return (!isSubRoute && !this.moduleName)
+            || (isSubRoute && this.moduleName === moduleName)
+    }
+
+    private shouldRemoveSubRouteElement(event: RouteEvent): boolean {
+        return !!(this.moduleName && !event.isSubRoute && this.currentElement)
     }
 }
