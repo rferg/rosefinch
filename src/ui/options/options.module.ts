@@ -19,6 +19,7 @@ import { PitchSequenceDirectionFitnessElement } from './fitness/pitch-sequence-d
 import { ChordSelectorElement } from './fitness/chord-selector.element'
 import { NoteAdjusterElement } from './fitness/note-adjuster.element'
 import { ChordFitnessElement } from './fitness/chord-fitness.element'
+import { OptionsNavElement } from './options-nav.element'
 
 export default {
     providers: [
@@ -26,6 +27,32 @@ export default {
         OptionsFormMapperService,
         ScaleService,
         ...getNotationProviders()
+    ],
+    routes: [
+        {
+            path: 'size',
+            elementName: 'rf-size-form'
+        },
+        {
+            path: 'chord',
+            elementName: 'rf-chord-fitness'
+        },
+        {
+            path: 'scale',
+            elementName: 'rf-scale-fitness'
+        },
+        {
+            path: 'pitch-sequence-direction',
+            elementName: 'rf-pitch-sequence-direction-fitness'
+        },
+        {
+            path: 'rest-proportion',
+            elementName: 'rf-rest-proportion-fitness'
+        },
+        {
+            path: 'rhythmic-dispersion',
+            elementName: 'rf-rhythmic-dispersion-fitness'
+        }
     ],
     elements: [
         {
@@ -95,6 +122,10 @@ export default {
         {
             element: NoteAdjusterElement,
             name: 'rf-note-adjuster'
+        },
+        {
+            element: OptionsNavElement,
+            name: 'rf-options-nav'
         }
     ]
 } as Module

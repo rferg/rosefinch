@@ -14,6 +14,7 @@ import { FourOhFourElement } from './404.element'
 import { getProviders as getStateProviders } from '../../services/state'
 import { timerToken } from './timer-token'
 import { PendingElement } from './pending.element'
+import { windowToken } from '../../common/window-token'
 
 const moduleLoadConfig: ModuleLoadConfig = {
     [ModuleName.Common]: {
@@ -67,6 +68,7 @@ export const rootModule: Module = {
         new ExplicitProvider(customElementRegistryToken, window.customElements),
         new ExplicitProvider(globalEventTargetToken, window),
         new ExplicitProvider(timerToken, window),
+        new ExplicitProvider(windowToken, window),
         PageWrapper
     ],
     routes: [
