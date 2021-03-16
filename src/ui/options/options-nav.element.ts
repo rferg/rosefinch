@@ -31,11 +31,11 @@ export class OptionsNavElement extends BaseElement {
     activeSection = ''
 
     private readonly routes: { label: string, href: string }[] = [
-        { href: '/options/size', label: 'Size' },
+        { href: '/options/size', label: 'Size and Time' },
         { href: '/options/chord', label: 'Chords' },
         { href: '/options/scale', label: 'Scale' },
         { href: '/options/pitch-sequence-direction', label: 'Pitch Sequences' },
-        { href: '/options/rest-proportion', label: 'Rests' },
+        { href: '/options/rest-proportion', label: 'Rest Proportion' },
         { href: '/options/rhythmic-dispersion', label: 'Rhythmic Dispersion' }
     ]
 

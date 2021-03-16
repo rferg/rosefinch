@@ -1,11 +1,14 @@
 import { FormElement } from '../form.element'
-import { SizeForm } from './size-form'
+import { SizeForm } from '../../../services/size-form'
 import { css, html, TemplateResult } from 'lit-element'
 import { FieldValidator } from '../field-validator'
 import { GeneUtil } from '../../../common/gene-util'
 import { numberRangeFieldValidatorFactory } from '../number-range-field-validator-factory'
 import { animationsStyles } from '../../common/animations.styles'
 import { Injectable } from 'cewdi'
+import { OptionsFormService } from '../../../services'
+import { FormSubmitEvent } from '../form-submit-event'
+import { headingsStyles } from '../../common/headings.styles'
 
 @Injectable()
 export class SizeFormElement extends FormElement<SizeForm> {
@@ -13,6 +16,7 @@ export class SizeFormElement extends FormElement<SizeForm> {
         return [
             super.styles,
             animationsStyles,
+            headingsStyles,
             css`
                 :host {
                     width: 100%;
@@ -193,8 +197,16 @@ export class SizeFormElement extends FormElement<SizeForm> {
         }
     ]
 
+    constructor(private readonly formService: OptionsFormService) {
+        super()
+
+        this.value = this.formService.get('size') as SizeForm
+    }
+
     render() {
-        return html`${this.fieldGroups.map(({ label, tooltip, joinTemplate, fields }) => {
+        return html`
+            <h5>Size and Time</h5>
+            ${this.fieldGroups.map(({ label, tooltip, joinTemplate, fields }) => {
             const errors = Object.keys(this.errors)
                 .map(key => this.errors[key])
                 .filter(err => !!(err?.length))
@@ -223,5 +235,13 @@ export class SizeFormElement extends FormElement<SizeForm> {
                 </rf-inside-container>
             `
         })}`
+    }
+
+    protected onFieldChange(ev: Event) {
+        super.onFieldChange(ev)
+
+        if (this.isValid) {
+            this.dispatchEvent(new FormSubmitEvent({ value: { size: this.value } }))
+        }
     }
 }

@@ -1,6 +1,8 @@
 import { Injectable } from 'cewdi'
 import { css, html, property } from 'lit-element'
-import { RhythmicDispersionOptions } from '../../../genetic-algorithm'
+import { RhythmicDispersionConfig } from '../../../genetic-algorithm/fitness/rhythmic-dispersion-config'
+import { OptionsFormService } from '../../../services'
+import { headingsStyles } from '../../common/headings.styles'
 import { ValueChangeEvent } from '../../common/value-change-event'
 import { BaseElement } from '../../core/base-element'
 import { FormSubmitEvent } from '../form-submit-event'
@@ -10,6 +12,7 @@ export class RhythmicDispersionFitnessElement extends BaseElement {
     static get styles() {
         return [
             super.styles,
+            headingsStyles,
             css`
                 :host {
                     width: 100%;
@@ -38,40 +41,49 @@ export class RhythmicDispersionFitnessElement extends BaseElement {
     }
 
     @property()
-    options?: RhythmicDispersionOptions
+    config: RhythmicDispersionConfig
 
-    @property()
-    labels: { 0?: string, 1?: string, 2?: string } = {}
+    private readonly labels = {
+        0: 'Constant - mostly the same note length',
+        1: 'Balanced - variation in note lengths',
+        2: 'Extreme - mostly very short and very long notes'
+    }
+
+    constructor(private readonly formService: OptionsFormService) {
+        super()
+
+        this.config = this.formService.get('rhythmicDispersion') as RhythmicDispersionConfig
+        if (!this.config) {
+            throw new Error('RhythmicDispersion config was undefined')
+        }
+    }
 
     render() {
         return html`
             <h5>Rhythmic Dispersion</h5>
             <div class="input-container">
-                <span>${this.labels[this.options?.target ?? 0]}</span>
+                <span>${this.labels[this.config.options?.target ?? 0]}</span>
                 <rf-range-input
                     .min=${0}
                     .max=${2}
-                    .value=${this.options?.target}
+                    .value=${this.config.options?.target}
                     .step=${1}
                     @value-change=${this.onTargetChange}>
                 </rf-range-input>
             </div>
-            <rf-fitness-form-item-buttons @cancel=${this.onCancel} @submit=${this.onSubmit}>
-            </rf-fitness-form-item-buttons>
         `
     }
 
     private onTargetChange(ev: ValueChangeEvent<0 | 1 | 2>) {
-        this.options = { ...this.options, target: ev.value || 0 }
-    }
-
-    private onCancel() {
-        this.dispatchEvent(new CustomEvent('cancel', { bubbles: true, composed: true }))
-    }
-
-    private onSubmit() {
-        if (this.options) {
-            this.dispatchEvent(new FormSubmitEvent<RhythmicDispersionOptions>({ value: { ...this.options } }))
+        this.config = {
+            ...this.config,
+            options: {
+                ...this.config.options,
+                target: ev.value || 0
+            }
         }
+        this.dispatchEvent(new FormSubmitEvent({
+            value: { rhythmicDispersion: { ...this.config } }
+        }))
     }
 }

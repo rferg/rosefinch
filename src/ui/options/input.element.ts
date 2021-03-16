@@ -92,13 +92,13 @@ export class InputElement extends BaseElement {
                 return html`
                     <input type="text"
                         .value="${this.value?.toString() ?? ''}"
-                        @change=${this.onChange}/>
+                        @input=${this.onChange}/>
                     `
             case 'number':
                 return html`
                     <input type="number"
                         .value="${this.value?.toString() ?? ''}"
-                        @change=${this.onChange}/>
+                        @input=${this.onChange}/>
                     `
             case 'select':
                 return html`

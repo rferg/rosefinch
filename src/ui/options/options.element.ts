@@ -1,19 +1,13 @@
 import { BaseElement } from '../core/base-element'
-import { css, html, internalProperty, property } from 'lit-element'
+import { css, html, property } from 'lit-element'
 import { headingsStyles } from '../common/headings.styles'
-import { SizeForm } from './size/size-form'
 import { FormSubmitEvent } from './form-submit-event'
-import { FitnessForm } from './fitness/fitness-form'
 import { animationsStyles } from '../common/animations.styles'
-import { Inject, Injectable } from 'cewdi'
-import { FitnessMethod, SerializedGeneticAlgorithmOptions } from '../../genetic-algorithm'
-import { OptionsFormMapperService } from '../../services/options-form-mapper-service'
-import { Router } from '../core/router'
-import { PipelineRunParams, StateTopic, UpdateStateEvent } from '../../services/state'
-import { globalEventTargetToken } from '../../common/global-event-target-token'
-import { calculateGenomeSize } from '../../common/calculate-genome-size'
+import { Injectable } from 'cewdi'
 import { ModuleName } from '../core/module-name'
 import { Icon } from '../common/icon'
+import { OptionsFormService } from '../../services/options-form-service'
+import { OptionsForm } from '../../services/options-form'
 
 @Injectable()
 export class OptionsElement extends BaseElement {
@@ -35,6 +29,10 @@ export class OptionsElement extends BaseElement {
                     flex-grow: 0;
                     min-height: 80vh;
                     max-width: 100vw;
+                }
+                rf-router-outlet {
+                    width: 100%;
+                    max-width: 960px;
                 }
                 #optionsOutlet {
                     flex-grow: 1;
@@ -71,56 +69,17 @@ export class OptionsElement extends BaseElement {
         ]
     }
 
-    @property({ reflect: true, type: String })
-    activeTab: 'size' | 'fitness' = 'size'
-
     @property({ reflect: false })
     showConfirm = false
 
     @property({ reflect: true, type: Boolean })
     navIsHidden = false
 
-    private readonly sizeForm: SizeForm = {
-        populationSize: 5000,
-        timeSignatureTop: 4,
-        timeSignatureBottom: 4,
-        octaveMax: 5,
-        octaveMin: 4,
-        shortestNoteDuration: 8,
-        measures: 2
-    }
-
-    private readonly fitnessForm: FitnessForm = {
-        chords: { weight: 1, method: FitnessMethod.ChordFit, options: { chords: {} } },
-        scale: {
-            weight: 1,
-            method: FitnessMethod.ScaleInterval,
-            options: { scale: { pitches: [] }, intervalScores: [] }
-        },
-        restProportion: { weight: 1, method: FitnessMethod.RestProportion, options: { targetProportion: 0.1 } },
-        pitchSequence: {
-            weight: 1,
-            method: FitnessMethod.PitchSequenceDirection,
-            options: {
-                sequenceLength: 3,
-                scores: {
-                    'ascending': 2,
-                    'descending': 2,
-                    'stable': 1
-                }
-            }
-        },
-        rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 0 } }
-    }
-
-    @internalProperty()
-    private geneticAlgorithmOptions: SerializedGeneticAlgorithmOptions | undefined
-
-    constructor(
-        private readonly mapper: OptionsFormMapperService,
-        private readonly router: Router,
-        @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget) {
+    constructor(private readonly formService: OptionsFormService) {
         super()
+
+        this.addEventListener(FormSubmitEvent.eventType, this.onFormSubmitEvent.bind(this))
+        this.formService.reset()
     }
 
     render() {
@@ -141,36 +100,18 @@ export class OptionsElement extends BaseElement {
         `
     }
 
-    private onRunConfirmed(
-        { value: { numberOfGenerations } }: FormSubmitEvent<{ numberOfGenerations: number }>) {
-        this.showConfirm = false
-        if (!this.geneticAlgorithmOptions) { this.updateGeneticAlgorithmOptions() }
-        const options = this.geneticAlgorithmOptions
-        if (options) {
-            const params: PipelineRunParams = {
-                size: this.sizeForm.populationSize,
-                genomeSize: this.getGenomeSize(options.measures, options.timeSignature, options.shortestNoteDuration),
-                options,
-                numberOfGenerations
-            }
-            this.eventTarget.dispatchEvent(new UpdateStateEvent(StateTopic.PipelineRunParams, params))
-            this.router.navigate('/run')
-        } else {
-            throw new Error('GeneticAlgorithm options were undefined')
+    private onFormSubmitEvent(event: Event) {
+        const submitEvent = event as FormSubmitEvent<any>
+        const value = submitEvent.value
+        const property = Object.keys(value)[0]
+        if (property) {
+            this.formService.update(property as keyof OptionsForm, value[property])
         }
     }
 
-    private getGenomeSize(
-        measures: number,
-        timeSignature: [number, 1 | 2 | 4 | 8 | 16],
-        shortestNoteDuration: 1 | 2 | 4 | 8 | 16): number {
-            return calculateGenomeSize(measures, timeSignature, shortestNoteDuration)
+    private onRunConfirmed(
+        { value: { numberOfGenerations } }: FormSubmitEvent<{ numberOfGenerations: number }>) {
+        this.showConfirm = false
+        this.formService.run(numberOfGenerations)
     }
-
-    private updateGeneticAlgorithmOptions(): void {
-        this.geneticAlgorithmOptions = this.mapper.mapFitnessForm(
-            this.fitnessForm,
-            this.mapper.mapSizeForm(this.sizeForm))
-    }
-
 }

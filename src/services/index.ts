@@ -1,6 +1,6 @@
 export { ChordName } from './chord-name'
 export { ChordService } from './chord-service'
-export { OptionsMappingService } from './options-mapping-service'
+export { OptionsFormService } from './options-form-service'
 export { Scale } from './scale'
 export { ScaleName } from './scale-name'
 export { ScaleService } from './scale-service'

@@ -49,7 +49,7 @@ describe('InputElement', () => {
         if (!input) { throw new Error('input is missing') }
         setTimeout(() => {
             input.value = value.toString()
-            input.dispatchEvent(new Event('change'))
+            input.dispatchEvent(new Event('input'))
         }, 0)
 
         return el

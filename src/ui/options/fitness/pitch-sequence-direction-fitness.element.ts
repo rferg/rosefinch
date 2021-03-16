@@ -1,7 +1,9 @@
 import { Injectable } from 'cewdi'
-import { css, html, internalProperty, property } from 'lit-element'
-import { PitchSequenceDirectionOptions } from '../../../genetic-algorithm'
+import { css, html, property } from 'lit-element'
+import { PitchSequenceDirectionConfig } from '../../../genetic-algorithm/fitness/pitch-sequence-direction-config'
 import { PitchSequenceType } from '../../../genetic-algorithm/fitness/pitch-sequence-type'
+import { OptionsFormService } from '../../../services'
+import { headingsStyles } from '../../common/headings.styles'
 import { ValueChangeEvent } from '../../common/value-change-event'
 import { BaseElement } from '../../core/base-element'
 import { FormSubmitEvent } from '../form-submit-event'
@@ -11,6 +13,7 @@ export class PitchSequenceDirectionFitnessElement extends BaseElement {
     static get styles() {
         return [
             super.styles,
+            headingsStyles,
             css`
                 :host {
                     width: 100%;
@@ -66,25 +69,33 @@ export class PitchSequenceDirectionFitnessElement extends BaseElement {
     }
 
     @property()
-    options?: PitchSequenceDirectionOptions
+    config: PitchSequenceDirectionConfig
 
-    @internalProperty()
     private readonly scoreKeys: { key: PitchSequenceType, label: string }[] = [
         { key: PitchSequenceType.Ascending, label: 'Ascending' },
         { key: PitchSequenceType.Descending, label: 'Descending' },
         { key: PitchSequenceType.Stable, label: 'Stable' }
     ]
 
+    constructor(private readonly formService: OptionsFormService) {
+        super()
+
+        this.config = this.formService.get('pitchSequence') as PitchSequenceDirectionConfig
+        if (!this.config) {
+            throw new Error('PitchSequenceDirectionConfig is undefined')
+        }
+    }
+
     render() {
         return html`
             <h5>Sequence Length</h5>
             <div class="sequence-length-container">
-                <label>${this.options?.sequenceLength ?? 0}</label>
+                <label>${this.config.options.sequenceLength}</label>
                 <rf-range-input
                     name="sequenceLength"
                     .min=${2}
                     .max=${5}
-                    .value=${this.options?.sequenceLength}
+                    .value=${this.config.options.sequenceLength}
                     .step=${1}
                     @value-change=${this.onSequenceLengthChange}>
                 </rf-range-input>
@@ -96,12 +107,12 @@ export class PitchSequenceDirectionFitnessElement extends BaseElement {
                         <li>
                             <span>${label}</span>
                             <div>
-                                <label>Score: ${this.options?.scores?.[key]}</label>
+                                <label>Score: ${this.config.options.scores?.[key]}</label>
                                 <rf-range-input
                                     name="${key}"
                                     .min=${0}
                                     .max=${10}
-                                    .value=${this.options?.scores?.[key]}
+                                    .value=${this.config.options.scores?.[key]}
                                     .step=${1}
                                     @value-change=${(ev: ValueChangeEvent<number>) => this.onScoreChange(key, ev)}>
                                     </rf-range-input>
@@ -110,34 +121,38 @@ export class PitchSequenceDirectionFitnessElement extends BaseElement {
                     `
                 })}
             </ul>
-            <rf-fitness-form-item-buttons @cancel=${this.onCancel} @submit=${this.onSubmit}>
-            </rf-fitness-form-item-buttons>
         `
     }
 
     private onSequenceLengthChange(ev: ValueChangeEvent<number>) {
         ev.stopPropagation()
-        if (!this.options) {
-            this.options = { sequenceLength: 0, scores: { ascending: 1, descending: 1, stable: 1 } }
+        this.config = {
+            ...this.config,
+            options: {
+                ...this.config.options,
+                sequenceLength: ev.value || 0
+            }
         }
-        this.options = { ...this.options, sequenceLength: ev.value || 0 }
+        this.submitChange()
     }
 
     private onScoreChange(key: PitchSequenceType, ev: ValueChangeEvent<number>) {
         ev.stopPropagation()
-        if (!this.options) {
-            this.options = { sequenceLength: 0, scores: { ascending: 1, descending: 1, stable: 1 } }
+        this.config = {
+            ...this.config,
+            options: {
+                ...this.config.options,
+                scores: { ...this.config.options.scores, [key]: ev.value }
+            }
         }
-        this.options = { ...this.options, scores: { ...this.options.scores, [key]: ev.value } }
+        this.submitChange()
     }
 
-    private onCancel() {
-        this.dispatchEvent(new CustomEvent('cancel', { bubbles: true, composed: true }))
-    }
-
-    private onSubmit() {
-        if (this.options) {
-            this.dispatchEvent(new FormSubmitEvent<PitchSequenceDirectionOptions>({ value: { ...this.options } }))
-        }
+    private submitChange() {
+        this.dispatchEvent(new FormSubmitEvent({
+            value: {
+                pitchSequence: { ...this.config }
+            }
+        }))
     }
 }

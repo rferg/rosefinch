@@ -39,7 +39,7 @@ describe('NewSessionElement', () => {
         const el = await fixture(html`<rf-new-session-test></rf-new-session-test>`)
         const anchor = el.shadowRoot?.querySelector('.new-container a') as HTMLAnchorElement
 
-        expect(anchor.href).toMatch(/\/options$/)
+        expect(anchor.href).toMatch(/\/options\/size$/)
     })
 
     it('should render only 3 summaries initially', async () => {
