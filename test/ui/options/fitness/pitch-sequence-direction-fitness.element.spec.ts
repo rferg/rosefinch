@@ -1,27 +1,47 @@
 import { elementUpdated, fixture, oneEvent } from '@open-wc/testing-helpers'
 import { html } from 'lit-element'
-import { PitchSequenceDirectionOptions } from '../../../../src/genetic-algorithm'
+import { FitnessMethod } from '../../../../src/genetic-algorithm'
+import { PitchSequenceDirectionConfig } from '../../../../src/genetic-algorithm/fitness/pitch-sequence-direction-config'
 import { PitchSequenceType } from '../../../../src/genetic-algorithm/fitness/pitch-sequence-type'
+import { OptionsFormService } from '../../../../src/services'
 import { ValueChangeEvent } from '../../../../src/ui/common/value-change-event'
-import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
 import { PitchSequenceDirectionFitnessElement } from '../../../../src/ui/options/fitness/pitch-sequence-direction-fitness.element'
+import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
 import { CustomElementRegistrar } from '../../../helpers/custom-element-registrar'
-import { FitnessFormItemButtonsElementStub } from '../../../helpers/fitness-form-item-buttons-element-stub'
 import { RangeInputElementStub } from '../../../helpers/range-input-element-stub'
 
 describe('PitchSequenceDirectionFitnessElement', () => {
+    const defaultConfig: PitchSequenceDirectionConfig = {
+        method: FitnessMethod.PitchSequenceDirection,
+        options: {
+            sequenceLength: 1,
+            scores: {
+                ascending: 1,
+                descending: 1,
+                stable: 1
+            }
+        }
+    }
+    const formServiceSpy = jasmine.createSpyObj<OptionsFormService>(
+        'OptionsFormService',
+        [ 'get' ]
+    )
     let el: PitchSequenceDirectionFitnessElement
 
     beforeAll(() => {
         CustomElementRegistrar.instance.register(RangeInputElementStub.is, RangeInputElementStub)
-        CustomElementRegistrar.instance
-            .register(FitnessFormItemButtonsElementStub.is, FitnessFormItemButtonsElementStub)
 
-        CustomElementRegistrar.instance
-            .register('rf-pitch-sequence-direction-fitness-test', PitchSequenceDirectionFitnessElement)
+        CustomElementRegistrar.instance.register(
+            'rf-pitch-sequence-direction-fitness-test',
+            class extends PitchSequenceDirectionFitnessElement {
+                constructor() { super(formServiceSpy) }
+            })
     })
 
     beforeEach(async () => {
+        formServiceSpy.get.calls.reset()
+
+        formServiceSpy.get.and.returnValue(defaultConfig)
         el = await fixture(html`<rf-pitch-sequence-direction-fitness-test></rf-pitch-sequence-direction-fitness-test>`)
     })
 
@@ -30,14 +50,6 @@ describe('PitchSequenceDirectionFitnessElement', () => {
     })
 
     it('should update options.sequenceLength on sequence length change', async () => {
-        el.options = {
-            sequenceLength: 0,
-            scores: {
-                ascending: 0,
-                descending: 0,
-                stable: 0
-            }
-        }
         const newValue = 3
         const input = el.shadowRoot?.querySelector(`${RangeInputElementStub.is}[name="sequenceLength"]`)
         if (!input) { throw new Error('could not find sequenceLength input') }
@@ -45,18 +57,23 @@ describe('PitchSequenceDirectionFitnessElement', () => {
         input.dispatchEvent(new ValueChangeEvent<number>(newValue))
         await elementUpdated(el)
 
-        expect(el.options.sequenceLength).toEqual(newValue)
+        expect(el.config.options.sequenceLength).toEqual(newValue)
+    })
+
+    it('should dispatch submit event with updated sequence length on sequence length change', async () => {
+        const newValue = 3
+        const input = el.shadowRoot?.querySelector(`${RangeInputElementStub.is}[name="sequenceLength"]`)
+        if (!input) { throw new Error('could not find sequenceLength input') }
+
+        setTimeout(() => input.dispatchEvent(new ValueChangeEvent<number>(newValue)), 0)
+        const event = (await oneEvent(
+            el,
+            FormSubmitEvent.eventType)) as FormSubmitEvent<{ pitchSequence: PitchSequenceDirectionConfig }>
+
+        expect(event.value.pitchSequence.options.sequenceLength).toEqual(newValue)
     })
 
     it('should update score for correct sequence type on change', async () => {
-        el.options = {
-            sequenceLength: 0,
-            scores: {
-                ascending: 0,
-                descending: 0,
-                stable: 0
-            }
-        }
         const newValue = 3
         const sequenceType = PitchSequenceType.Descending
         const input = el.shadowRoot?.querySelector(`${RangeInputElementStub.is}[name="${sequenceType}"]`)
@@ -65,35 +82,20 @@ describe('PitchSequenceDirectionFitnessElement', () => {
         input.dispatchEvent(new ValueChangeEvent<number>(newValue))
         await elementUpdated(el)
 
-        expect(el.options.scores[sequenceType]).toEqual(newValue)
+        expect(el.config.options.scores[sequenceType]).toEqual(newValue)
     })
 
-    describe('cancel', () => {
-        it('should emit cancel event', async () => {
-            const buttonsEl = el.shadowRoot?.querySelector(FitnessFormItemButtonsElementStub.is)
-            setTimeout(() => buttonsEl?.dispatchEvent(new CustomEvent('cancel')), 0)
+    it('should dispatch submit event with updated score on change', async () => {
+        const newValue = 3
+        const sequenceType = PitchSequenceType.Descending
+        const input = el.shadowRoot?.querySelector(`${RangeInputElementStub.is}[name="${sequenceType}"]`)
+        if (!input) { throw new Error(`could not find sequenceType ${sequenceType} input`) }
 
-            const event = await oneEvent(el, 'cancel')
+        setTimeout(() => input.dispatchEvent(new ValueChangeEvent<number>(newValue)), 0)
+        const event = (await oneEvent(
+            el,
+            FormSubmitEvent.eventType)) as FormSubmitEvent<{ pitchSequence: PitchSequenceDirectionConfig }>
 
-            expect(event).toBeTruthy()
-        })
-    })
-
-    describe('submit', () => {
-        it('should emit FormSubmitEvent with options on submit', async () => {
-            const options: PitchSequenceDirectionOptions = {
-                sequenceLength: 2,
-                scores: { ascending: 1, descending: 1, stable: 2 }
-            }
-            el.options = options
-            await elementUpdated(el)
-            const buttonsEl = el.shadowRoot?.querySelector(FitnessFormItemButtonsElementStub.is)
-            setTimeout(() => buttonsEl?.dispatchEvent(new CustomEvent('submit')), 0)
-
-            const event = (await oneEvent(el, 'form-submit')) as FormSubmitEvent<PitchSequenceDirectionOptions>
-
-            expect(event).toBeTruthy()
-            expect(event.value).toEqual(options)
-        })
+        expect(event.value.pitchSequence.options.scores[sequenceType]).toEqual(newValue)
     })
 })

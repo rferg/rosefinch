@@ -3,8 +3,10 @@ import { css, html, internalProperty, property } from 'lit-element'
 import { GeneUtil } from '../../../common/gene-util'
 import { Pitch } from '../../../common/pitch'
 import { Uint8 } from '../../../common/uint8'
-import { ScaleIntervalOptions } from '../../../genetic-algorithm'
-import { ScaleName, ScaleService } from '../../../services'
+import { FitnessMethod } from '../../../genetic-algorithm'
+import { ScaleIntervalConfig } from '../../../genetic-algorithm/fitness/scale-interval-config'
+import { OptionsFormService, ScaleName, ScaleService } from '../../../services'
+import { headingsStyles } from '../../common/headings.styles'
 import { scrollbarStyles } from '../../common/scrollbar.styles'
 import { ValueChangeEvent } from '../../common/value-change-event'
 import { BaseElement } from '../../core/base-element'
@@ -17,6 +19,7 @@ export class ScaleFitnessElement extends BaseElement {
         return [
             super.styles,
             scrollbarStyles,
+            headingsStyles,
             css`
                 :host {
                     width: 100%;
@@ -98,18 +101,25 @@ export class ScaleFitnessElement extends BaseElement {
         ]
     }
 
-    private _options?: ScaleIntervalOptions
-    @property()
-    get options(): ScaleIntervalOptions | undefined {
-        return this._options
+    private _config: ScaleIntervalConfig = {
+        method: FitnessMethod.ScaleInterval,
+        weight: 1,
+        options: { scale: { pitches: [] }, intervalScores: [] }
     }
-    set options(val: ScaleIntervalOptions | undefined) {
-        if (val !== this._options) {
-            const oldVal = this._options
-            this._options = val || { scale: { pitches: [] }, intervalScores: [] }
-            this.requestUpdate('options', oldVal)
+    @property()
+    get config(): ScaleIntervalConfig {
+        return this._config
+    }
+    set config(val: ScaleIntervalConfig) {
+        if (val && val !== this._config) {
+            const oldVal = this._config
+            this._config = val
+            this.requestUpdate('config', oldVal)
                 .then(() => {
-                    this.setIntervalScores(this.options?.scale.pitches ?? [], this.options?.intervalScores ?? [])
+                    this.setIntervalScores(
+                        this.config.options.scale.pitches,
+                        this.config.options.intervalScores)
+                    this.submitChange()
                 })
                 .catch(err => console.error(err))
         }
@@ -117,12 +127,12 @@ export class ScaleFitnessElement extends BaseElement {
 
     @internalProperty()
     private get root(): Pitch {
-        return this.options?.scale?.pitches?.[ 0 ] ?? this.defaultRoot
+        return this.config.options?.scale?.pitches?.[ 0 ] ?? this.defaultRoot
     }
 
     @internalProperty()
     private get scaleName(): ScaleName | undefined {
-        return this.options?.scale?.name
+        return this.config.options?.scale?.name
     }
 
     @internalProperty()
@@ -153,8 +163,13 @@ export class ScaleFitnessElement extends BaseElement {
             .filter(pitch => pitch !== Pitch.Rest && pitch !== Pitch.Hold)
             .map(pitch => ({ value: pitch, label: Pitch[pitch] }))
 
-    constructor(private readonly service: ScaleService) {
+    constructor(private readonly service: ScaleService, private readonly formService: OptionsFormService) {
         super()
+
+        this.config = this.formService.get('scale') as ScaleIntervalConfig
+        if (!this.config) {
+            throw new Error('Scale config was undefined')
+        }
     }
 
     render() {
@@ -164,7 +179,7 @@ export class ScaleFitnessElement extends BaseElement {
                 <div>
                     <label for="scaleName">Scale:</label>
                     <rf-input inputType="select"
-                        .value=${this.options?.scale?.name}
+                        .value=${this.config.options.scale?.name}
                         .options=${this.scaleOptions}
                         name="scaleName"
                         @form-field-change=${this.onScaleChange}>
@@ -173,7 +188,7 @@ export class ScaleFitnessElement extends BaseElement {
                 <div>
                     <label for="root">Root:</label>
                     <rf-input inputType="select"
-                        .value=${this.options?.scale?.pitches?.[0]}
+                        .value=${this.config.options.scale?.pitches?.[0]}
                         .options=${this.pitchOptions}
                         name="root"
                         @form-field-change=${this.onRootChange}>
@@ -181,7 +196,7 @@ export class ScaleFitnessElement extends BaseElement {
                 </div>
             </div>
             <ul class="scale-list">
-                ${(this._options?.scale?.pitches ?? [])
+                ${(this.config.options?.scale?.pitches ?? [])
                     .map((p, i) => {
                         const pitchName = Pitch[GeneUtil.getPitch(p as Uint8)]
                         return html`
@@ -219,8 +234,6 @@ export class ScaleFitnessElement extends BaseElement {
                     </ul>
                 `
                 : html``}
-            <rf-fitness-form-item-buttons @cancel=${this.onCancel} @submit=${this.onSubmit}>
-            </rf-fitness-form-item-buttons>
             `
     }
 
@@ -228,11 +241,8 @@ export class ScaleFitnessElement extends BaseElement {
         ev.stopPropagation()
         const name = ev.value.scaleName || ''
         const pitches = name ? this.service.getPitches(this.root, name) : []
-        if (!this.options) {
-            this.options = { scale: { pitches: [] }, intervalScores: [] }
-        }
 
-        const newOptions = { ...this.options, scale: { ...this.options.scale, name, pitches } }
+        const newOptions = { ...this.config.options, scale: { ...this.config.options.scale, name, pitches } }
 
         if (pitches.length !== newOptions.intervalScores.length) {
             if (pitches.length > newOptions.intervalScores.length) {
@@ -243,28 +253,35 @@ export class ScaleFitnessElement extends BaseElement {
             }
         }
 
-        this.options = newOptions
+        this.config = { ...this.config, options: newOptions }
     }
 
     private onRootChange(ev: FormFieldChangeEvent) {
         ev.stopPropagation()
         if (this.scaleName && ev.value.root) {
             const pitches = this.service.getPitches(ev.value.root as Pitch, this.scaleName)
-            if (!this.options) {
-                this.options = { scale: { pitches: [] }, intervalScores: [] }
+            this.config = {
+                ...this.config,
+                options: {
+                    ...this.config.options,
+                    scale: { ...this.config.options.scale, pitches }
+                }
             }
-            this.options = { ...this.options, scale: { ...this.options.scale, pitches } }
         }
     }
 
     private onIntervalScoreChange(ev: ValueChangeEvent<number>, index: number) {
         ev.stopPropagation()
-        if (!this.options) {
-            this.options = { scale: { pitches: [] }, intervalScores: [] }
+        this.config = {
+            ...this.config,
+            options: {
+                ...this.config.options,
+                intervalScores: this.config.options.intervalScores
+                    .map((x, i) => i === index ? ev.value : x)
+            }
         }
-        this.options.intervalScores[index] = ev.value
 
-        this.setIntervalScores(this.options.scale.pitches, this.options.intervalScores)
+        this.setIntervalScores(this.config.options.scale.pitches, this.config.options.intervalScores)
     }
 
     private setIntervalScores(pitches: number[], optionsIntervalScores: number[]): void {
@@ -277,13 +294,11 @@ export class ScaleFitnessElement extends BaseElement {
             })
     }
 
-    private onCancel() {
-        this.dispatchEvent(new CustomEvent('cancel', { bubbles: true, composed: true }))
-    }
-
-    private onSubmit() {
-        if (this.options) {
-            this.dispatchEvent(new FormSubmitEvent<ScaleIntervalOptions>({ value: { ...this.options } }))
-        }
+    private submitChange() {
+        this.dispatchEvent(new FormSubmitEvent({
+            value: {
+                scale: { ...this.config }
+            }
+        }))
     }
 }

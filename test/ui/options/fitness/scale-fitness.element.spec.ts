@@ -2,34 +2,43 @@ import { elementUpdated, fixture, html, oneEvent } from '@open-wc/testing-helper
 import { GeneUtil } from '../../../../src/common/gene-util'
 import { Pitch } from '../../../../src/common/pitch'
 import { Uint8 } from '../../../../src/common/uint8'
-import { ScaleIntervalOptions } from '../../../../src/genetic-algorithm'
-import { ScaleName, ScaleService } from '../../../../src/services'
+import { FitnessMethod, ScaleIntervalOptions } from '../../../../src/genetic-algorithm'
+import { OptionsFormService, ScaleName, ScaleService } from '../../../../src/services'
 import { ValueChangeEvent } from '../../../../src/ui/common/value-change-event'
 import { FormFieldChangeEvent } from '../../../../src/ui/options/form-field-change-event'
-import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
 import { ScaleFitnessElement } from '../../../../src/ui/options/fitness/scale-fitness.element'
 import { CustomElementRegistrar } from '../../../helpers/custom-element-registrar'
-import { FitnessFormItemButtonsElementStub } from '../../../helpers/fitness-form-item-buttons-element-stub'
 import { InputElementStub } from '../../../helpers/input-element-stub'
 import { RangeInputElementStub } from '../../../helpers/range-input-element-stub'
+import { ScaleIntervalConfig } from '../../../../src/genetic-algorithm/fitness/scale-interval-config'
+import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
 
 describe('ScaleFitnessElement', () => {
+    const defaultConfig: ScaleIntervalConfig = {
+        method: FitnessMethod.ScaleInterval,
+        weight: 1,
+        options: { scale: { pitches: [] }, intervalScores: [] }
+    }
     const scaleService = jasmine.createSpyObj<ScaleService>('ScaleService', [ 'getPitches' ])
+    const formService = jasmine.createSpyObj<OptionsFormService>(
+        'OptionsFormService',
+        [ 'get' ]
+    )
     let el: ScaleFitnessElement
 
     beforeAll(() => {
         CustomElementRegistrar.instance.register(InputElementStub.is, InputElementStub)
         CustomElementRegistrar.instance.register(RangeInputElementStub.is, RangeInputElementStub)
-        CustomElementRegistrar.instance
-            .register(FitnessFormItemButtonsElementStub.is, FitnessFormItemButtonsElementStub)
         CustomElementRegistrar.instance.register('rf-scale-fitness-test', class extends ScaleFitnessElement {
-            constructor() { super(scaleService) }
+            constructor() { super(scaleService, formService) }
         })
     })
 
     beforeEach(async () => {
         scaleService.getPitches.calls.reset()
+        formService.get.calls.reset()
 
+        formService.get.and.returnValue(defaultConfig)
         el = await fixture(html`<rf-scale-fitness-test></rf-scale-fitness-test>`)
     })
 
@@ -93,8 +102,23 @@ describe('ScaleFitnessElement', () => {
             await elementUpdated(el)
 
             expect(scaleService.getPitches.calls.mostRecent().args[1]).toEqual(expectedScaleName)
-            expect(el.options?.scale.name).toEqual(expectedScaleName)
-            expect(el.options?.scale?.pitches).toEqual(expectedPitches)
+            expect(el.config.options.scale.name).toEqual(expectedScaleName)
+            expect(el.config.options.scale.pitches).toEqual(expectedPitches)
+        })
+
+        it('should dispatch submit event with updated options', async () => {
+            const expectedPitches = [ 1, 2, 3 ]
+            const expectedScaleName = ScaleName.Aeolian
+            scaleService.getPitches.and.returnValue(expectedPitches)
+
+            setTimeout(() => updateScale(expectedScaleName), 0)
+            const ev = await (oneEvent(
+                el,
+                FormSubmitEvent.eventType)) as FormSubmitEvent<{ scale: ScaleIntervalConfig }>
+
+            const scale = ev.value.scale.options.scale
+            expect(scale.name).toEqual(expectedScaleName)
+            expect(scale.pitches).toEqual(expectedPitches)
         })
 
         it('should set pitches to empty array if scaleName is falsy', async () => {
@@ -103,8 +127,8 @@ describe('ScaleFitnessElement', () => {
             updateScale('')
             await elementUpdated(el)
 
-            expect(el.options?.scale.name).toBeFalsy()
-            expect(el.options?.scale?.pitches).toEqual(expectedPitches)
+            expect(el.config.options.scale.name).toBeFalsy()
+            expect(el.config.options.scale.pitches).toEqual(expectedPitches)
         })
 
         it('should set intervalScores length equal to pitches length if number of pitches increases', async () => {
@@ -115,13 +139,13 @@ describe('ScaleFitnessElement', () => {
             const newPitches = [ ...options.scale.pitches, 5 ]
             scaleService.getPitches.and.returnValue(newPitches)
             const expectedIntervalScores = [ ...options.intervalScores, 0 ]
-            el.options = options
+            setOptions(el, options)
 
             updateScale(ScaleName.Blues)
             await elementUpdated(el)
 
-            expect(el.options.intervalScores).toEqual(expectedIntervalScores)
-            expect(el.options.scale.pitches).toEqual(newPitches)
+            expect(el.config.options.intervalScores).toEqual(expectedIntervalScores)
+            expect(el.config.options.scale.pitches).toEqual(newPitches)
         })
 
         it('should set intervalScores length equal to pitches length if number of pitches decreases', async () => {
@@ -132,13 +156,13 @@ describe('ScaleFitnessElement', () => {
             const newPitches = options.scale.pitches.slice(0, options.scale.pitches.length - 1)
             scaleService.getPitches.and.returnValue(newPitches)
             const expectedIntervalScores = options.intervalScores.slice(0, options.intervalScores.length - 1)
-            el.options = options
+            setOptions(el, options)
 
             updateScale(ScaleName.Aeolian)
             await elementUpdated(el)
 
-            expect(el.options.intervalScores).toEqual(expectedIntervalScores)
-            expect(el.options.scale.pitches).toEqual(newPitches)
+            expect(el.config.options.intervalScores).toEqual(expectedIntervalScores)
+            expect(el.config.options.scale.pitches).toEqual(newPitches)
         })
 
         it('should keep same intervalScores if pitches length stays the same', async () => {
@@ -149,13 +173,13 @@ describe('ScaleFitnessElement', () => {
             const newPitches = [ ...options.scale.pitches ]
             scaleService.getPitches.and.returnValue(newPitches)
             const expectedIntervalScores = [ ...options.intervalScores ]
-            el.options = options
+            setOptions(el, options)
 
             updateScale(ScaleName.MinorPentatonic)
             await elementUpdated(el)
 
-            expect(el.options.intervalScores).toEqual(expectedIntervalScores)
-            expect(el.options.scale.pitches).toEqual(newPitches)
+            expect(el.config.options.intervalScores).toEqual(expectedIntervalScores)
+            expect(el.config.options.scale.pitches).toEqual(newPitches)
         })
     })
 
@@ -177,7 +201,7 @@ describe('ScaleFitnessElement', () => {
                 scale: { name: ScaleName.Aeolian, pitches: [] },
                 intervalScores: []
             }
-            el.options = options
+            setOptions(el, options)
             const newRoot = Pitch.D
             const expectedPitches = [ 2, 3, 4 ]
             scaleService.getPitches.and.returnValue(expectedPitches)
@@ -188,7 +212,27 @@ describe('ScaleFitnessElement', () => {
             expect(scaleService.getPitches).toHaveBeenCalledWith(
                 newRoot,
                 options.scale.name || ScaleName.Phrygian)
-            expect(el.options?.scale.pitches).toEqual(expectedPitches)
+            expect(el.config.options.scale.pitches).toEqual(expectedPitches)
+        })
+
+        it('should dispatch submit event with updated options', async () => {
+            const options: ScaleIntervalOptions = {
+                scale: { name: ScaleName.Aeolian, pitches: [] },
+                intervalScores: []
+            }
+            setOptions(el, options)
+            await elementUpdated(el)
+            const newRoot = Pitch.D
+            const expectedPitches = [ 2, 3, 4 ]
+            scaleService.getPitches.and.returnValue(expectedPitches)
+
+            setTimeout(() => updateRoot(newRoot), 0)
+            const ev = await (oneEvent(
+                el,
+                FormSubmitEvent.eventType)) as FormSubmitEvent<{ scale: ScaleIntervalConfig }>
+
+            const scale = ev.value.scale.options.scale
+            expect(scale.pitches).toEqual(expectedPitches)
         })
 
         it('should not update pitches if no scale has been selected', async () => {
@@ -196,7 +240,7 @@ describe('ScaleFitnessElement', () => {
             await elementUpdated(el)
 
             expect(scaleService.getPitches).not.toHaveBeenCalled()
-            expect(el.options?.scale.pitches).toBeFalsy()
+            expect(el.config.options.scale.pitches.length).toBe(0)
         })
     })
 
@@ -217,7 +261,7 @@ describe('ScaleFitnessElement', () => {
                 scale: { name: ScaleName.Aeolian, pitches: [ 1, 2, 3 ] },
                 intervalScores: [ 0, 0, 0 ]
             }
-            el.options = { ...options }
+            setOptions(el, options)
             await elementUpdated(el)
         })
 
@@ -227,7 +271,19 @@ describe('ScaleFitnessElement', () => {
             updateIntervalRating(index, rating)
             await elementUpdated(el)
 
-            expect(el.options?.intervalScores[index]).toEqual(rating)
+            expect(el.config.options.intervalScores[index]).toEqual(rating)
+        })
+
+        it('should dispatch event with updated options', async () => {
+            const index = 1
+            const rating = 0.5
+
+            setTimeout(() => updateIntervalRating(index, rating), 0)
+            const event = (await oneEvent(
+                el,
+                FormSubmitEvent.eventType)) as FormSubmitEvent<{ scale: ScaleIntervalConfig }>
+
+            expect(event.value.scale.options.intervalScores[index]).toEqual(rating)
         })
 
         it('should update interval score in input and label', async () => {
@@ -244,33 +300,11 @@ describe('ScaleFitnessElement', () => {
             expect(input.value).toEqual(rating)
         })
     })
-
-    describe('cancel', () => {
-        it('should emit cancel event', async () => {
-            const buttonsEl = el.shadowRoot?.querySelector(FitnessFormItemButtonsElementStub.is)
-            setTimeout(() => buttonsEl?.dispatchEvent(new CustomEvent('cancel')), 0)
-
-            const event = await oneEvent(el, 'cancel')
-
-            expect(event).toBeTruthy()
-        })
-    })
-
-    describe('submit', () => {
-        it('should emit FormSubmitEvent with options on submit event', async () => {
-            const options: ScaleIntervalOptions = {
-                scale: { name: ScaleName.Aeolian, pitches: [ 1 ] },
-                intervalScores: [ 0.1 ]
-            }
-            el.options = options
-            await elementUpdated(el)
-            const buttonsEl = el.shadowRoot?.querySelector(FitnessFormItemButtonsElementStub.is)
-            setTimeout(() => buttonsEl?.dispatchEvent(new CustomEvent('submit')), 0)
-
-            const event = (await oneEvent(el, 'form-submit')) as FormSubmitEvent<ScaleIntervalOptions>
-
-            expect(event).toBeTruthy()
-            expect(event.value).toEqual(options)
-        })
-    })
 })
+
+function setOptions(el: ScaleFitnessElement, options: ScaleIntervalOptions) {
+    el.config = {
+        ...el.config,
+        options
+    }
+}

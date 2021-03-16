@@ -7,17 +7,19 @@ import { Uint8 } from '../../../../src/common/uint8'
 import {
     ChordFitOptions,
     CrossoverMethod,
+    FitnessMethod,
     MutationMethod,
     SelectionMethod,
     SerializedGeneticAlgorithmOptions
 } from '../../../../src/genetic-algorithm'
+import { ChordFitConfig } from '../../../../src/genetic-algorithm/fitness/chord-fit-config'
+import { OptionsFormService } from '../../../../src/services'
 import { BaseElement } from '../../../../src/ui/core/base-element'
 import { ChordFitnessElement } from '../../../../src/ui/options/fitness/chord-fitness.element'
 import { FormFieldChangeEvent } from '../../../../src/ui/options/form-field-change-event'
 import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
 import { ButtonElementStub } from '../../../helpers/button-element-stub'
 import { CustomElementRegistrar } from '../../../helpers/custom-element-registrar'
-import { FitnessFormItemButtonsElementStub } from '../../../helpers/fitness-form-item-buttons-element-stub'
 import { GenomeNotationElementStub } from '../../../helpers/genome-notation-element-stub'
 import { IconElementStub } from '../../../helpers/icon-element-stub'
 import { InsideContainerElementStub } from '../../../helpers/inside-container-element-stub'
@@ -34,7 +36,14 @@ class ChordSelectorElementStub extends BaseElement {
 }
 
 describe('ChordFitnessElement', () => {
+    const formServiceSpy = jasmine.createSpyObj<OptionsFormService>(
+        'OptionsFormService',
+        [ 'get', 'getGeneticAlgorithmOptions' ])
     let el: ChordFitnessElement
+    const defaultConfig: ChordFitConfig = {
+        method: FitnessMethod.ChordFit,
+        options: { chords: {} }
+    }
     const defaultOptions: SerializedGeneticAlgorithmOptions = {
         crossoverMethod: CrossoverMethod.HybridPoint,
         mutationConfig: {
@@ -66,10 +75,19 @@ describe('ChordFitnessElement', () => {
         CustomElementRegistrar.instance.register(InsideContainerElementStub.is, InsideContainerElementStub)
         CustomElementRegistrar.instance.register(ChordSelectorElementStub.is, ChordSelectorElementStub)
         CustomElementRegistrar.instance.register(NoteAdjusterElementStub.is, NoteAdjusterElementStub)
-        CustomElementRegistrar.instance.register('rf-chord-fitness-test', ChordFitnessElement)
+        CustomElementRegistrar.instance.register(
+            'rf-chord-fitness-test',
+            class extends ChordFitnessElement {
+                constructor() { super(formServiceSpy) }
+            })
     })
 
     beforeEach(async () => {
+        formServiceSpy.get.calls.reset()
+        formServiceSpy.getGeneticAlgorithmOptions.calls.reset()
+
+        formServiceSpy.get.and.returnValue(defaultConfig)
+        formServiceSpy.getGeneticAlgorithmOptions.and.returnValue(defaultOptions)
         el = await fixture(html`<rf-chord-fitness-test></rf-chord-fitness-test>`)
     })
 
@@ -80,23 +98,33 @@ describe('ChordFitnessElement', () => {
     describe('setter:options', () => {
 
         beforeEach(async () => {
-            el.geneticAlgorithmOptions = { ...defaultOptions }
             await elementUpdated(el)
         })
 
         it('should set options', async () => {
             const options: ChordFitOptions = { chords: { 0: [ 1 ] } }
 
-            el.options = options
+            setOptions(el, options)
             await elementUpdated(el)
 
-            expect(el.options).toEqual(options)
+            expect(el.config.options).toEqual(options)
+        })
+
+        it('should dispatch submit event with updated options', async () => {
+            const options: ChordFitOptions = { chords: { 0: [ 1 ] } }
+            setTimeout(() => {
+                setOptions(el, options)
+            }, 0)
+
+            const event = (await oneEvent(el, FormSubmitEvent.eventType)) as FormSubmitEvent<{ chords: ChordFitConfig }>
+
+            expect(event.value.chords.options).toEqual(options)
         })
 
         it('should pass all rests to notation element if no chords in options', async () => {
             const options: ChordFitOptions = { chords: {} }
 
-            el.options = options
+            setOptions(el, options)
             await elementUpdated(el)
 
             const notationEl = el.shadowRoot?.querySelector(GenomeNotationElementStub.is) as GenomeNotationElementStub
@@ -117,7 +145,7 @@ describe('ChordFitnessElement', () => {
                 1: chordAt1
             }}
 
-            el.options = options
+            setOptions(el, options)
             await elementUpdated(el)
 
             const notationEl = el.shadowRoot?.querySelector(GenomeNotationElementStub.is) as GenomeNotationElementStub
@@ -134,13 +162,13 @@ describe('ChordFitnessElement', () => {
         })
 
         it('should update displayed notes if note index has been selected', async () => {
-            el.options = { chords: {} }
+            setOptions(el, { chords: {} })
             const updatedChord = [ 1, 2, 4 ]
             const selectedIndex = 0
             await elementUpdated(el)
             await selectNote(el, selectedIndex)
 
-            el.options = { chords: { [selectedIndex]: updatedChord } }
+            setOptions(el, { chords: { [selectedIndex]: updatedChord } })
             await elementUpdated(el)
 
             const noteAdjusters = el.shadowRoot
@@ -153,7 +181,6 @@ describe('ChordFitnessElement', () => {
 
     describe('setter:genomeAlgorithmOptions', () => {
         beforeEach(async () => {
-            el.options = { chords: {} }
             await elementUpdated(el)
         })
 
@@ -170,8 +197,6 @@ describe('ChordFitnessElement', () => {
         let addButton: ButtonElementStub
 
         beforeEach(async () => {
-            el.options = { chords: {} }
-            el.geneticAlgorithmOptions = defaultOptions
             await elementUpdated(el)
             await selectNote(el, selectedIndex)
             addButton = el.shadowRoot
@@ -185,20 +210,20 @@ describe('ChordFitnessElement', () => {
             addButton.dispatchEvent(new Event('click'))
             await elementUpdated(el)
 
-            const actual = el.options?.chords[selectedIndex][0]
+            const actual = el.config.options.chords[selectedIndex][0]
             expect(actual).toEqual(expected)
         })
 
         it('should add next note up of last note to options at selected index', async () => {
             const chord = [ 1, 2, 4 ]
             const expected = 5
-            el.options = { chords: { [selectedIndex]: chord } }
+            el.config = { ...el.config, options: { chords: { [selectedIndex]: chord } } }
             await elementUpdated(el)
 
             addButton.dispatchEvent(new Event('click'))
             await elementUpdated(el)
 
-            const actual = el.options?.chords[selectedIndex][chord.length]
+            const actual = el.config.options.chords[selectedIndex][chord.length]
             expect(actual).toEqual(expected)
         })
     })
@@ -218,8 +243,7 @@ describe('ChordFitnessElement', () => {
         }
 
         beforeEach(async () => {
-            el.options = originalOptions
-            el.geneticAlgorithmOptions = defaultOptions
+            setOptions(el, originalOptions)
             await elementUpdated(el)
             await selectNote(el, selectedIndex)
         })
@@ -232,7 +256,7 @@ describe('ChordFitnessElement', () => {
             removeButton.dispatchEvent(new Event('click'))
             await elementUpdated(el)
 
-            const actual = el.options?.chords[selectedIndex]
+            const actual = el.config.options.chords[selectedIndex]
             expect(actual).toEqual(expected)
         })
 
@@ -244,7 +268,7 @@ describe('ChordFitnessElement', () => {
             removeButton.dispatchEvent(new Event('click'))
             await elementUpdated(el)
 
-            const actual = el.options?.chords[selectedIndex]
+            const actual = el.config.options.chords[selectedIndex]
             expect(actual).toEqual(expected)
         })
 
@@ -256,7 +280,7 @@ describe('ChordFitnessElement', () => {
             removeButton.dispatchEvent(new Event('click'))
             await elementUpdated(el)
 
-            const actual = el.options?.chords[selectedIndex]
+            const actual = el.config.options.chords[selectedIndex]
             expect(actual).toEqual(expected)
         })
     })
@@ -275,8 +299,7 @@ describe('ChordFitnessElement', () => {
         }
 
         beforeEach(async () => {
-            el.options = originalOptions
-            el.geneticAlgorithmOptions = defaultOptions
+            setOptions(el, originalOptions)
             await elementUpdated(el)
             await selectNote(el, selectedIndex)
         })
@@ -294,7 +317,7 @@ describe('ChordFitnessElement', () => {
             }))
             await elementUpdated(el)
 
-            const actual = el.options?.chords[selectedIndex]
+            const actual = el.config.options.chords[selectedIndex]
             expect(actual).toEqual(expected)
         })
     })
@@ -304,8 +327,7 @@ describe('ChordFitnessElement', () => {
         const originalOptions = { chords: { [selectedIndex]: [ 1, 2, 3 ] } }
 
         beforeEach(async () => {
-            el.options = originalOptions
-            el.geneticAlgorithmOptions = defaultOptions
+            setOptions(el, originalOptions)
             await elementUpdated(el)
             await selectNote(el, selectedIndex)
         })
@@ -326,37 +348,17 @@ describe('ChordFitnessElement', () => {
             chordSubmitButton.dispatchEvent(new Event('click'))
             await elementUpdated(el)
 
-            expect(el.options?.chords[selectedIndex]).toEqual(expectedChord)
+            expect(el.config.options.chords[selectedIndex]).toEqual(expectedChord)
         })
     })
-
-    it('should emit cancel event on cancel', async () => {
-        const buttons = el.shadowRoot?.querySelector(FitnessFormItemButtonsElementStub.is)
-        if (!buttons) { throw new Error('missing buttons') }
-
-        setTimeout(() => {
-            buttons.dispatchEvent(new CustomEvent('cancel'))
-        }, 0)
-
-        const event = await oneEvent(el, 'cancel')
-        expect(event).toBeDefined()
-    })
-
-    it('should emit submit event with options on submit', async () => {
-        const options: ChordFitOptions = { chords: { [0]: [ 1 ] } }
-        el.options = options
-        await elementUpdated(el)
-        const buttons = el.shadowRoot?.querySelector(FitnessFormItemButtonsElementStub.is)
-        if (!buttons) { throw new Error('missing buttons') }
-
-        setTimeout(() => {
-            buttons.dispatchEvent(new CustomEvent('submit'))
-        }, 0)
-
-        const event = (await oneEvent(el, FormSubmitEvent.eventType)) as FormSubmitEvent<ChordFitOptions>
-        expect(event.value).toEqual(options)
-    })
 })
+
+function setOptions(el: ChordFitnessElement, options: ChordFitOptions) {
+    el.config = {
+        ...el.config,
+        options
+    }
+}
 
 async function selectNote(el: ChordFitnessElement, index: number) {
     const notationEl = el.shadowRoot?.querySelector(GenomeNotationElementStub.is) as GenomeNotationElementStub

@@ -4,9 +4,12 @@ import { calculateGenomeSize } from '../../../common/calculate-genome-size'
 import { GeneUtil } from '../../../common/gene-util'
 import { Pitch } from '../../../common/pitch'
 import { Uint8 } from '../../../common/uint8'
-import { ChordFitOptions, SerializedGeneticAlgorithmOptions } from '../../../genetic-algorithm'
+import { ChordFitOptions, FitnessMethod, SerializedGeneticAlgorithmOptions } from '../../../genetic-algorithm'
+import { ChordFitConfig } from '../../../genetic-algorithm/fitness/chord-fit-config'
+import { OptionsFormService } from '../../../services'
 import { DenominatedNote } from '../../../services/notation'
 import { animationsStyles } from '../../common/animations.styles'
+import { headingsStyles } from '../../common/headings.styles'
 import { Icon } from '../../common/icon'
 import { BaseElement } from '../../core/base-element'
 import { FormFieldChangeEvent } from '../form-field-change-event'
@@ -17,6 +20,7 @@ export class ChordFitnessElement extends BaseElement {
     static get styles() {
         return [
             super.styles,
+            headingsStyles,
             animationsStyles,
             css`
                 :host {
@@ -56,20 +60,25 @@ export class ChordFitnessElement extends BaseElement {
         ]
     }
 
-    private _options: ChordFitOptions | undefined
-    @property()
-    get options(): ChordFitOptions | undefined {
-        return this._options
+    private _config: ChordFitConfig = {
+        method: FitnessMethod.ChordFit,
+        options: { chords: {} },
+        weight: 1
     }
-    set options(val: ChordFitOptions | undefined) {
-        if (val !== this._options) {
-            const oldVal = this._options
-            this._options = val
+    @property()
+    get config(): ChordFitConfig {
+        return this._config
+    }
+    set config(val: ChordFitConfig) {
+        if (val !== this._config) {
+            const oldVal = this._config
+            this._config = val
             this.requestUpdate('options', oldVal)
                 .then(() => {
-                    if (this._options && this.geneticAlgorithmOptions) {
-                        this.setNotes(this._options, this.geneticAlgorithmOptions)
+                    if (this._config && this.geneticAlgorithmOptions) {
+                        this.setNotes(this._config.options, this.geneticAlgorithmOptions)
                     }
+                    this.submitChange()
                 })
                 .catch(err => console.error(err))
         }
@@ -86,8 +95,8 @@ export class ChordFitnessElement extends BaseElement {
             this._geneticAlgorithmOptions = val
             this.requestUpdate('geneticAlgorithmOptions', oldVal)
                 .then(() => {
-                    if (this._geneticAlgorithmOptions && this.options) {
-                        this.setNotes(this.options, this._geneticAlgorithmOptions)
+                    if (this._geneticAlgorithmOptions && this.config) {
+                        this.setNotes(this.config.options, this._geneticAlgorithmOptions)
                     }
                 })
                 .catch(err => console.error(err))
@@ -104,6 +113,15 @@ export class ChordFitnessElement extends BaseElement {
     private selectedNotes: number[] = []
 
     private lastChordSelectedForChange: number[] | undefined
+
+    constructor(private readonly formService: OptionsFormService) {
+        super()
+
+        this.config = this.formService.get('chords') as ChordFitConfig
+        if (!this.config) { throw new Error('ChordFitConfig was undefined') }
+
+        this.geneticAlgorithmOptions = this.formService.getGeneticAlgorithmOptions()
+    }
 
     render() {
         return html`
@@ -153,8 +171,6 @@ export class ChordFitnessElement extends BaseElement {
                     </rf-inside-container>
                 `
                 : html``}
-            <rf-fitness-form-item-buttons @cancel=${this.onCancel} @submit=${this.onSubmit}>
-            </rf-fitness-form-item-buttons>
         `
     }
 
@@ -171,13 +187,13 @@ export class ChordFitnessElement extends BaseElement {
         this.notes = newNotes
 
         if (this.noteIndexSelected !== undefined) {
-            this.updateSelectedNotes(this.noteIndexSelected || 0, this.options)
+            this.updateSelectedNotes(this.noteIndexSelected || 0, this.config.options)
         }
     }
 
     private onNoteClick({ originalNoteIndex }: DenominatedNote) {
         this.noteIndexSelected = originalNoteIndex
-        this.updateSelectedNotes(this.noteIndexSelected, this.options)
+        this.updateSelectedNotes(this.noteIndexSelected, this.config.options)
     }
 
     private updateSelectedNotes(selectedIndex: number, options?: ChordFitOptions) {
@@ -201,14 +217,12 @@ export class ChordFitnessElement extends BaseElement {
         }
     }
 
-    private onCancel() {
-        this.dispatchEvent(new CustomEvent('cancel', { bubbles: true, composed: true }))
-    }
-
-    private onSubmit() {
-        if (this.options) {
-            this.dispatchEvent(new FormSubmitEvent<ChordFitOptions>({ value: { ...this.options } }))
-        }
+    private submitChange() {
+        this.dispatchEvent(new FormSubmitEvent({
+            value: {
+                chords: { ...this.config }
+            }
+        }))
     }
 
     private onNoteChange(ev: FormFieldChangeEvent, noteIndex: number) {
@@ -238,11 +252,14 @@ export class ChordFitnessElement extends BaseElement {
 
     private updateChord(chord: number[], index: number) {
         chord.sort((a, b) => a - b)
-        this.options = {
-            ...this.options,
-            chords: {
-                ...this.options?.chords,
-                [index]: chord
+        this.config = {
+            ...this.config,
+            options: {
+                ...this.config.options,
+                chords: {
+                    ...this.config.options.chords,
+                    [index]: chord
+                }
             }
         }
     }

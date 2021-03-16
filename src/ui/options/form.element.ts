@@ -17,10 +17,10 @@ export class FormElement<T extends { [key: string]: any }> extends BaseElement {
     protected errors: { [key: string]: string[] } = {}
 
     private _isValid = true
-    private get isValid() {
+    protected get isValid() {
         return this._isValid
     }
-    private set isValid(value: boolean) {
+    protected set isValid(value: boolean) {
         if (value !== this._isValid) {
             this._isValid = value
             this.onStatusChange()
@@ -34,7 +34,7 @@ export class FormElement<T extends { [key: string]: any }> extends BaseElement {
         this.addEventListener(FormFieldChangeEvent.eventType, this.onFieldChange.bind(this))
     }
 
-    private onFieldChange(ev: Event) {
+    protected onFieldChange(ev: Event) {
         if (this.isFormFieldChangeEvent(ev)) {
             ev.stopPropagation()
             this.value = { ...(this.value || {} as T), ...ev.value }

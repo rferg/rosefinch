@@ -1,15 +1,19 @@
-import { SizeForm } from '../../../../src/ui/options/size/size-form'
+import { SizeForm } from '../../../../src/services/size-form'
 import { InsideContainerElementStub } from '../../../helpers/inside-container-element-stub'
 import { InputElementStub } from '../../../helpers/input-element-stub'
 import { SizeFormElement } from '../../../../src/ui/options/size/size-form.element'
-import { elementUpdated, fixture } from '@open-wc/testing-helpers'
+import { elementUpdated, fixture, oneEvent } from '@open-wc/testing-helpers'
 import { html } from 'lit-element'
 import { GeneUtil } from '../../../../src/common/gene-util'
 import { FormFieldChangeEvent } from '../../../../src/ui/options/form-field-change-event'
 import { TooltipElementStub } from '../../../helpers/tooltip-element-stub'
 import { CustomElementRegistrar } from '../../../helpers/custom-element-registrar'
+import { OptionsFormService } from '../../../../src/services'
+import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
 
 describe('SizeFormElement', () => {
+    let el: SizeFormElement
+    const formServiceSpy = jasmine.createSpyObj<OptionsFormService>('OptionsFormService', [ 'get' ])
     interface IndexableSizeForm extends SizeForm {
         [key: string]: number
     }
@@ -27,11 +31,20 @@ describe('SizeFormElement', () => {
         CustomElementRegistrar.instance.register(InsideContainerElementStub.is, InsideContainerElementStub)
         CustomElementRegistrar.instance.register(InputElementStub.is, InputElementStub)
         CustomElementRegistrar.instance.register(TooltipElementStub.is, TooltipElementStub)
-        CustomElementRegistrar.instance.register('rf-size-form-test', SizeFormElement)
+        CustomElementRegistrar.instance.register(
+            'rf-size-form-test',
+            class extends SizeFormElement {
+                constructor() { super(formServiceSpy) }
+            })
+    })
+
+    beforeEach(async () => {
+        formServiceSpy.get.calls.reset()
+        formServiceSpy.get.and.returnValue(defaultValue)
+        el = await fixture(html`<rf-size-form-test></rf-size-form-test>`)
     })
 
     it('should render all input fields', async () => {
-        const el = await fixture(html`<rf-size-form-test .value=${defaultValue as any}></rf-size-form-test>`)
         for (const key in defaultValue) {
             const input = el.shadowRoot?.querySelector(`${InputElementStub.is}[name="${key}"]`)
             expect(input).toBeTruthy(`input for ${key} not found`)
@@ -39,7 +52,6 @@ describe('SizeFormElement', () => {
     })
 
     it('should assign initial values to all input fields', async () => {
-        const el = await fixture(html`<rf-size-form-test .value=${defaultValue as any}></rf-size-form-test>`)
         for (const key in defaultValue) {
             const input = el.shadowRoot?.querySelector(`${InputElementStub.is}[name="${key}"]`) as InputElementStub
             expect(input.value).toEqual(defaultValue[key])
@@ -54,7 +66,6 @@ describe('SizeFormElement', () => {
             { label: '8', value: 8 },
             { label: '16', value: 16 }
         ]
-        const el = await fixture(html`<rf-size-form-test .value=${defaultValue as any}></rf-size-form-test>`)
         const input = el.shadowRoot
             ?.querySelector(`${InputElementStub.is}[name="timeSignatureBottom"]`) as InputElementStub
         expect(input).toBeTruthy()
@@ -69,7 +80,6 @@ describe('SizeFormElement', () => {
             { label: 'Eighth', value: 8 },
             { label: 'Sixteenth', value: 16 }
         ]
-        const el = await fixture(html`<rf-size-form-test .value=${defaultValue as any}></rf-size-form-test>`)
         const input = el.shadowRoot
             ?.querySelector(`${InputElementStub.is}[name="shortestNoteDuration"]`) as InputElementStub
         expect(input).toBeTruthy()
@@ -77,8 +87,6 @@ describe('SizeFormElement', () => {
     })
 
     it('should have correct options for min and max octave', async () => {
-        const el: SizeFormElement = await fixture(
-            html`<rf-size-form-test .value=${defaultValue as any}></rf-size-form-test>`)
         const minInput = el.shadowRoot
             ?.querySelector(`${InputElementStub.is}[name="octaveMin"]`) as InputElementStub
         const maxInput = el.shadowRoot
@@ -93,7 +101,6 @@ describe('SizeFormElement', () => {
     })
 
     it('should assign validator to population size input that restricts range between 100 and 10000', async () => {
-        const el = await fixture(html`<rf-size-form-test .value=${defaultValue as any}></rf-size-form-test>`)
         const input = el.shadowRoot
             ?.querySelector(`${InputElementStub.is}[name="populationSize"]`) as InputElementStub
 
@@ -106,7 +113,6 @@ describe('SizeFormElement', () => {
     })
 
     it('should assign validator to time signature top number that restricts range between 1 and 16', async () => {
-        const el = await fixture(html`<rf-size-form-test .value=${defaultValue as any}></rf-size-form-test>`)
         const input = el.shadowRoot
             ?.querySelector(`${InputElementStub.is}[name="timeSignatureTop"]`) as InputElementStub
 
@@ -119,7 +125,6 @@ describe('SizeFormElement', () => {
     })
 
     it('should assign validator to measures that restricts range between 1 and 10', async () => {
-        const el = await fixture(html`<rf-size-form-test .value=${defaultValue as any}></rf-size-form-test>`)
         const input = el.shadowRoot
             ?.querySelector(`${InputElementStub.is}[name="measures"]`) as InputElementStub
 
@@ -132,7 +137,6 @@ describe('SizeFormElement', () => {
     })
 
     it('should display error message', async () => {
-        const el = await fixture(html`<rf-size-form-test .value=${defaultValue as any}></rf-size-form-test>`)
         const error = 'test error'
         const input = el.shadowRoot
             ?.querySelector(`${InputElementStub.is}[name="measures"]`) as InputElementStub
@@ -147,7 +151,6 @@ describe('SizeFormElement', () => {
     })
 
     it('should display multiple error messages', async () => {
-        const el = await fixture(html`<rf-size-form-test .value=${defaultValue as any}></rf-size-form-test>`)
         const measuresError = 'measures error'
         const measuresInput = el.shadowRoot
             ?.querySelector(`${InputElementStub.is}[name="measures"]`) as InputElementStub
@@ -168,5 +171,23 @@ describe('SizeFormElement', () => {
 
         expect(el.shadowRoot?.textContent).toContain(measuresError)
         expect(el.shadowRoot?.textContent).toContain(populationSizeError)
+    })
+
+    it('should dispatch submit event with updated value on valid change', async () => {
+        const measures = 6
+        const input = el.shadowRoot
+            ?.querySelector(`${InputElementStub.is}[name="measures"]`) as InputElementStub
+
+        setTimeout(() => {
+            input.dispatchEvent(new FormFieldChangeEvent({
+                isValid: true,
+                value: { measures }
+            }))
+        }, 0)
+        const event = (await oneEvent(
+            el,
+            FormSubmitEvent.eventType)) as FormSubmitEvent<{ size: SizeForm }>
+
+        expect(event.value.size.measures).toEqual(measures)
     })
 })

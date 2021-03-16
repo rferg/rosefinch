@@ -110,7 +110,7 @@ export class NewSessionElement extends BaseElement {
         return html`
         <rf-container>
             <rf-inside-container class="new-container">
-                <a href="/options">
+                <a href="/options/size">
                     <rf-button buttonRole="${'success'}" title="Create a new session">
                         <rf-icon icon="${Icon.Plus}"></rf-icon>
                     </rf-button>

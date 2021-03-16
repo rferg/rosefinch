@@ -1,25 +1,40 @@
 import { elementUpdated, fixture, oneEvent } from '@open-wc/testing-helpers'
 import { html } from 'lit-element'
-import { RhythmicDispersionOptions } from '../../../../src/genetic-algorithm'
+import { FitnessMethod } from '../../../../src/genetic-algorithm'
 import { ValueChangeEvent } from '../../../../src/ui/common/value-change-event'
-import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
 import { RhythmicDispersionFitnessElement } from '../../../../src/ui/options/fitness/rhythmic-dispersion-fitness.element'
 import { CustomElementRegistrar } from '../../../helpers/custom-element-registrar'
-import { FitnessFormItemButtonsElementStub } from '../../../helpers/fitness-form-item-buttons-element-stub'
 import { RangeInputElementStub } from '../../../helpers/range-input-element-stub'
+import { OptionsFormService } from '../../../../src/services'
+import { RhythmicDispersionConfig } from '../../../../src/genetic-algorithm/fitness/rhythmic-dispersion-config'
+import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
 
 describe('RhythmicDispersionFitnessElement', () => {
+    const defaultConfig: RhythmicDispersionConfig = {
+        method: FitnessMethod.RhythmicDispersion,
+        options: {
+            target: 0
+        }
+    }
+    const formServiceSpy = jasmine.createSpyObj<OptionsFormService>(
+        'OptionsFormService',
+        [ 'get' ]
+    )
     let el: RhythmicDispersionFitnessElement
 
     beforeAll(() => {
         CustomElementRegistrar.instance.register(RangeInputElementStub.is, RangeInputElementStub)
-        CustomElementRegistrar.instance
-            .register(FitnessFormItemButtonsElementStub.is, FitnessFormItemButtonsElementStub)
-        CustomElementRegistrar.instance
-            .register('rf-rhythmic-dispersion-fitness-test', RhythmicDispersionFitnessElement)
+        CustomElementRegistrar.instance.register(
+            'rf-rhythmic-dispersion-fitness-test',
+            class extends RhythmicDispersionFitnessElement {
+                constructor() { super(formServiceSpy) }
+            })
     })
 
     beforeEach(async () => {
+        formServiceSpy.get.calls.mostRecent()
+
+        formServiceSpy.get.and.returnValue(defaultConfig)
         el = await fixture(html`<rf-rhythmic-dispersion-fitness-test></rf-rhythmic-dispersion-fitness-test>`)
     })
 
@@ -28,8 +43,6 @@ describe('RhythmicDispersionFitnessElement', () => {
     })
 
     describe('on target change', () => {
-        let options: RhythmicDispersionOptions
-        const labels = { 0: 'aaaaa', 1: 'bbbbb', 2: 'cccccc' }
 
         const updateTarget = (value: 0 | 1 | 2) => {
             const input = el.shadowRoot?.querySelector(RangeInputElementStub.is)
@@ -39,18 +52,12 @@ describe('RhythmicDispersionFitnessElement', () => {
             input.dispatchEvent(new ValueChangeEvent<0 | 1 | 2>(value))
         }
 
-        beforeEach(() => {
-            options = { target: 0 }
-            el.options = options
-            el.labels = { ...labels }
-        })
-
         it('should update options.target', async () => {
             const value = 1
             updateTarget(value)
             await elementUpdated(el)
 
-            expect(el.options?.target).toEqual(value)
+            expect(el.config.options.target).toEqual(value)
         })
 
         it('should update input value and label', async () => {
@@ -61,35 +68,17 @@ describe('RhythmicDispersionFitnessElement', () => {
             const input = el.shadowRoot?.querySelector(RangeInputElementStub.is) as RangeInputElementStub
             expect(input.value).toEqual(value)
             const label = el.shadowRoot?.querySelector('.input-container span')
-            expect(label?.textContent).toContain(labels[value])
+            expect(label?.textContent).toContain('Balanced')
         })
-    })
 
-    describe('cancel', () => {
-        it('should emit cancel event', async () => {
-            const buttonsEl = el.shadowRoot?.querySelector(FitnessFormItemButtonsElementStub.is)
-            setTimeout(() => buttonsEl?.dispatchEvent(new CustomEvent('cancel')), 0)
+        it('should dispatch submit event with updated options', async () => {
+            const value = 2
+            setTimeout(() => updateTarget(value), 0)
 
-            const event = await oneEvent(el, 'cancel')
-
-            expect(event).toBeTruthy()
-        })
-    })
-
-    describe('submit', () => {
-        it('should emit FormSubmitEvent with options on submit', async () => {
-            const options: RhythmicDispersionOptions = {
-                target: 1
-            }
-            el.options = options
-            await elementUpdated(el)
-            const buttonsEl = el.shadowRoot?.querySelector(FitnessFormItemButtonsElementStub.is)
-            setTimeout(() => buttonsEl?.dispatchEvent(new CustomEvent('submit')), 0)
-
-            const event = (await oneEvent(el, 'form-submit')) as FormSubmitEvent<RhythmicDispersionOptions>
-
-            expect(event).toBeTruthy()
-            expect(event.value).toEqual(options)
+            const event = (await oneEvent(
+                el,
+                FormSubmitEvent.eventType)) as FormSubmitEvent<{ rhythmicDispersion: RhythmicDispersionConfig }>
+            expect(event.value.rhythmicDispersion.options.target).toEqual(value)
         })
     })
 })

@@ -1,19 +1,13 @@
 import { BaseElement } from '../core/base-element'
-import { css, html, internalProperty, property } from 'lit-element'
+import { css, html, property } from 'lit-element'
 import { headingsStyles } from '../common/headings.styles'
-import { Icon } from '../common/icon'
-import { SizeForm } from './size/size-form'
 import { FormSubmitEvent } from './form-submit-event'
-import { FitnessForm } from './fitness/fitness-form'
 import { animationsStyles } from '../common/animations.styles'
-import { Inject, Injectable } from 'cewdi'
-import { FitnessMethod, SerializedGeneticAlgorithmOptions } from '../../genetic-algorithm'
-import { OptionsFormMapperService } from '../../services/options-form-mapper-service'
-import { Router } from '../core/router'
-import { PipelineRunParams, StateTopic, UpdateStateEvent } from '../../services/state'
-import { globalEventTargetToken } from '../../common/global-event-target-token'
-import { calculateGenomeSize } from '../../common/calculate-genome-size'
+import { Injectable } from 'cewdi'
 import { ModuleName } from '../core/module-name'
+import { Icon } from '../common/icon'
+import { OptionsFormService } from '../../services/options-form-service'
+import { OptionsForm } from '../../services/options-form'
 
 @Injectable()
 export class OptionsElement extends BaseElement {
@@ -27,142 +21,92 @@ export class OptionsElement extends BaseElement {
                     display: flex;
                     height: 100%;
                     width: 100%;
-                    justify-content: center;
-                    align-items: center;
+                    flex-flow: row wrap;
+                    justify-content: space-between;
+                    align-items: stretch;
                 }
                 rf-container {
                     flex-grow: 0;
-                    width: 960px;
+                    min-height: 80vh;
                     max-width: 100vw;
                 }
-                rf-form-tab, rf-size-form, rf-fitness-form {
+                rf-router-outlet {
                     width: 100%;
+                    max-width: 960px;
                 }
-                rf-form-tab {
-                    opacity: 0;
-                    bottom: 0;
+                #optionsOutlet {
+                    flex-grow: 1;
+                }
+                #optionsToolbar {
+                    flex-basis: 100%;
+                }
+                #optionsNav {
+                    position: relative;
+                    transition: transform var(--animation-duration) var(--easing);
+                }
+                #optionsNav div {
+                    margin-top: auto;
+                }
+                :host([navishidden]) #optionsNav {
                     position: absolute;
-                    pointer-events: none;
+                    top: 80px;
+                    left: 0;
+                    transform: translateX(-100%);
                 }
-                rf-form-tab[data-active] {
-                    opacity: 1;
-                    transform: translateX(0);
-                    position: relative;
-                    pointer-events: auto;
-                    animation: slideInFromRight var(--animation-duration) var(--easing);
+                #optionsNav #hideButton {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    transition: transform var(--animation-duration) var(--easing);
                 }
-                div.headings {
-                    width: 100%;
-                    display: flex;
-                    justify-content: space-around;
-                    align-items: center;
-                    border-bottom: 1px solid var(--light-primary-color);
-                    margin-bottom: var(--padding);
-                }
-                div.contents {
-                    width: 100%;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    position: relative;
-                }
-                h3 {
-                    margin-top: 0;
-                }
-                h4 {
-                    margin-top: 0;
-                    font-weight: var(--regular-weight);
-                    color: var(--light-primary-color);
-                    margin-bottom: -1px;
-                    transition: color var(--animation-duration) var(--easing),
-                        border-color var(--animation-duration) var(--easing);
-                    padding: var(--small-padding);
-                }
-                h4[data-active] {
-                    color: var(--primary-color);
-                    border-bottom: 1px solid var(--primary-color);
+                @media
+                screen and (max-width: 768px) and (orientation: portrait),
+                screen and (max-width: 1024px) and (orientation: landscape) {
+                    #optionsNav {
+                        position: absolute;
+                        z-index: 1;
+                        max-width: 90vw;
+                    }
+                    :host([navishidden]) #optionsNav #hideButton {
+                        transform: translateX(100%);
+                    }
                 }
             `
         ]
     }
 
-    @property({ reflect: true, type: String })
-    activeTab: 'size' | 'fitness' = 'size'
-
     @property({ reflect: false })
     showConfirm = false
 
-    private sizeForm: SizeForm = {
-        populationSize: 5000,
-        timeSignatureTop: 4,
-        timeSignatureBottom: 4,
-        octaveMax: 5,
-        octaveMin: 4,
-        shortestNoteDuration: 8,
-        measures: 2
-    }
+    @property({ reflect: true, type: Boolean })
+    navIsHidden = false
 
-    private fitnessForm: FitnessForm = {
-        chords: { weight: 1, method: FitnessMethod.ChordFit, options: { chords: {} } },
-        scale: {
-            weight: 1,
-            method: FitnessMethod.ScaleInterval,
-            options: { scale: { pitches: [] }, intervalScores: [] }
-        },
-        restProportion: { weight: 1, method: FitnessMethod.RestProportion, options: { targetProportion: 0.1 } },
-        pitchSequence: {
-            weight: 1,
-            method: FitnessMethod.PitchSequenceDirection,
-            options: {
-                sequenceLength: 3,
-                scores: {
-                    'ascending': 2,
-                    'descending': 2,
-                    'stable': 1
-                }
-            }
-        },
-        rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 0 } }
-    }
-
-    @internalProperty()
-    private geneticAlgorithmOptions: SerializedGeneticAlgorithmOptions | undefined
-
-    constructor(
-        private readonly mapper: OptionsFormMapperService,
-        private readonly router: Router,
-        @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget) {
+    constructor(private readonly formService: OptionsFormService) {
         super()
+
+        this.addEventListener(FormSubmitEvent.eventType, this.onFormSubmitEvent.bind(this))
+        this.formService.reset()
     }
 
     render() {
         return html`
-            <rf-router-outlet moduleName="${ModuleName.Options}"></rf-router-outlet>
-            <rf-container>
-                <h3>New Session</h3>
-                <div class="headings">
-                    <h4 ?data-active=${this.activeTab === 'size'}>Size</h4>
-                    <h4 ?data-active=${this.activeTab === 'fitness'}>Fitness</h4>
+            <rf-container id="optionsNav">
+                <rf-button
+                    id="hideButton"
+                    size="small"
+                    @click=${() => this.navIsHidden = !this.navIsHidden}
+                    title="${this.navIsHidden ? 'Show' : 'Hide'}">
+                    <rf-icon icon=${this.navIsHidden ? Icon.RightArrow : Icon.LeftArrow }></rf-icon>
+                </rf-button>
+                <rf-options-nav></rf-options-nav>
+                <div>
+                    <rf-button @click=${() => this.showConfirm = true} title="Run" buttonRole="success" size="large">
+                        <rf-icon icon=${Icon.Check}></rf-icon>
+                    </rf-button>
                 </div>
-                <div class="contents">
-                    <rf-form-tab id="sizeTab"
-                        ?data-active=${this.activeTab === 'size'}
-                        .submitButton=${{ role: 'primary' as 'primary', icon: Icon.RightArrow }}
-                        @form-submit=${this.onSizeSubmit}>
-                        <rf-size-form .value=${this.sizeForm} slot="form"></rf-size-form>
-                    </rf-form-tab>
-                    <rf-form-tab id="fitnessTab"
-                        ?data-active=${this.activeTab === 'fitness'}
-                        .submitButton=${{ role: 'success' as 'success', icon: Icon.Check }}
-                        .backButton=${{ role: 'primary' as 'primary', icon: Icon.LeftArrow }}
-                        @tab-back=${this.onFitnessBack}
-                        @form-submit=${this.onFitnessSubmit}>
-                        <rf-fitness-form
-                            .value=${this.fitnessForm}
-                            .geneticAlgorithmOptions=${this.geneticAlgorithmOptions}
-                            slot="form"></rf-fitness-form>
-                    </rf-form-tab>
-                </div>
+            </rf-container>
+            <rf-container id="optionsOutlet">
+                <rf-router-outlet moduleName="${ModuleName.Options}"></rf-router-outlet>
             </rf-container>
             <rf-popup ?show=${this.showConfirm}>
                 <rf-run-confirm-form @cancel=${() => this.showConfirm = false} @form-submit=${this.onRunConfirmed}>
@@ -171,52 +115,18 @@ export class OptionsElement extends BaseElement {
         `
     }
 
-    private onSizeSubmit(ev: FormSubmitEvent<SizeForm>) {
-        this.sizeForm = { ...this.sizeForm, ...ev.value }
-        this.updateGeneticAlgorithmOptions()
-        this.activeTab = 'fitness'
-    }
-
-    private onFitnessBack() {
-        this.activeTab = 'size'
-    }
-
-    private onFitnessSubmit(ev: FormSubmitEvent<FitnessForm>) {
-        this.fitnessForm = { ...this.fitnessForm, ...ev.value }
-        this.updateGeneticAlgorithmOptions()
-        this.showConfirm = true
-    }
-
-    private onRunConfirmed(
-        { value: { numberOfGenerations } }: FormSubmitEvent<{ numberOfGenerations: number }>) {
-        this.showConfirm = false
-        if (!this.geneticAlgorithmOptions) { this.updateGeneticAlgorithmOptions() }
-        const options = this.geneticAlgorithmOptions
-        if (options) {
-            const params: PipelineRunParams = {
-                size: this.sizeForm.populationSize,
-                genomeSize: this.getGenomeSize(options.measures, options.timeSignature, options.shortestNoteDuration),
-                options,
-                numberOfGenerations
-            }
-            this.eventTarget.dispatchEvent(new UpdateStateEvent(StateTopic.PipelineRunParams, params))
-            this.router.navigate('/run')
-        } else {
-            throw new Error('GeneticAlgorithm options were undefined')
+    private onFormSubmitEvent(event: Event) {
+        const submitEvent = event as FormSubmitEvent<any>
+        const value = submitEvent.value
+        const property = Object.keys(value)[0]
+        if (property) {
+            this.formService.update(property as keyof OptionsForm, value[property])
         }
     }
 
-    private getGenomeSize(
-        measures: number,
-        timeSignature: [number, 1 | 2 | 4 | 8 | 16],
-        shortestNoteDuration: 1 | 2 | 4 | 8 | 16): number {
-            return calculateGenomeSize(measures, timeSignature, shortestNoteDuration)
+    private onRunConfirmed(event: FormSubmitEvent<{ numberOfGenerations: number }>) {
+        event.stopImmediatePropagation()
+        this.showConfirm = false
+        this.formService.run(event.value.numberOfGenerations)
     }
-
-    private updateGeneticAlgorithmOptions(): void {
-        this.geneticAlgorithmOptions = this.mapper.mapFitnessForm(
-            this.fitnessForm,
-            this.mapper.mapSizeForm(this.sizeForm))
-    }
-
 }
