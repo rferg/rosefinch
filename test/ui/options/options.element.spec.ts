@@ -13,6 +13,7 @@ import { FormSubmitEvent } from '../../../src/ui/options/form-submit-event'
 import { ModuleName } from '../../../src/ui/core/module-name'
 import { BaseElement } from '../../../src/ui/core/base-element'
 import { ButtonElementStub } from '../../helpers/button-element-stub'
+import { cancelEventType } from '../../../src/ui/options/cancel-event-type'
 
 class OptionsNavElementStub extends BaseElement {
     static get is() { return 'rf-options-nav' }
@@ -97,5 +98,22 @@ describe('OptionsElement', () => {
         expect(el.showConfirm).toBeFalse()
         expect(formsServiceSpy.run).toHaveBeenCalledWith(numberOfGenerations)
         expect(formsServiceSpy.update).not.toHaveBeenCalled()
+    })
+
+    it('should hide confirm popup if cancel clicked', () => {
+        el.showConfirm = true
+        const confirmForm = el.shadowRoot?.querySelector(RunConfirmFormElementStub.is)
+        if (!confirmForm) { throw new Error('missing confirm form') }
+        confirmForm.dispatchEvent(new CustomEvent(cancelEventType))
+
+        expect(el.showConfirm).toBeFalse()
+    })
+
+    it('should show confirm popup on run button click', () => {
+        const button = el.shadowRoot?.querySelector(`${ButtonElementStub.is}[title="Run"]`)
+        if (!button) { throw new Error('missing button') }
+        button.dispatchEvent(new Event('click'))
+
+        expect(el.showConfirm).toBeTrue()
     })
 })

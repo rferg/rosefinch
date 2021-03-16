@@ -21,7 +21,7 @@ export class OptionsElement extends BaseElement {
                     display: flex;
                     height: 100%;
                     width: 100%;
-                    flex-flow: row nowrap;
+                    flex-flow: row wrap;
                     justify-content: space-between;
                     align-items: stretch;
                 }
@@ -37,9 +37,15 @@ export class OptionsElement extends BaseElement {
                 #optionsOutlet {
                     flex-grow: 1;
                 }
+                #optionsToolbar {
+                    flex-basis: 100%;
+                }
                 #optionsNav {
                     position: relative;
                     transition: transform var(--animation-duration) var(--easing);
+                }
+                #optionsNav div {
+                    margin-top: auto;
                 }
                 :host([navishidden]) #optionsNav {
                     position: absolute;
@@ -47,7 +53,7 @@ export class OptionsElement extends BaseElement {
                     left: 0;
                     transform: translateX(-100%);
                 }
-                #optionsNav rf-button {
+                #optionsNav #hideButton {
                     position: absolute;
                     top: 0;
                     right: 0;
@@ -61,7 +67,7 @@ export class OptionsElement extends BaseElement {
                         z-index: 1;
                         max-width: 90vw;
                     }
-                    :host([navishidden]) #optionsNav rf-button {
+                    :host([navishidden]) #optionsNav #hideButton {
                         transform: translateX(100%);
                     }
                 }
@@ -85,10 +91,19 @@ export class OptionsElement extends BaseElement {
     render() {
         return html`
             <rf-container id="optionsNav">
-                <rf-button size="small" @click=${() => this.navIsHidden = !this.navIsHidden}>
+                <rf-button
+                    id="hideButton"
+                    size="small"
+                    @click=${() => this.navIsHidden = !this.navIsHidden}
+                    title="${this.navIsHidden ? 'Show' : 'Hide'}">
                     <rf-icon icon=${this.navIsHidden ? Icon.RightArrow : Icon.LeftArrow }></rf-icon>
                 </rf-button>
                 <rf-options-nav></rf-options-nav>
+                <div>
+                    <rf-button @click=${() => this.showConfirm = true} title="Run" buttonRole="success" size="large">
+                        <rf-icon icon=${Icon.Check}></rf-icon>
+                    </rf-button>
+                </div>
             </rf-container>
             <rf-container id="optionsOutlet">
                 <rf-router-outlet moduleName="${ModuleName.Options}"></rf-router-outlet>
