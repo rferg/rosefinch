@@ -1,4 +1,4 @@
-import { elementUpdated, fixture } from '@open-wc/testing-helpers'
+import { elementUpdated, fixture, oneEvent } from '@open-wc/testing-helpers'
 import { html, property } from 'lit-element'
 import { calculateGenomeSize } from '../../../../src/common/calculate-genome-size'
 import { GeneUtil } from '../../../../src/common/gene-util'
@@ -17,6 +17,7 @@ import { OptionsFormService } from '../../../../src/services'
 import { BaseElement } from '../../../../src/ui/core/base-element'
 import { ChordFitnessElement } from '../../../../src/ui/options/fitness/chord-fitness.element'
 import { FormFieldChangeEvent } from '../../../../src/ui/options/form-field-change-event'
+import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
 import { ButtonElementStub } from '../../../helpers/button-element-stub'
 import { CustomElementRegistrar } from '../../../helpers/custom-element-registrar'
 import { GenomeNotationElementStub } from '../../../helpers/genome-notation-element-stub'
@@ -107,6 +108,17 @@ describe('ChordFitnessElement', () => {
             await elementUpdated(el)
 
             expect(el.config.options).toEqual(options)
+        })
+
+        it('should dispatch submit event with updated options', async () => {
+            const options: ChordFitOptions = { chords: { 0: [ 1 ] } }
+            setTimeout(() => {
+                setOptions(el, options)
+            }, 0)
+
+            const event = (await oneEvent(el, FormSubmitEvent.eventType)) as FormSubmitEvent<{ chords: ChordFitConfig }>
+
+            expect(event.value.chords.options).toEqual(options)
         })
 
         it('should pass all rests to notation element if no chords in options', async () => {

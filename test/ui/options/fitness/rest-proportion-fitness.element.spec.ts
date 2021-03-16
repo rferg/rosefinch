@@ -1,9 +1,10 @@
-import { elementUpdated, fixture, html } from '@open-wc/testing-helpers'
+import { elementUpdated, fixture, html, oneEvent } from '@open-wc/testing-helpers'
 import { FitnessMethod } from '../../../../src/genetic-algorithm'
 import { RestProportionConfig } from '../../../../src/genetic-algorithm/fitness/rest-proportion-config'
 import { OptionsFormService } from '../../../../src/services'
 import { ValueChangeEvent } from '../../../../src/ui/common/value-change-event'
 import { RestProportionFitnessElement } from '../../../../src/ui/options/fitness/rest-proportion-fitness.element'
+import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
 import { CustomElementRegistrar } from '../../../helpers/custom-element-registrar'
 import { RangeInputElementStub } from '../../../helpers/range-input-element-stub'
 
@@ -66,6 +67,16 @@ describe('RestProportionFitnessElement', () => {
             expect(input.value).toEqual(value)
             const label = el.shadowRoot?.querySelector('.input-container span')
             expect(label?.textContent).toContain(`${Math.floor(value * 100)}%`)
+        })
+
+        it('should dispatch submit event with updated options', async () => {
+            const value = 0.25
+            setTimeout(() => updateProportion(value), 0)
+
+            const event = (await oneEvent(
+                el,
+                FormSubmitEvent.eventType)) as FormSubmitEvent<{ restProportion: RestProportionConfig }>
+            expect(event.value.restProportion.options.targetProportion).toEqual(value)
         })
     })
 })

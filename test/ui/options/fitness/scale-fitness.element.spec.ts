@@ -1,4 +1,4 @@
-import { elementUpdated, fixture, html } from '@open-wc/testing-helpers'
+import { elementUpdated, fixture, html, oneEvent } from '@open-wc/testing-helpers'
 import { GeneUtil } from '../../../../src/common/gene-util'
 import { Pitch } from '../../../../src/common/pitch'
 import { Uint8 } from '../../../../src/common/uint8'
@@ -11,6 +11,7 @@ import { CustomElementRegistrar } from '../../../helpers/custom-element-registra
 import { InputElementStub } from '../../../helpers/input-element-stub'
 import { RangeInputElementStub } from '../../../helpers/range-input-element-stub'
 import { ScaleIntervalConfig } from '../../../../src/genetic-algorithm/fitness/scale-interval-config'
+import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
 
 describe('ScaleFitnessElement', () => {
     const defaultConfig: ScaleIntervalConfig = {
@@ -103,6 +104,21 @@ describe('ScaleFitnessElement', () => {
             expect(scaleService.getPitches.calls.mostRecent().args[1]).toEqual(expectedScaleName)
             expect(el.config.options.scale.name).toEqual(expectedScaleName)
             expect(el.config.options.scale.pitches).toEqual(expectedPitches)
+        })
+
+        it('should dispatch submit event with updated options', async () => {
+            const expectedPitches = [ 1, 2, 3 ]
+            const expectedScaleName = ScaleName.Aeolian
+            scaleService.getPitches.and.returnValue(expectedPitches)
+
+            setTimeout(() => updateScale(expectedScaleName), 0)
+            const ev = await (oneEvent(
+                el,
+                FormSubmitEvent.eventType)) as FormSubmitEvent<{ scale: ScaleIntervalConfig }>
+
+            const scale = ev.value.scale.options.scale
+            expect(scale.name).toEqual(expectedScaleName)
+            expect(scale.pitches).toEqual(expectedPitches)
         })
 
         it('should set pitches to empty array if scaleName is falsy', async () => {
@@ -199,6 +215,26 @@ describe('ScaleFitnessElement', () => {
             expect(el.config.options.scale.pitches).toEqual(expectedPitches)
         })
 
+        it('should dispatch submit event with updated options', async () => {
+            const options: ScaleIntervalOptions = {
+                scale: { name: ScaleName.Aeolian, pitches: [] },
+                intervalScores: []
+            }
+            setOptions(el, options)
+            await elementUpdated(el)
+            const newRoot = Pitch.D
+            const expectedPitches = [ 2, 3, 4 ]
+            scaleService.getPitches.and.returnValue(expectedPitches)
+
+            setTimeout(() => updateRoot(newRoot), 0)
+            const ev = await (oneEvent(
+                el,
+                FormSubmitEvent.eventType)) as FormSubmitEvent<{ scale: ScaleIntervalConfig }>
+
+            const scale = ev.value.scale.options.scale
+            expect(scale.pitches).toEqual(expectedPitches)
+        })
+
         it('should not update pitches if no scale has been selected', async () => {
             updateRoot(Pitch.D)
             await elementUpdated(el)
@@ -236,6 +272,18 @@ describe('ScaleFitnessElement', () => {
             await elementUpdated(el)
 
             expect(el.config.options.intervalScores[index]).toEqual(rating)
+        })
+
+        it('should dispatch event with updated options', async () => {
+            const index = 1
+            const rating = 0.5
+
+            setTimeout(() => updateIntervalRating(index, rating), 0)
+            const event = (await oneEvent(
+                el,
+                FormSubmitEvent.eventType)) as FormSubmitEvent<{ scale: ScaleIntervalConfig }>
+
+            expect(event.value.scale.options.intervalScores[index]).toEqual(rating)
         })
 
         it('should update interval score in input and label', async () => {

@@ -1,4 +1,4 @@
-import { elementUpdated, fixture } from '@open-wc/testing-helpers'
+import { elementUpdated, fixture, oneEvent } from '@open-wc/testing-helpers'
 import { html } from 'lit-element'
 import { FitnessMethod } from '../../../../src/genetic-algorithm'
 import { PitchSequenceDirectionConfig } from '../../../../src/genetic-algorithm/fitness/pitch-sequence-direction-config'
@@ -6,6 +6,7 @@ import { PitchSequenceType } from '../../../../src/genetic-algorithm/fitness/pit
 import { OptionsFormService } from '../../../../src/services'
 import { ValueChangeEvent } from '../../../../src/ui/common/value-change-event'
 import { PitchSequenceDirectionFitnessElement } from '../../../../src/ui/options/fitness/pitch-sequence-direction-fitness.element'
+import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
 import { CustomElementRegistrar } from '../../../helpers/custom-element-registrar'
 import { RangeInputElementStub } from '../../../helpers/range-input-element-stub'
 
@@ -59,6 +60,19 @@ describe('PitchSequenceDirectionFitnessElement', () => {
         expect(el.config.options.sequenceLength).toEqual(newValue)
     })
 
+    it('should dispatch submit event with updated sequence length on sequence length change', async () => {
+        const newValue = 3
+        const input = el.shadowRoot?.querySelector(`${RangeInputElementStub.is}[name="sequenceLength"]`)
+        if (!input) { throw new Error('could not find sequenceLength input') }
+
+        setTimeout(() => input.dispatchEvent(new ValueChangeEvent<number>(newValue)), 0)
+        const event = (await oneEvent(
+            el,
+            FormSubmitEvent.eventType)) as FormSubmitEvent<{ pitchSequence: PitchSequenceDirectionConfig }>
+
+        expect(event.value.pitchSequence.options.sequenceLength).toEqual(newValue)
+    })
+
     it('should update score for correct sequence type on change', async () => {
         const newValue = 3
         const sequenceType = PitchSequenceType.Descending
@@ -69,5 +83,19 @@ describe('PitchSequenceDirectionFitnessElement', () => {
         await elementUpdated(el)
 
         expect(el.config.options.scores[sequenceType]).toEqual(newValue)
+    })
+
+    it('should dispatch submit event with updated score on change', async () => {
+        const newValue = 3
+        const sequenceType = PitchSequenceType.Descending
+        const input = el.shadowRoot?.querySelector(`${RangeInputElementStub.is}[name="${sequenceType}"]`)
+        if (!input) { throw new Error(`could not find sequenceType ${sequenceType} input`) }
+
+        setTimeout(() => input.dispatchEvent(new ValueChangeEvent<number>(newValue)), 0)
+        const event = (await oneEvent(
+            el,
+            FormSubmitEvent.eventType)) as FormSubmitEvent<{ pitchSequence: PitchSequenceDirectionConfig }>
+
+        expect(event.value.pitchSequence.options.scores[sequenceType]).toEqual(newValue)
     })
 })

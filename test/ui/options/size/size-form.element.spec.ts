@@ -2,13 +2,14 @@ import { SizeForm } from '../../../../src/services/size-form'
 import { InsideContainerElementStub } from '../../../helpers/inside-container-element-stub'
 import { InputElementStub } from '../../../helpers/input-element-stub'
 import { SizeFormElement } from '../../../../src/ui/options/size/size-form.element'
-import { elementUpdated, fixture } from '@open-wc/testing-helpers'
+import { elementUpdated, fixture, oneEvent } from '@open-wc/testing-helpers'
 import { html } from 'lit-element'
 import { GeneUtil } from '../../../../src/common/gene-util'
 import { FormFieldChangeEvent } from '../../../../src/ui/options/form-field-change-event'
 import { TooltipElementStub } from '../../../helpers/tooltip-element-stub'
 import { CustomElementRegistrar } from '../../../helpers/custom-element-registrar'
 import { OptionsFormService } from '../../../../src/services'
+import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
 
 describe('SizeFormElement', () => {
     let el: SizeFormElement
@@ -170,5 +171,23 @@ describe('SizeFormElement', () => {
 
         expect(el.shadowRoot?.textContent).toContain(measuresError)
         expect(el.shadowRoot?.textContent).toContain(populationSizeError)
+    })
+
+    it('should dispatch submit event with updated value on valid change', async () => {
+        const measures = 6
+        const input = el.shadowRoot
+            ?.querySelector(`${InputElementStub.is}[name="measures"]`) as InputElementStub
+
+        setTimeout(() => {
+            input.dispatchEvent(new FormFieldChangeEvent({
+                isValid: true,
+                value: { measures }
+            }))
+        }, 0)
+        const event = (await oneEvent(
+            el,
+            FormSubmitEvent.eventType)) as FormSubmitEvent<{ size: SizeForm }>
+
+        expect(event.value.size.measures).toEqual(measures)
     })
 })

@@ -109,9 +109,9 @@ export class OptionsElement extends BaseElement {
         }
     }
 
-    private onRunConfirmed(
-        { value: { numberOfGenerations } }: FormSubmitEvent<{ numberOfGenerations: number }>) {
+    private onRunConfirmed(event: FormSubmitEvent<{ numberOfGenerations: number }>) {
+        event.stopImmediatePropagation()
         this.showConfirm = false
-        this.formService.run(numberOfGenerations)
+        this.formService.run(event.value.numberOfGenerations)
     }
 }

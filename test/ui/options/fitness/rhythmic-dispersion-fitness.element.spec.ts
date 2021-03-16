@@ -1,4 +1,4 @@
-import { elementUpdated, fixture } from '@open-wc/testing-helpers'
+import { elementUpdated, fixture, oneEvent } from '@open-wc/testing-helpers'
 import { html } from 'lit-element'
 import { FitnessMethod } from '../../../../src/genetic-algorithm'
 import { ValueChangeEvent } from '../../../../src/ui/common/value-change-event'
@@ -7,6 +7,7 @@ import { CustomElementRegistrar } from '../../../helpers/custom-element-registra
 import { RangeInputElementStub } from '../../../helpers/range-input-element-stub'
 import { OptionsFormService } from '../../../../src/services'
 import { RhythmicDispersionConfig } from '../../../../src/genetic-algorithm/fitness/rhythmic-dispersion-config'
+import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
 
 describe('RhythmicDispersionFitnessElement', () => {
     const defaultConfig: RhythmicDispersionConfig = {
@@ -68,6 +69,16 @@ describe('RhythmicDispersionFitnessElement', () => {
             expect(input.value).toEqual(value)
             const label = el.shadowRoot?.querySelector('.input-container span')
             expect(label?.textContent).toContain('Balanced')
+        })
+
+        it('should dispatch submit event with updated options', async () => {
+            const value = 2
+            setTimeout(() => updateTarget(value), 0)
+
+            const event = (await oneEvent(
+                el,
+                FormSubmitEvent.eventType)) as FormSubmitEvent<{ rhythmicDispersion: RhythmicDispersionConfig }>
+            expect(event.value.rhythmicDispersion.options.target).toEqual(value)
         })
     })
 })
