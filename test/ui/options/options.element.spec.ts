@@ -14,6 +14,7 @@ import { ModuleName } from '../../../src/ui/core/module-name'
 import { BaseElement } from '../../../src/ui/core/base-element'
 import { ButtonElementStub } from '../../helpers/button-element-stub'
 import { cancelEventType } from '../../../src/ui/options/cancel-event-type'
+import { Router } from '../../../src/ui/core/router'
 
 class OptionsNavElementStub extends BaseElement {
     static get is() { return 'rf-options-nav' }
@@ -22,7 +23,8 @@ class OptionsNavElementStub extends BaseElement {
 describe('OptionsElement', () => {
     const formsServiceSpy = jasmine.createSpyObj<OptionsFormService>(
         'OptionsFormService',
-        [ 'update', 'reset', 'run' ])
+        [ 'update', 'reset', 'updateRunParams' ])
+    const routerSpy = jasmine.createSpyObj<Router>('Router', [ 'navigate' ])
     let el: OptionsElement
 
     beforeAll(() => {
@@ -33,13 +35,14 @@ describe('OptionsElement', () => {
         CustomElementRegistrar.instance.register(OptionsNavElementStub.is, OptionsNavElementStub)
         CustomElementRegistrar.instance.register(
             'rf-options-test',
-            class extends OptionsElement { constructor() { super(formsServiceSpy) } })
+            class extends OptionsElement { constructor() { super(formsServiceSpy, routerSpy) } })
     })
 
     beforeEach(async () => {
         formsServiceSpy.reset.calls.reset()
         formsServiceSpy.update.calls.reset()
-        formsServiceSpy.run.calls.reset()
+        formsServiceSpy.updateRunParams.calls.reset()
+        routerSpy.navigate.calls.reset()
 
         el = await fixture(html`<rf-options-test></rf-options-test>`)
     })
@@ -88,7 +91,7 @@ describe('OptionsElement', () => {
         expect(el.navIsHidden).toBeFalse()
     })
 
-    it('should run through service when run confirm form confirms', () => {
+    it('should update run params service and navigate to run router when run confirm form confirms', () => {
         const numberOfGenerations = 1
         const confirmForm = el.shadowRoot?.querySelector(RunConfirmFormElementStub.is)
         if (!confirmForm) { throw new Error('missing confirm form') }
@@ -96,8 +99,9 @@ describe('OptionsElement', () => {
             { value: { numberOfGenerations } }))
 
         expect(el.showConfirm).toBeFalse()
-        expect(formsServiceSpy.run).toHaveBeenCalledWith(numberOfGenerations)
+        expect(formsServiceSpy.updateRunParams).toHaveBeenCalledWith(numberOfGenerations)
         expect(formsServiceSpy.update).not.toHaveBeenCalled()
+        expect(routerSpy.navigate).toHaveBeenCalledWith('/run')
     })
 
     it('should hide confirm popup if cancel clicked', () => {

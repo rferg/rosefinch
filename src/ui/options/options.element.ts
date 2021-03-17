@@ -8,6 +8,7 @@ import { ModuleName } from '../core/module-name'
 import { Icon } from '../common/icon'
 import { OptionsFormService } from '../../services/options-form-service'
 import { OptionsForm } from '../../services/options-form'
+import { Router } from '../core/router'
 
 @Injectable()
 export class OptionsElement extends BaseElement {
@@ -81,7 +82,9 @@ export class OptionsElement extends BaseElement {
     @property({ reflect: true, type: Boolean })
     navIsHidden = false
 
-    constructor(private readonly formService: OptionsFormService) {
+    constructor(
+        private readonly formService: OptionsFormService,
+        private readonly router: Router) {
         super()
 
         this.addEventListener(FormSubmitEvent.eventType, this.onFormSubmitEvent.bind(this))
@@ -127,6 +130,7 @@ export class OptionsElement extends BaseElement {
     private onRunConfirmed(event: FormSubmitEvent<{ numberOfGenerations: number }>) {
         event.stopImmediatePropagation()
         this.showConfirm = false
-        this.formService.run(event.value.numberOfGenerations)
+        this.formService.updateRunParams(event.value.numberOfGenerations)
+        this.router.navigate('/run')
     }
 }

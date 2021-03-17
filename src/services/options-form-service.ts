@@ -2,7 +2,6 @@ import { Inject, Injectable } from 'cewdi'
 import { calculateGenomeSize } from '../common/calculate-genome-size'
 import { globalEventTargetToken } from '../common/global-event-target-token'
 import { FitnessMethod, SerializedGeneticAlgorithmOptions } from '../genetic-algorithm'
-import { Router } from '../ui/core/router'
 import { OptionsForm } from './options-form'
 import { OptionsFormMapperService } from './options-form-mapper-service'
 import { PipelineRunParams, StateTopic, UpdateStateEvent } from './state'
@@ -45,7 +44,6 @@ export class OptionsFormService {
 
     constructor(
         private readonly mapper: OptionsFormMapperService,
-        private readonly router: Router,
         @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget
     ) {
         this.reset()
@@ -53,9 +51,10 @@ export class OptionsFormService {
 
     reset() {
         this.optionsForm = { ...this.defaultOptions }
+        this.updateGeneticAlgorithmOptions()
     }
 
-    run(numberOfGenerations: number) {
+    updateRunParams(numberOfGenerations: number) {
         if (!this.geneticAlgorithmOptions) { this.updateGeneticAlgorithmOptions() }
         const options = this.geneticAlgorithmOptions
         if (options) {
@@ -66,7 +65,6 @@ export class OptionsFormService {
                 numberOfGenerations
             }
             this.eventTarget.dispatchEvent(new UpdateStateEvent(StateTopic.PipelineRunParams, params))
-            this.router.navigate('/run')
         } else {
             throw new Error('GeneticAlgorithm options were undefined')
         }
@@ -76,7 +74,7 @@ export class OptionsFormService {
         return { ...this.optionsForm }[property]
     }
 
-    update<T>(property: keyof OptionsForm, value: T) {
+    update(property: keyof OptionsForm, value: OptionsForm[typeof property]) {
         this.optionsForm = {
             ...this.optionsForm,
             [property]: value
@@ -101,6 +99,6 @@ export class OptionsFormService {
     private updateGeneticAlgorithmOptions(): void {
         this.geneticAlgorithmOptions = this.mapper.mapFitnessForm(
             this.optionsForm,
-            this.mapper.mapSizeForm(this.optionsForm.size))
+            this.mapper.mapSizeForm(this.optionsForm.size, this.geneticAlgorithmOptions))
     }
 }
