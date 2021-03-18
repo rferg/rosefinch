@@ -15,13 +15,13 @@ import { NewPipelineRunParams, StateTopic, UpdateStateEvent } from '../../src/se
 
 const defaultOptions: OptionsForm = {
     size: {
-        populationSize: 5000,
+        populationSize: 1000,
         timeSignatureTop: 4,
         timeSignatureBottom: 4,
         octaveMax: 5,
         octaveMin: 4,
         shortestNoteDuration: 8,
-        measures: 2
+        measures: 4
     },
     chords: { weight: 1, method: FitnessMethod.ChordFit, options: { chords: {} } },
     scale: {

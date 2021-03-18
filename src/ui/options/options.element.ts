@@ -22,7 +22,7 @@ export class OptionsElement extends BaseElement {
                     display: flex;
                     height: 100%;
                     width: 100%;
-                    flex-flow: row wrap;
+                    flex-flow: row nowrap;
                     justify-content: space-between;
                     align-items: stretch;
                 }

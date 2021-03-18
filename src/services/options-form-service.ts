@@ -10,13 +10,13 @@ import { PipelineRunParams, StateTopic, UpdateStateEvent } from './state'
 export class OptionsFormService {
     private readonly defaultOptions: OptionsForm = {
         size: {
-            populationSize: 5000,
+            populationSize: 1000,
             timeSignatureTop: 4,
             timeSignatureBottom: 4,
             octaveMax: 5,
             octaveMin: 4,
             shortestNoteDuration: 8,
-            measures: 2
+            measures: 4
         },
         chords: { weight: 1, method: FitnessMethod.ChordFit, options: { chords: {} } },
         scale: {
@@ -43,7 +43,7 @@ export class OptionsFormService {
             method: FitnessMethod.RepeatedSequences,
             options: {
                 types: [
-                    { type: RepeatedSequenceType.Rhythm, minLength: 3 }
+                    { type: RepeatedSequenceType.Pitch, minLength: 3 }
                 ]
             }
         }
