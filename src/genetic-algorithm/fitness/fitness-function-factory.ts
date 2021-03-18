@@ -50,11 +50,10 @@ function getFunction(
                 target: options?.target ?? 0
             })
         case FitnessMethod.RepeatedSequences:
-            return repeatedSequencesFactory({
+            return repeatedSequencesFactory([ {
                 minLength: options?.minLength || 3,
-                maxLength: options?.maxLength || 6,
                 type: options?.type || 1
-            })
+            } ])
         default:
             assertUnreachable(method, `Invalid fitness function method ${method}!`)
     }

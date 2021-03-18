@@ -3,13 +3,12 @@ import { Pitch } from '../../common/pitch'
 import { Uint8 } from '../../common/uint8'
 import { Population } from '../population'
 
-interface RepeatedSequencesOptions {
+export interface RepeatedSequencesOptions {
     minLength: number,
-    maxLength: number,
     type: SequenceType
 }
 
-enum SequenceType {
+export enum SequenceType {
     Pitch,
     Rhythm
 }
@@ -20,24 +19,22 @@ export function repeatedSequencesFactory(options: RepeatedSequencesOptions[]): (
 
         options.forEach(({
             minLength,
-            maxLength,
             type
         }) => {
-            if (minLength || maxLength < 2) {
+            if (minLength < 2) {
                 throw new Error('minLength and maxLength must be >= 2')
             }
-            if (minLength > maxLength) {
-                throw new Error('minLength cannot be greater than maxLength')
+            if (minLength >= population.genomeSize) {
+                throw new Error('minLength cannot be >= genomeSize')
             }
-            if (maxLength >= population.genomeSize) {
-                throw new Error('maxLength cannot be greater than or equal to genomeSize')
-            }
-            // Calculate max possible score:
-            const maxPossibleScore = getMaxScore(minLength, maxLength)
+
             for (let genomeIndex = 0; genomeIndex < population.size; genomeIndex++) {
                 const genome = population.get(genomeIndex)
-                const score = getScore(genome, { minLength, maxLength, type })
-                const fitness = Math.round((score / maxPossibleScore) * 100)
+                const encodedGenome = encodeGenome(genome, type)
+                const maxPossibleScore = getMaxScore(minLength, encodedGenome.length)
+                const score = getScore(encodedGenome, minLength)
+                const normalizedScore = (score / maxPossibleScore) * 100
+                const fitness = Math.round(normalizedScore / options.length)
                 results[genomeIndex] += fitness
             }
         })
@@ -46,25 +43,25 @@ export function repeatedSequencesFactory(options: RepeatedSequencesOptions[]): (
     }
 }
 
-function getMaxScore(minLength: number, maxLength: number): number {
-    return getSumOfNumbersUpToN(maxLength) - getSumOfNumbersUpToN(minLength - 1)
+function getMaxScore(minLength: number, encodedGenomeLength: number): number {
+    return getSumOfNumbersUpToN(encodedGenomeLength - 1) - getSumOfNumbersUpToN(minLength - 1)
 }
 
 function getSumOfNumbersUpToN(n: number): number {
     return (n * (n + 1)) / 2
 }
 
-function getScore(genome: Uint8Array, { minLength, maxLength, type }: RepeatedSequencesOptions): number {
-    const encodedGenome = encodeGenome(genome, type)
+function getScore(encodedGenome: number[], minLength: number): number {
     const lcpArray = getLcpArray(encodedGenome)
     return lcpArray
-        .filter(prefixLength => minLength <= prefixLength && prefixLength <= maxLength)
+        .filter(prefixLength => minLength <= prefixLength)
         .reduce((prev, curr) => prev + curr, 0)
 }
 
 function encodeGenome(genome: Uint8Array, type: SequenceType): number[] {
     if (type === SequenceType.Pitch) {
         return Array.from(genome.map(gene => GeneUtil.getPitch(gene as Uint8)))
+            .filter(pitch => pitch !== Pitch.Hold)
     }
     if (type === SequenceType.Rhythm) {
         return getRhythms(genome)
