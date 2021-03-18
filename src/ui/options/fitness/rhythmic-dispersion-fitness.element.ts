@@ -1,6 +1,6 @@
 import { Injectable } from 'cewdi'
 import { css, html, property } from 'lit-element'
-import { RhythmicDispersionConfig } from '../../../genetic-algorithm/fitness/rhythmic-dispersion-config'
+import { RhythmicDispersionConfig } from '../../../genetic-algorithm'
 import { OptionsFormService } from '../../../services'
 import { headingsStyles } from '../../common/headings.styles'
 import { ValueChangeEvent } from '../../common/value-change-event'

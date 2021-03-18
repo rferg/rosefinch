@@ -3,6 +3,7 @@ import {
     CrossoverMethod,
     FitnessMethod,
     MutationMethod,
+    RepeatedSequenceType,
     SelectionMethod,
     SerializedGeneticAlgorithmOptions
 } from '../../src/genetic-algorithm'
@@ -121,7 +122,16 @@ describe('OptionsFormMapperService', () => {
                         }
                     }
                 },
-                rhythmicDispersion: { weight: 0, method: FitnessMethod.RhythmicDispersion, options: { target: 1 } }
+                rhythmicDispersion: { weight: 0, method: FitnessMethod.RhythmicDispersion, options: { target: 1 } },
+                repeatedSequences: {
+                    weight: 0,
+                    method: FitnessMethod.RepeatedSequences,
+                    options: {
+                        types: [
+                            { type: RepeatedSequenceType.Rhythm, minLength: 3 }
+                        ]
+                    }
+                }
             }
 
             const result = service.mapFitnessForm(form)
@@ -162,7 +172,16 @@ describe('OptionsFormMapperService', () => {
                         }
                     }
                 },
-                rhythmicDispersion: { weight: 0, method: FitnessMethod.RhythmicDispersion, options: { target: 1 } }
+                rhythmicDispersion: { weight: 0, method: FitnessMethod.RhythmicDispersion, options: { target: 1 } },
+                repeatedSequences: {
+                    weight: 0,
+                    method: FitnessMethod.RepeatedSequences,
+                    options: {
+                        types: [
+                            { type: RepeatedSequenceType.Rhythm, minLength: 3 }
+                        ]
+                    }
+                }
             }
 
             const result = service.mapFitnessForm(form, options)
@@ -194,7 +213,16 @@ describe('OptionsFormMapperService', () => {
                         }
                     }
                 },
-                rhythmicDispersion: { weight: 4, method: FitnessMethod.RhythmicDispersion, options: { target: 1 } }
+                rhythmicDispersion: { weight: 4, method: FitnessMethod.RhythmicDispersion, options: { target: 1 } },
+                repeatedSequences: {
+                    weight: 1,
+                    method: FitnessMethod.RepeatedSequences,
+                    options: {
+                        types: [
+                            { type: RepeatedSequenceType.Rhythm, minLength: 3 }
+                        ]
+                    }
+                }
             }
 
             const result = service.mapFitnessForm(form)

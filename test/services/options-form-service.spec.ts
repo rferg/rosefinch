@@ -1,4 +1,11 @@
-import { CrossoverMethod, FitnessMethod, MutationMethod, SelectionMethod, SerializedGeneticAlgorithmOptions } from '../../src/genetic-algorithm'
+import {
+    CrossoverMethod,
+    FitnessMethod,
+    MutationMethod,
+    RepeatedSequenceType,
+    SelectionMethod,
+    SerializedGeneticAlgorithmOptions
+} from '../../src/genetic-algorithm'
 import { RestProportionConfig } from '../../src/genetic-algorithm/fitness/rest-proportion-config'
 import { OptionsFormService } from '../../src/services'
 import { OptionsForm } from '../../src/services/options-form'
@@ -35,7 +42,16 @@ const defaultOptions: OptionsForm = {
             }
         }
     },
-    rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 0 } }
+    rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 0 } },
+    repeatedSequences: {
+        weight: 1,
+        method: FitnessMethod.RepeatedSequences,
+        options: {
+            types: [
+                { type: RepeatedSequenceType.Rhythm, minLength: 3 }
+            ]
+        }
+    }
 }
 
 const defaultGAOptions: SerializedGeneticAlgorithmOptions = {

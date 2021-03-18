@@ -1,6 +1,6 @@
 import { Injectable } from 'cewdi'
 import { css, html, property } from 'lit-element'
-import { RestProportionConfig } from '../../../genetic-algorithm/fitness/rest-proportion-config'
+import { RestProportionConfig } from '../../../genetic-algorithm'
 import { OptionsFormService } from '../../../services'
 import { headingsStyles } from '../../common/headings.styles'
 import { ValueChangeEvent } from '../../common/value-change-event'

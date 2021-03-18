@@ -2,15 +2,11 @@ import { GeneUtil } from '../../common/gene-util'
 import { Pitch } from '../../common/pitch'
 import { Uint8 } from '../../common/uint8'
 import { Population } from '../population'
+import { RepeatedSequenceType } from './repeated-sequence-type'
 
 export interface RepeatedSequencesOptions {
     minLength: number,
-    type: SequenceType
-}
-
-export enum SequenceType {
-    Pitch,
-    Rhythm
+    type: RepeatedSequenceType
 }
 
 export function repeatedSequencesFactory(options: RepeatedSequencesOptions[]): (population: Population) => Int8Array {
@@ -58,12 +54,12 @@ function getScore(encodedGenome: number[], minLength: number): number {
         .reduce((prev, curr) => prev + curr, 0)
 }
 
-function encodeGenome(genome: Uint8Array, type: SequenceType): number[] {
-    if (type === SequenceType.Pitch) {
+function encodeGenome(genome: Uint8Array, type: RepeatedSequenceType): number[] {
+    if (type === RepeatedSequenceType.Pitch) {
         return Array.from(genome.map(gene => GeneUtil.getPitch(gene as Uint8)))
             .filter(pitch => pitch !== Pitch.Hold)
     }
-    if (type === SequenceType.Rhythm) {
+    if (type === RepeatedSequenceType.Rhythm) {
         return getRhythms(genome)
     }
 

@@ -1,7 +1,7 @@
 import { Pitch } from '../../../src/common/pitch'
 import { Uint8 } from '../../../src/common/uint8'
-import { Population } from '../../../src/genetic-algorithm'
-import { repeatedSequencesFactory, SequenceType } from '../../../src/genetic-algorithm/fitness/repeated-sequences-factory'
+import { Population, RepeatedSequenceType } from '../../../src/genetic-algorithm'
+import { repeatedSequencesFactory } from '../../../src/genetic-algorithm/fitness/repeated-sequences-factory'
 
 describe('repeatedSequences', () => {
     it('should return array same length as population', () => {
@@ -26,7 +26,7 @@ describe('repeatedSequences', () => {
 
         expect(() => repeatedSequencesFactory([ {
             minLength: 1,
-            type: SequenceType.Rhythm
+            type: RepeatedSequenceType.Rhythm
         } ])(population)).toThrowError(/must be >= 2/)
     })
 
@@ -36,7 +36,7 @@ describe('repeatedSequences', () => {
 
         expect(() => repeatedSequencesFactory([ {
             minLength: genomeSize,
-            type: SequenceType.Rhythm
+            type: RepeatedSequenceType.Rhythm
         } ])(population)).toThrowError(/minLength cannot be >= genomeSize/)
     })
 
@@ -115,7 +115,7 @@ describe('repeatedSequences', () => {
 
             const result = repeatedSequencesFactory([ {
                 minLength,
-                type: SequenceType.Pitch
+                type: RepeatedSequenceType.Pitch
             } ])(population)
 
             expect(result[0]).toEqual(expectedPitchScore)
@@ -131,7 +131,7 @@ describe('repeatedSequences', () => {
 
             const result = repeatedSequencesFactory([ {
                 minLength,
-                type: SequenceType.Rhythm
+                type: RepeatedSequenceType.Rhythm
             } ])(population)
 
             expect(result[0]).toEqual(expectedRhythmScore)
@@ -153,11 +153,11 @@ describe('repeatedSequences', () => {
                     [
                         {
                             minLength,
-                            type: SequenceType.Rhythm
+                            type: RepeatedSequenceType.Rhythm
                         },
                         {
                             minLength,
-                            type: SequenceType.Pitch
+                            type: RepeatedSequenceType.Pitch
                         }
                     ])(population)
 

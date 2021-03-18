@@ -1,7 +1,7 @@
 import { Inject, Injectable } from 'cewdi'
 import { calculateGenomeSize } from '../common/calculate-genome-size'
 import { globalEventTargetToken } from '../common/global-event-target-token'
-import { FitnessMethod, SerializedGeneticAlgorithmOptions } from '../genetic-algorithm'
+import { FitnessMethod, RepeatedSequenceType, SerializedGeneticAlgorithmOptions } from '../genetic-algorithm'
 import { OptionsForm } from './options-form'
 import { OptionsFormMapperService } from './options-form-mapper-service'
 import { PipelineRunParams, StateTopic, UpdateStateEvent } from './state'
@@ -37,7 +37,16 @@ export class OptionsFormService {
                 }
             }
         },
-        rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 0 } }
+        rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 0 } },
+        repeatedSequences: {
+            weight: 1,
+            method: FitnessMethod.RepeatedSequences,
+            options: {
+                types: [
+                    { type: RepeatedSequenceType.Rhythm, minLength: 3 }
+                ]
+            }
+        }
     }
     private geneticAlgorithmOptions: SerializedGeneticAlgorithmOptions | undefined
     private optionsForm: OptionsForm = this.defaultOptions
