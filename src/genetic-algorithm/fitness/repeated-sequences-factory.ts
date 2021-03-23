@@ -20,8 +20,8 @@ export function repeatedSequencesFactory(options: RepeatedSequencesOptions[]): (
             if (minLength < 2) {
                 throw new Error('minLength and maxLength must be >= 2')
             }
-            if (minLength >= population.genomeSize) {
-                throw new Error('minLength cannot be >= genomeSize')
+            if (minLength > Math.floor(population.genomeSize / 2)) {
+                throw new Error('minLength cannot be > half of genomeSize')
             }
 
             for (let genomeIndex = 0; genomeIndex < population.size; genomeIndex++) {

@@ -30,14 +30,14 @@ describe('repeatedSequences', () => {
         } ])(population)).toThrowError(/must be >= 2/)
     })
 
-    it('should throw if minLength is >= genome size', () => {
+    it('should throw if minLength is > half of genome size', () => {
         const genomeSize = 4
         const population = new Population({ size: 5, genomeSize })
 
         expect(() => repeatedSequencesFactory([ {
-            minLength: genomeSize,
+            minLength: (genomeSize / 2) + 1,
             type: RepeatedSequenceType.Rhythm
-        } ])(population)).toThrowError(/minLength cannot be >= genomeSize/)
+        } ])(population)).toThrowError(/minLength cannot be > half of genomeSize/)
     })
 
     const cases: {

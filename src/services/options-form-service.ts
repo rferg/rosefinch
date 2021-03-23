@@ -1,7 +1,7 @@
 import { Inject, Injectable } from 'cewdi'
 import { calculateGenomeSize } from '../common/calculate-genome-size'
 import { globalEventTargetToken } from '../common/global-event-target-token'
-import { FitnessMethod, RepeatedSequenceType, SerializedGeneticAlgorithmOptions } from '../genetic-algorithm'
+import { FitnessMethod, RepeatedSequencesConfig, RepeatedSequenceType, SerializedGeneticAlgorithmOptions } from '../genetic-algorithm'
 import { OptionsForm } from './options-form'
 import { OptionsFormMapperService } from './options-form-mapper-service'
 import { PipelineRunParams, StateTopic, UpdateStateEvent } from './state'
@@ -89,6 +89,9 @@ export class OptionsFormService {
             [property]: value
         }
         this.updateGeneticAlgorithmOptions()
+        if (property === 'size') {
+            this.checkRepeatedSequencesMinLength()
+        }
     }
 
     getGeneticAlgorithmOptions(): SerializedGeneticAlgorithmOptions | undefined {
@@ -98,6 +101,15 @@ export class OptionsFormService {
         return this.geneticAlgorithmOptions
     }
 
+    getMaxRepeatedSequenceLength(): number {
+        const options = this.getGeneticAlgorithmOptions()
+        const genomeSize = this.getGenomeSize(
+            options?.measures ?? 0,
+            options?.timeSignature ?? [ 1, 1 ],
+            options?.shortestNoteDuration ?? 1)
+        return Math.floor(genomeSize / 2)
+    }
+
     private getGenomeSize(
         measures: number,
         timeSignature: [number, 1 | 2 | 4 | 8 | 16],
@@ -105,9 +117,26 @@ export class OptionsFormService {
             return calculateGenomeSize(measures, timeSignature, shortestNoteDuration)
     }
 
-    private updateGeneticAlgorithmOptions(): void {
+    private updateGeneticAlgorithmOptions() {
         this.geneticAlgorithmOptions = this.mapper.mapFitnessForm(
             this.optionsForm,
             this.mapper.mapSizeForm(this.optionsForm.size, this.geneticAlgorithmOptions))
+    }
+
+    private checkRepeatedSequencesMinLength() {
+        const repeatedSequencesConfig = this.get('repeatedSequences') as RepeatedSequencesConfig
+        const newTypes = repeatedSequencesConfig?.options?.types ?? []
+        const maxValue = this.getMaxRepeatedSequenceLength()
+        const typesAboveMax = newTypes.filter(t => t.minLength > maxValue)
+        if (typesAboveMax.length) {
+            typesAboveMax.forEach(t => t.minLength = maxValue)
+            this.update('repeatedSequences', {
+                ...repeatedSequencesConfig,
+                options: {
+                    ...repeatedSequencesConfig.options,
+                    types: newTypes
+                }
+            })
+        }
     }
 }
