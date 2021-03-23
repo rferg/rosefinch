@@ -1,7 +1,7 @@
 import { Inject, Injectable } from 'cewdi'
 import { calculateGenomeSize } from '../common/calculate-genome-size'
 import { globalEventTargetToken } from '../common/global-event-target-token'
-import { FitnessMethod, SerializedGeneticAlgorithmOptions } from '../genetic-algorithm'
+import { FitnessMethod, RepeatedSequencesConfig, RepeatedSequenceType, SerializedGeneticAlgorithmOptions } from '../genetic-algorithm'
 import { OptionsForm } from './options-form'
 import { OptionsFormMapperService } from './options-form-mapper-service'
 import { PipelineRunParams, StateTopic, UpdateStateEvent } from './state'
@@ -10,13 +10,13 @@ import { PipelineRunParams, StateTopic, UpdateStateEvent } from './state'
 export class OptionsFormService {
     private readonly defaultOptions: OptionsForm = {
         size: {
-            populationSize: 5000,
+            populationSize: 1000,
             timeSignatureTop: 4,
             timeSignatureBottom: 4,
             octaveMax: 5,
             octaveMin: 4,
             shortestNoteDuration: 8,
-            measures: 2
+            measures: 4
         },
         chords: { weight: 1, method: FitnessMethod.ChordFit, options: { chords: {} } },
         scale: {
@@ -37,7 +37,16 @@ export class OptionsFormService {
                 }
             }
         },
-        rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 0 } }
+        rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 0 } },
+        repeatedSequences: {
+            weight: 1,
+            method: FitnessMethod.RepeatedSequences,
+            options: {
+                types: [
+                    { type: RepeatedSequenceType.Pitch, minLength: 3 }
+                ]
+            }
+        }
     }
     private geneticAlgorithmOptions: SerializedGeneticAlgorithmOptions | undefined
     private optionsForm: OptionsForm = this.defaultOptions
@@ -80,6 +89,9 @@ export class OptionsFormService {
             [property]: value
         }
         this.updateGeneticAlgorithmOptions()
+        if (property === 'size') {
+            this.checkRepeatedSequencesMinLength()
+        }
     }
 
     getGeneticAlgorithmOptions(): SerializedGeneticAlgorithmOptions | undefined {
@@ -89,6 +101,15 @@ export class OptionsFormService {
         return this.geneticAlgorithmOptions
     }
 
+    getMaxRepeatedSequenceLength(): number {
+        const options = this.getGeneticAlgorithmOptions()
+        const genomeSize = this.getGenomeSize(
+            options?.measures ?? 0,
+            options?.timeSignature ?? [ 1, 1 ],
+            options?.shortestNoteDuration ?? 1)
+        return Math.floor(genomeSize / 2)
+    }
+
     private getGenomeSize(
         measures: number,
         timeSignature: [number, 1 | 2 | 4 | 8 | 16],
@@ -96,9 +117,26 @@ export class OptionsFormService {
             return calculateGenomeSize(measures, timeSignature, shortestNoteDuration)
     }
 
-    private updateGeneticAlgorithmOptions(): void {
+    private updateGeneticAlgorithmOptions() {
         this.geneticAlgorithmOptions = this.mapper.mapFitnessForm(
             this.optionsForm,
             this.mapper.mapSizeForm(this.optionsForm.size, this.geneticAlgorithmOptions))
+    }
+
+    private checkRepeatedSequencesMinLength() {
+        const repeatedSequencesConfig = this.get('repeatedSequences') as RepeatedSequencesConfig
+        const newTypes = repeatedSequencesConfig?.options?.types ?? []
+        const maxValue = this.getMaxRepeatedSequenceLength()
+        const typesAboveMax = newTypes.filter(t => t.minLength > maxValue)
+        if (typesAboveMax.length) {
+            typesAboveMax.forEach(t => t.minLength = maxValue)
+            this.update('repeatedSequences', {
+                ...repeatedSequencesConfig,
+                options: {
+                    ...repeatedSequencesConfig.options,
+                    types: newTypes
+                }
+            })
+        }
     }
 }

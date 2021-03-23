@@ -36,7 +36,8 @@ export class OptionsNavElement extends BaseElement {
         { href: '/options/scale', label: 'Scale' },
         { href: '/options/pitch-sequence-direction', label: 'Pitch Sequences' },
         { href: '/options/rest-proportion', label: 'Rest Proportion' },
-        { href: '/options/rhythmic-dispersion', label: 'Rhythmic Dispersion' }
+        { href: '/options/rhythmic-dispersion', label: 'Rhythmic Dispersion' },
+        { href: '/options/patterns', label: 'Pitch Patterns' }
     ]
 
     private readonly subscription: StateSubscription

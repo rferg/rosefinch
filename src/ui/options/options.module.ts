@@ -16,6 +16,7 @@ import { ChordSelectorElement } from './fitness/chord-selector.element'
 import { NoteAdjusterElement } from './fitness/note-adjuster.element'
 import { ChordFitnessElement } from './fitness/chord-fitness.element'
 import { OptionsNavElement } from './options-nav.element'
+import { RepeatedSequencesFitnessElement } from './fitness/repeated-sequences-fitness.element'
 
 export default {
     providers: [
@@ -49,6 +50,10 @@ export default {
         {
             path: 'rhythmic-dispersion',
             elementName: 'rf-rhythmic-dispersion-fitness'
+        },
+        {
+            path: 'patterns',
+            elementName: 'rf-repeated-sequences-fitness'
         }
     ],
     elements: [
@@ -107,6 +112,10 @@ export default {
         {
             element: OptionsNavElement,
             name: 'rf-options-nav'
+        },
+        {
+            element: RepeatedSequencesFitnessElement,
+            name: 'rf-repeated-sequences-fitness'
         }
     ]
 } as Module

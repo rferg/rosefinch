@@ -1,7 +1,6 @@
 import { Injectable } from 'cewdi'
 import { css, html, property } from 'lit-element'
-import { PitchSequenceDirectionConfig } from '../../../genetic-algorithm/fitness/pitch-sequence-direction-config'
-import { PitchSequenceType } from '../../../genetic-algorithm/fitness/pitch-sequence-type'
+import { PitchSequenceDirectionConfig, PitchSequenceType } from '../../../genetic-algorithm'
 import { OptionsFormService } from '../../../services'
 import { headingsStyles } from '../../common/headings.styles'
 import { ValueChangeEvent } from '../../common/value-change-event'

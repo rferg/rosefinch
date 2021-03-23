@@ -1,4 +1,12 @@
-import { CrossoverMethod, FitnessMethod, MutationMethod, SelectionMethod, SerializedGeneticAlgorithmOptions } from '../../src/genetic-algorithm'
+import {
+    CrossoverMethod,
+    FitnessMethod,
+    MutationMethod,
+    RepeatedSequencesConfig,
+    RepeatedSequenceType,
+    SelectionMethod,
+    SerializedGeneticAlgorithmOptions
+} from '../../src/genetic-algorithm'
 import { RestProportionConfig } from '../../src/genetic-algorithm/fitness/rest-proportion-config'
 import { OptionsFormService } from '../../src/services'
 import { OptionsForm } from '../../src/services/options-form'
@@ -8,13 +16,13 @@ import { NewPipelineRunParams, StateTopic, UpdateStateEvent } from '../../src/se
 
 const defaultOptions: OptionsForm = {
     size: {
-        populationSize: 5000,
+        populationSize: 1000,
         timeSignatureTop: 4,
         timeSignatureBottom: 4,
         octaveMax: 5,
         octaveMin: 4,
         shortestNoteDuration: 8,
-        measures: 2
+        measures: 4
     },
     chords: { weight: 1, method: FitnessMethod.ChordFit, options: { chords: {} } },
     scale: {
@@ -35,7 +43,16 @@ const defaultOptions: OptionsForm = {
             }
         }
     },
-    rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 0 } }
+    rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 0 } },
+    repeatedSequences: {
+        weight: 1,
+        method: FitnessMethod.RepeatedSequences,
+        options: {
+            types: [
+                { type: RepeatedSequenceType.Pitch, minLength: 3 }
+            ]
+        }
+    }
 }
 
 const defaultGAOptions: SerializedGeneticAlgorithmOptions = {
@@ -132,6 +149,38 @@ describe('OptionsFormService', () => {
             const calledFitnessForm = mapperServiceSpy.mapFitnessForm.calls.mostRecent().args[0]
             expect(calledFitnessForm.restProportion).toEqual(updatedRest)
         })
+
+        it('should update repeatedSequences values to max value if size is updated and they are over max', () => {
+            mapperServiceSpy.mapFitnessForm.and.returnValue(defaultGAOptions)
+            const initialMax = service.getMaxRepeatedSequenceLength()
+            const updatedRepeatedConfig: RepeatedSequencesConfig = {
+                method: FitnessMethod.RepeatedSequences,
+                options: {
+                    types: [
+                        {
+                            type: RepeatedSequenceType.Pitch,
+                            minLength: initialMax
+                        }
+                    ]
+                }
+            }
+            service.update('repeatedSequences', updatedRepeatedConfig)
+
+            const newMeasures = defaultGAOptions.measures - 1
+            mapperServiceSpy.mapFitnessForm.and.returnValue({
+                ...defaultGAOptions,
+                measures: newMeasures
+            })
+            service.update('size', {
+                ...defaultOptions.size,
+                measures: newMeasures
+            })
+
+            const afterUpdateMax = service.getMaxRepeatedSequenceLength()
+            expect(afterUpdateMax).toBeLessThan(initialMax)
+            const newRepeatedConfig = service.get('repeatedSequences') as RepeatedSequencesConfig
+            expect(newRepeatedConfig.options.types.every(t => t.minLength === afterUpdateMax)).toBeTrue()
+        })
     })
 
     describe('getGeneticAlgorithmOptions', () => {
@@ -144,6 +193,68 @@ describe('OptionsFormService', () => {
             expect(actual).toEqual(expected)
         })
     })
+
+    const cases: {
+        measures: number,
+        timeSignature: [number, 1 | 2 | 4 | 8 | 16 ],
+        shortestNoteDuration: 1 | 2 | 4 | 8 | 16,
+        expected: number
+    }[] = [
+        {
+            measures: 4,
+            timeSignature: [ 4, 4 ],
+            shortestNoteDuration: 16,
+            expected: 64
+        },
+        {
+            measures: 1,
+            timeSignature: [ 7, 8 ],
+            shortestNoteDuration: 4,
+            expected: 3
+        },
+        {
+            measures: 1,
+            timeSignature: [ 7, 8 ],
+            shortestNoteDuration: 16,
+            expected: 14
+        },
+        {
+            measures: 3,
+            timeSignature: [ 7, 8 ],
+            shortestNoteDuration: 16,
+            expected: 42
+        },
+        {
+            measures: 3,
+            timeSignature: [ 6, 8 ],
+            shortestNoteDuration: 16,
+            expected: 36
+        },
+        {
+            measures: 3,
+            timeSignature: [ 3, 4 ],
+            shortestNoteDuration: 16,
+            expected: 36
+        },
+        {
+            measures: 3,
+            timeSignature: [ 4, 2 ],
+            shortestNoteDuration: 4,
+            expected: 24
+        },
+        {
+            measures: 3,
+            timeSignature: [ 4, 4 ],
+            shortestNoteDuration: 1,
+            expected: 3
+        },
+        {
+            measures: 2,
+            timeSignature: [ 5, 4 ],
+            shortestNoteDuration: 8,
+            expected: 20
+        }
+    ]
 
     describe('updateRunParams', () => {
         it('should dispatch UpdateStateEvent with params from geneticAlgorithmOptions', () => {
@@ -166,70 +277,8 @@ describe('OptionsFormService', () => {
             expect(() => service.updateRunParams(1)).toThrowError(/options were undefined/)
         })
 
-        const cases: {
-            measures: number,
-            timeSignature: [number, 1 | 2 | 4 | 8 | 16 ],
-            shortestNoteDuration: 1 | 2 | 4 | 8 | 16,
-            expected: number
-        }[] = [
-            {
-                measures: 4,
-                timeSignature: [ 4, 4 ],
-                shortestNoteDuration: 16,
-                expected: 64
-            },
-            {
-                measures: 1,
-                timeSignature: [ 7, 8 ],
-                shortestNoteDuration: 4,
-                expected: 3
-            },
-            {
-                measures: 1,
-                timeSignature: [ 7, 8 ],
-                shortestNoteDuration: 16,
-                expected: 14
-            },
-            {
-                measures: 3,
-                timeSignature: [ 7, 8 ],
-                shortestNoteDuration: 16,
-                expected: 42
-            },
-            {
-                measures: 3,
-                timeSignature: [ 6, 8 ],
-                shortestNoteDuration: 16,
-                expected: 36
-            },
-            {
-                measures: 3,
-                timeSignature: [ 3, 4 ],
-                shortestNoteDuration: 16,
-                expected: 36
-            },
-            {
-                measures: 3,
-                timeSignature: [ 4, 2 ],
-                shortestNoteDuration: 4,
-                expected: 24
-            },
-            {
-                measures: 3,
-                timeSignature: [ 4, 4 ],
-                shortestNoteDuration: 1,
-                expected: 3
-            },
-            {
-                measures: 2,
-                timeSignature: [ 5, 4 ],
-                shortestNoteDuration: 8,
-                expected: 20
-            }
-        ]
-
         cases.forEach(c => {
-            it('should calculate the correct genome size and pass in run params', () => {
+            it(`should calculate the correct genome size and pass in run params with ${JSON.stringify(c)}`, () => {
                 const mapped = { ...defaultGAOptions, ...c }
                 mapperServiceSpy.mapSizeForm.and.returnValue(mapped)
                 mapperServiceSpy.mapFitnessForm.and.returnValue(mapped)
@@ -241,6 +290,21 @@ describe('OptionsFormService', () => {
                     .newState as NewPipelineRunParams)
                     .genomeSize
                 expect(genomeSize).toEqual(c.expected)
+            })
+        })
+    })
+
+    describe('getMaxRepeatedSequenceLength', () => {
+        cases.forEach(c => {
+            it(`should return half of genome size rounded down with ${JSON.stringify(c)}`, () => {
+                const mapped = { ...defaultGAOptions, ...c }
+                mapperServiceSpy.mapSizeForm.and.returnValue(mapped)
+                mapperServiceSpy.mapFitnessForm.and.returnValue(mapped)
+                const expected = Math.floor(c.expected / 2)
+
+                const actual = service.getMaxRepeatedSequenceLength()
+
+                expect(actual).toEqual(expected)
             })
         })
     })
