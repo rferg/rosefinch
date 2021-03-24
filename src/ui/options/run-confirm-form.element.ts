@@ -70,7 +70,7 @@ export class RunConfirmFormElement extends BaseElement {
     }
 
     @internalProperty()
-    private value: { numberOfGenerations: number } = { numberOfGenerations: 100 }
+    private value: { numberOfGenerations: number } = { numberOfGenerations: 25 }
     private readonly minGenerations = 1
     private readonly maxGenerations = 500
 
