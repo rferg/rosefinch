@@ -9,7 +9,7 @@
     "test": "npm run lint && karma start --auto-watch",
     "test:single": "npm run lint && karma start --single-run",
     "dev": "parcel src/index.html",
-    "build": "parcel build src/index.html",
+    "build": "parcel build src/index.html --no-minify",
     "lint": "tslint --format stylish --project tsconfig.json"
   },
   "author": "",
