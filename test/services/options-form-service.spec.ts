@@ -59,7 +59,7 @@ const defaultGAOptions: SerializedGeneticAlgorithmOptions = {
     crossoverMethod: CrossoverMethod.HybridPoint,
     mutationConfig: {
         method: MutationMethod.Point,
-        mutationRate: 0.01
+        mutationRate: 0.05
     },
     selectionConfig: {
         method: SelectionMethod.Tournament,
