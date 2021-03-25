@@ -48,7 +48,7 @@ describe('PendingElement', () => {
         })
 
         it('should add pending attribute while event\'s promise is waiting and remove when it resolves', async () => {
-            const promise = new Promise(async resolve => {
+            const promise = new Promise<void>(async resolve => {
                 await elementUpdated(el)
                 expect(el.getAttribute('pending')).not.toBeNull()
                 resolve()
@@ -78,10 +78,10 @@ describe('PendingElement', () => {
         it(
             'should remove pending attribute only when all events\' promises have resolved if received multiple',
             async () => {
-                const promise = new Promise(async resolve => {
+                const promise = new Promise<void>(async resolve => {
                     await elementUpdated(el)
                     expect(el.getAttribute('pending')).not.toBeNull()
-                    await listener(new PendingStateEvent(new Promise(async resolve => {
+                    await listener(new PendingStateEvent(new Promise<void>(async resolve => {
                         await elementUpdated(el)
                         expect(el.getAttribute('pending')).not.toBeNull()
                         resolve()

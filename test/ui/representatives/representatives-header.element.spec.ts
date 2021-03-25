@@ -43,18 +43,6 @@ describe('RepresentativesHeaderElement', () => {
                 .toEqual('playback')
         })
 
-        it('should dispatch show-popup event for fitness options on button click', () => {
-            const spy = spyOn(el, 'dispatchEvent')
-            const selector = 'rf-button[title*="Fitness"]'
-            const button = el.shadowRoot?.querySelector(selector)
-            if (!button) { throw new Error(`missing ${selector}`) }
-
-            button.dispatchEvent(new Event('click'))
-
-            expect((spy.calls.mostRecent().args[0] as CustomEvent<PopupContent>).detail)
-                .toEqual('fitness')
-        })
-
         it('should dispatch show-popup event for run on button click', () => {
             const spy = spyOn(el, 'dispatchEvent')
             const selector = 'rf-button[title*="Run"]'

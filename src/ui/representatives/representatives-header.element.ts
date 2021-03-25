@@ -76,11 +76,6 @@ export class RepresentativesHeaderElement extends BaseElement {
                         @click=${() => this.onButtonClick('playback')}>
                         <rf-icon icon="${Icon.Volume}"></rf-icon>
                     </rf-button>
-                    <rf-button title="Fitness Options"
-                        buttonRole="primary"
-                        @click=${() => this.onButtonClick('fitness')}>
-                        <rf-icon icon="${Icon.Sliders}"></rf-icon>
-                    </rf-button>
                     <rf-button title="Run"
                         buttonRole="success"
                         @click=${() => this.onButtonClick('run')}>
