@@ -9,9 +9,8 @@ import {
 } from '../../src/genetic-algorithm'
 import { RestProportionConfig } from '../../src/genetic-algorithm/fitness/rest-proportion-config'
 import { OptionsFormService } from '../../src/services'
-import { OptionsForm } from '../../src/services/options-form'
 import { OptionsFormMapperService } from '../../src/services/options-form-mapper-service'
-import { SizeForm } from '../../src/services/size-form'
+import { OptionsForm, SizeForm } from '../../src/storage'
 import { NewPipelineRunParams, StateTopic, UpdateStateEvent } from '../../src/services/state'
 
 const defaultOptions: OptionsForm = {

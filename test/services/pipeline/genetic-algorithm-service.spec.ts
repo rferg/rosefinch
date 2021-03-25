@@ -1,5 +1,5 @@
 import { GeneticAlgorithmService } from '../../../src/services/pipeline/genetic-algorithm-service'
-import { UuidService } from '../../../src/services/pipeline/uuid-service'
+import { UuidService } from '../../../src/common/uuid-service'
 import { PipelineResult, PipelineService, PipelineState } from '../../../src/services/pipeline'
 import {
     GeneticAlgorithmOptionsRepository,

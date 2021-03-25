@@ -6,10 +6,12 @@ import { ButtonElement } from './button.element'
 import { TooltipElement } from './tooltip.element'
 import { getProviders as getStorageProviders } from '../../storage'
 import { RangeInputElement } from './range-input.element'
+import { UuidService } from '../../common/uuid-service'
 
 export default {
     providers: [
-        ...getStorageProviders()
+        ...getStorageProviders(),
+        UuidService
     ],
     elements: [
         { name: 'rf-container', element: ContainerElement },

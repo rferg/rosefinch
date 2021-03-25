@@ -7,7 +7,7 @@ import { Injectable } from 'cewdi'
 import { ModuleName } from '../core/module-name'
 import { Icon } from '../common/icon'
 import { OptionsFormService } from '../../services/options-form-service'
-import { OptionsForm } from '../../services/options-form'
+import { OptionsForm } from '../../storage/options-form'
 import { Router } from '../core/router'
 
 @Injectable()

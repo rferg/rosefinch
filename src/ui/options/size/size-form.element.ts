@@ -1,5 +1,5 @@
 import { FormElement } from '../form.element'
-import { SizeForm } from '../../../services/size-form'
+import { SizeForm } from '../../../storage'
 import { css, html, TemplateResult } from 'lit-element'
 import { FieldValidator } from '../field-validator'
 import { GeneUtil } from '../../../common/gene-util'

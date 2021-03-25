@@ -8,8 +8,7 @@ import {
     SerializedGeneticAlgorithmOptions
 } from '../../src/genetic-algorithm'
 import { OptionsFormMapperService } from '../../src/services/options-form-mapper-service'
-import { FitnessForm } from '../../src/services/fitness-form'
-import { SizeForm } from '../../src/services/size-form'
+import { FitnessForm, SizeForm } from '../../src/storage'
 
 describe('OptionsFormMapperService', () => {
     const defaultOptions: SerializedGeneticAlgorithmOptions = {

@@ -2,7 +2,7 @@ import { Inject, Injectable } from 'cewdi'
 import { calculateGenomeSize } from '../common/calculate-genome-size'
 import { globalEventTargetToken } from '../common/global-event-target-token'
 import { FitnessMethod, RepeatedSequencesConfig, RepeatedSequenceType, SerializedGeneticAlgorithmOptions } from '../genetic-algorithm'
-import { OptionsForm } from './options-form'
+import { OptionsForm } from '../storage'
 import { OptionsFormMapperService } from './options-form-mapper-service'
 import { PipelineRunParams, StateTopic, UpdateStateEvent } from './state'
 

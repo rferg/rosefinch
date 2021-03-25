@@ -1,4 +1,4 @@
-import { SizeForm } from '../../../../src/services/size-form'
+import { SizeForm } from '../../../../src/storage'
 import { InsideContainerElementStub } from '../../../helpers/inside-container-element-stub'
 import { InputElementStub } from '../../../helpers/input-element-stub'
 import { SizeFormElement } from '../../../../src/ui/options/size/size-form.element'

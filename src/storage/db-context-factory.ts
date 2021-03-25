@@ -25,7 +25,11 @@ export class DbContextFactory {
         return openDB<Schema>(this.dbName, this.version, {
             upgrade(db) {
                 if (!db.objectStoreNames.contains('optionsTemplate')) {
-                    db.createObjectStore('optionsTemplate', { keyPath: 'id' })
+                    const templateStore = db.createObjectStore('optionsTemplate', { keyPath: 'id' })
+
+                    if (!templateStore.indexNames.contains('by-lastAccessedOn')) {
+                        templateStore.createIndex('by-lastAccessedOn', 'lastAccessedOn')
+                    }
                 }
 
                 if (!db.objectStoreNames.contains('geneticAlgorithmOptions')) {
@@ -35,10 +39,8 @@ export class DbContextFactory {
                 if (!db.objectStoreNames.contains('geneticAlgorithmSummary')) {
                     const summaryStore = db.createObjectStore('geneticAlgorithmSummary', { keyPath: 'id' })
 
-                    // Seems to be sum bug with idb types, where index names in
-                    // the Schema are not parsed correctly.
-                    if (!summaryStore.indexNames.contains('by-lastRunOn' as never)) {
-                        summaryStore.createIndex('by-lastRunOn' as never, 'lastRunOn')
+                    if (!summaryStore.indexNames.contains('by-lastRunOn')) {
+                        summaryStore.createIndex('by-lastRunOn', 'lastRunOn')
                     }
                 }
 
