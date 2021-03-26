@@ -88,7 +88,7 @@ describe('Router', () => {
         describe('subRoutes', () => {
             const route: Route = {
                     elementName: 'root-el',
-                    path: 'a/*',
+                    path: 'a/:sub',
                     moduleName: ModuleName.Common
                 }
             const subRoutes: Route[] = [
@@ -111,7 +111,7 @@ describe('Router', () => {
 
             it('should dispatch routing events to root element and then subRoute element', async () => {
                 const subRoutePath = 'b'
-                await callback({ params: { [0]: subRoutePath } } as PageJS.Context, jasmine.createSpy())
+                await callback({ params: { 'sub': subRoutePath } } as PageJS.Context, jasmine.createSpy())
 
                 expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(new RouteEvent({ elementName: route.elementName }))
                 expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(new RouteEvent({
@@ -121,7 +121,7 @@ describe('Router', () => {
                 }))
 
                 const secondSubRoutePath = 'c'
-                await callback({ params: { [0]: secondSubRoutePath } } as PageJS.Context, jasmine.createSpy())
+                await callback({ params: { 'sub': secondSubRoutePath } } as PageJS.Context, jasmine.createSpy())
 
                 expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(new RouteEvent({ elementName: route.elementName }))
                 expect(eventSpy.dispatchEvent).toHaveBeenCalledWith(new RouteEvent({

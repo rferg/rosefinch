@@ -4,6 +4,7 @@ import { globalEventTargetToken } from '../common/global-event-target-token'
 import { FitnessMethod, RepeatedSequencesConfig, RepeatedSequenceType, SerializedGeneticAlgorithmOptions } from '../genetic-algorithm'
 import { OptionsForm } from '../storage'
 import { OptionsFormMapperService } from './options-form-mapper-service'
+import { OptionsTemplateService } from './options-template.service'
 import { PipelineRunParams, StateTopic, UpdateStateEvent } from './state'
 
 @Injectable()
@@ -53,9 +54,22 @@ export class OptionsFormService {
 
     constructor(
         private readonly mapper: OptionsFormMapperService,
+        private readonly templateService: OptionsTemplateService,
         @Inject(globalEventTargetToken) private readonly eventTarget: EventTarget
     ) {
         this.reset()
+    }
+
+    async setTemplate(id: string): Promise<{ id: string, name: string } | undefined> {
+        const template = await this.templateService.get(id)
+        if (template) {
+            this.optionsForm = { ...template }
+            this.updateGeneticAlgorithmOptions()
+            return { id: template.id, name: template.name }
+        } else {
+            this.reset()
+            return undefined
+        }
     }
 
     reset() {

@@ -10,8 +10,9 @@ import {
 import { RestProportionConfig } from '../../src/genetic-algorithm/fitness/rest-proportion-config'
 import { OptionsFormService } from '../../src/services'
 import { OptionsFormMapperService } from '../../src/services/options-form-mapper-service'
-import { OptionsForm, SizeForm } from '../../src/storage'
+import { OptionsForm, OptionsTemplateStore, SizeForm } from '../../src/storage'
 import { NewPipelineRunParams, StateTopic, UpdateStateEvent } from '../../src/services/state'
+import { OptionsTemplateService } from '../../src/services/options-template.service'
 
 const defaultOptions: OptionsForm = {
     size: {
@@ -77,6 +78,7 @@ const defaultGAOptions: SerializedGeneticAlgorithmOptions = {
 describe('OptionsFormService', () => {
     let mapperServiceSpy: jasmine.SpyObj<OptionsFormMapperService>
     let eventTargetSpy: jasmine.SpyObj<EventTarget>
+    let templateServiceSpy: jasmine.SpyObj<OptionsTemplateService>
     let service: OptionsFormService
 
     beforeEach(() => {
@@ -84,8 +86,13 @@ describe('OptionsFormService', () => {
             'OptionsFormMapperService',
             [ 'mapFitnessForm', 'mapSizeForm' ])
         eventTargetSpy = jasmine.createSpyObj<EventTarget>('EventTarget', [ 'dispatchEvent' ])
+        templateServiceSpy = jasmine.createSpyObj<OptionsTemplateService>(
+            'OptionsTemplateService',
+            [ 'get' ]
+        )
+        templateServiceSpy.get.and.returnValue(Promise.resolve(undefined))
 
-        service = new OptionsFormService(mapperServiceSpy, eventTargetSpy)
+        service = new OptionsFormService(mapperServiceSpy, templateServiceSpy, eventTargetSpy)
     })
 
     it('should create', () => {
@@ -94,6 +101,51 @@ describe('OptionsFormService', () => {
 
     describe('constructor', () => {
         it('should map geneticAlgorithmOptions from default options', () => {
+            expect(mapperServiceSpy.mapFitnessForm).toHaveBeenCalledWith(defaultOptions, undefined)
+            expect(mapperServiceSpy.mapSizeForm).toHaveBeenCalledWith(defaultOptions.size, undefined)
+        })
+    })
+
+    describe('setTemplate', () => {
+        it('should retrieve template with given id', async () => {
+            const id = 'id'
+
+            await service.setTemplate(id)
+
+            expect(templateServiceSpy.get).toHaveBeenCalledWith(id)
+        })
+
+        it('should update options form with template', async () => {
+            const id = 'id'
+            const expectedMeasures = defaultOptions.size.measures + 1
+            const template: OptionsTemplateStore = {
+                ...defaultOptions,
+                size: { ...defaultOptions.size, measures: expectedMeasures },
+                storeName: 'optionsTemplate',
+                createdOn: new Date(),
+                lastAccessedOn: new Date(),
+                updatedOn: new Date(),
+                id,
+                name: 'test'
+            }
+            templateServiceSpy.get.and.returnValue(Promise.resolve(template))
+
+            const result = await service.setTemplate(id)
+
+            expect(result).toEqual({
+                id: template.id,
+                name: template.name
+            })
+            const updatedMeasures = (service.get('size') as SizeForm).measures
+            expect(updatedMeasures).toEqual(expectedMeasures)
+            expect(mapperServiceSpy.mapFitnessForm).toHaveBeenCalledWith(template, undefined)
+            expect(mapperServiceSpy.mapSizeForm).toHaveBeenCalledWith(template.size, undefined)
+        })
+
+        it('should set to default options and return undefined if template does not exist', async () => {
+            const result = await service.setTemplate('')
+
+            expect(result).toBeUndefined()
             expect(mapperServiceSpy.mapFitnessForm).toHaveBeenCalledWith(defaultOptions, undefined)
             expect(mapperServiceSpy.mapSizeForm).toHaveBeenCalledWith(defaultOptions.size, undefined)
         })

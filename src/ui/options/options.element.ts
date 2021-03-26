@@ -1,5 +1,5 @@
 import { BaseElement } from '../core/base-element'
-import { css, html, property } from 'lit-element'
+import { css, html, internalProperty, property } from 'lit-element'
 import { headingsStyles } from '../common/headings.styles'
 import { FormSubmitEvent } from './form-submit-event'
 import { animationsStyles } from '../common/animations.styles'
@@ -9,6 +9,7 @@ import { Icon } from '../common/icon'
 import { OptionsFormService } from '../../services/options-form-service'
 import { OptionsForm } from '../../storage/options-form'
 import { Router } from '../core/router'
+import { StateMediatorService, StateSubscription, StateTopic } from '../../services/state'
 
 @Injectable()
 export class OptionsElement extends BaseElement {
@@ -82,17 +83,40 @@ export class OptionsElement extends BaseElement {
     @property({ reflect: true, type: Boolean })
     navIsHidden = false
 
+    @internalProperty()
+    private formIsSet = false
+
+    @internalProperty()
+    private templateInfo: { id: string, name: string } | undefined
+
+    private readonly routeSubscription: StateSubscription
+
     constructor(
         private readonly formService: OptionsFormService,
-        private readonly router: Router) {
+        private readonly router: Router,
+        private readonly state: StateMediatorService) {
         super()
 
         this.addEventListener(FormSubmitEvent.eventType, this.onFormSubmitEvent.bind(this))
-        this.formService.reset()
+        this.routeSubscription = this.state.subscribe(StateTopic.RouteParams, async (params) => {
+            if (!this.formIsSet) {
+                if (params && params.params && params.params.templateId) {
+                    this.templateInfo = await this.formService.setTemplate(params.params.templateId.toString())
+                } else {
+                    this.formService.reset()
+                }
+                this.formIsSet = true
+            }
+        })
+    }
+
+    disconnectedCallback() {
+        this.routeSubscription && this.routeSubscription.unsubscribe()
+        super.disconnectedCallback()
     }
 
     render() {
-        return html`
+        return this.formIsSet ? html`
             <rf-container id="optionsNav">
                 <rf-button
                     id="hideButton"
@@ -103,6 +127,7 @@ export class OptionsElement extends BaseElement {
                 </rf-button>
                 <rf-options-nav></rf-options-nav>
                 <div>
+                    ${this.templateInfo ? html`<p>${this.templateInfo.name}</p>` : html``}
                     <rf-button @click=${() => this.showConfirm = true} title="Run" buttonRole="success" size="large">
                         <rf-icon icon=${Icon.Check}></rf-icon>
                     </rf-button>
@@ -115,7 +140,7 @@ export class OptionsElement extends BaseElement {
                 <rf-run-confirm-form @cancel=${() => this.showConfirm = false} @form-submit=${this.onRunConfirmed}>
                 </rf-run-confirm-form>
             </rf-popup>
-        `
+        ` : html``
     }
 
     private onFormSubmitEvent(event: Event) {

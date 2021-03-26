@@ -15,6 +15,7 @@ import { BaseElement } from '../../../src/ui/core/base-element'
 import { ButtonElementStub } from '../../helpers/button-element-stub'
 import { cancelEventType } from '../../../src/ui/options/cancel-event-type'
 import { Router } from '../../../src/ui/core/router'
+import { StateMediatorService } from '../../../src/services/state'
 
 class OptionsNavElementStub extends BaseElement {
     static get is() { return 'rf-options-nav' }
@@ -23,8 +24,10 @@ class OptionsNavElementStub extends BaseElement {
 describe('OptionsElement', () => {
     const formsServiceSpy = jasmine.createSpyObj<OptionsFormService>(
         'OptionsFormService',
-        [ 'update', 'reset', 'updateRunParams' ])
+        [ 'update', 'reset', 'updateRunParams', 'setTemplate' ])
     const routerSpy = jasmine.createSpyObj<Router>('Router', [ 'navigate' ])
+    const stateSpy = jasmine.createSpyObj<StateMediatorService>('StateMediatorService', [ 'subscribe' ])
+    let stateSubscriptionSpy: jasmine.Spy
     let el: OptionsElement
 
     beforeAll(() => {
@@ -35,7 +38,7 @@ describe('OptionsElement', () => {
         CustomElementRegistrar.instance.register(OptionsNavElementStub.is, OptionsNavElementStub)
         CustomElementRegistrar.instance.register(
             'rf-options-test',
-            class extends OptionsElement { constructor() { super(formsServiceSpy, routerSpy) } })
+            class extends OptionsElement { constructor() { super(formsServiceSpy, routerSpy, stateSpy) } })
     })
 
     beforeEach(async () => {
@@ -43,8 +46,16 @@ describe('OptionsElement', () => {
         formsServiceSpy.update.calls.reset()
         formsServiceSpy.updateRunParams.calls.reset()
         routerSpy.navigate.calls.reset()
+        stateSpy.subscribe.calls.reset()
+
+        stateSubscriptionSpy = jasmine.createSpy()
+        stateSpy.subscribe.and.returnValue({ unsubscribe: stateSubscriptionSpy })
 
         el = await fixture(html`<rf-options-test></rf-options-test>`)
+
+        // Default route parameters: pass in no templateId
+        const stateListener = stateSpy.subscribe.calls.mostRecent().args[1]
+        await stateListener({ params: {} })
     })
 
     it('should create', () => {
@@ -119,5 +130,36 @@ describe('OptionsElement', () => {
         button.dispatchEvent(new Event('click'))
 
         expect(el.showConfirm).toBeTrue()
+    })
+
+    describe('disconnectedCallback', () => {
+        it('should unsubscribe from StateMediatorService', () => {
+            el.disconnectedCallback()
+
+            expect(stateSubscriptionSpy).toHaveBeenCalled()
+        })
+    })
+
+    describe('with template', () => {
+        let elWithTemplate: OptionsElement
+        const templateInfo = { id: 'id', name: 'name' }
+
+        beforeEach(async () => {
+            formsServiceSpy.setTemplate.and.returnValue(Promise.resolve(templateInfo))
+            elWithTemplate = await fixture(html`<rf-options-test></rf-options-test>`)
+            const stateListener = stateSpy.subscribe.calls.mostRecent().args[1]
+            await stateListener({ params: { templateId: templateInfo.id } })
+        })
+
+        it('should set template in form service', () => {
+            expect(formsServiceSpy.setTemplate).toHaveBeenCalledWith(templateInfo.id)
+        })
+
+        it('should render nav and router outlet as normal', () => {
+            expect(elWithTemplate.shadowRoot?.querySelector(OptionsNavElementStub.is)).toBeTruthy()
+            const routerOutlet = elWithTemplate.shadowRoot
+                ?.querySelector(RouterOutletElementStub.is) as RouterOutletElementStub
+            expect(routerOutlet.moduleName).toEqual(ModuleName.Options)
+        })
     })
 })

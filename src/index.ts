@@ -11,7 +11,7 @@ const routes: Route[] = [
         moduleName: ModuleName.NewSession
     },
     {
-        path: '/options/*',
+        path: '/options/:sub/:templateId?',
         elementName: 'rf-options',
         moduleName: ModuleName.Options
     },
