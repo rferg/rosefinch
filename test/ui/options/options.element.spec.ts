@@ -1,5 +1,5 @@
 import { fixture } from '@open-wc/testing-helpers'
-import { html } from 'lit-element'
+import { html, property } from 'lit-element'
 import { OptionsElement } from '../../../src/ui/options/options.element'
 import { ContainerElementStub } from '../../helpers/container-element-stub'
 import { CustomElementRegistrar } from '../../helpers/custom-element-registrar'
@@ -21,6 +21,19 @@ class OptionsNavElementStub extends BaseElement {
     static get is() { return 'rf-options-nav' }
 }
 
+class OptionsTemplateElementStub extends BaseElement {
+    static get is() { return 'rf-options-template' }
+
+    @property()
+    templateId?: string
+
+    @property()
+    errorMessage?: string
+
+    @property()
+    templateName?: string
+}
+
 describe('OptionsElement', () => {
     const formsServiceSpy = jasmine.createSpyObj<OptionsFormService>(
         'OptionsFormService',
@@ -36,6 +49,7 @@ describe('OptionsElement', () => {
         CustomElementRegistrar.instance.register(PopupElementStub.is, PopupElementStub)
         CustomElementRegistrar.instance.register(RouterOutletElementStub.is, RouterOutletElementStub)
         CustomElementRegistrar.instance.register(OptionsNavElementStub.is, OptionsNavElementStub)
+        CustomElementRegistrar.instance.register(OptionsTemplateElementStub.is, OptionsTemplateElementStub)
         CustomElementRegistrar.instance.register(
             'rf-options-test',
             class extends OptionsElement { constructor() { super(formsServiceSpy, routerSpy, stateSpy) } })

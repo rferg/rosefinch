@@ -1,12 +1,17 @@
 import { Inject, Injectable } from 'cewdi'
 import { calculateGenomeSize } from '../common/calculate-genome-size'
 import { globalEventTargetToken } from '../common/global-event-target-token'
+import { SuccessResponse } from '../common/success-response'
 import { FitnessMethod, RepeatedSequencesConfig, RepeatedSequenceType, SerializedGeneticAlgorithmOptions } from '../genetic-algorithm'
-import { OptionsForm } from '../storage'
+import { OptionsForm, OptionsTemplateStore } from '../storage'
 import { OptionsFormMapperService } from './options-form-mapper-service'
 import { OptionsTemplateService } from './options-template.service'
 import { PipelineRunParams, StateTopic, UpdateStateEvent } from './state'
 
+interface TemplateViewInfo {
+    id: string
+    name: string
+}
 @Injectable()
 export class OptionsFormService {
     private readonly defaultOptions: OptionsForm = {
@@ -51,6 +56,7 @@ export class OptionsFormService {
     }
     private geneticAlgorithmOptions: SerializedGeneticAlgorithmOptions | undefined
     private optionsForm: OptionsForm = this.defaultOptions
+    private template: OptionsTemplateStore | undefined
 
     constructor(
         private readonly mapper: OptionsFormMapperService,
@@ -60,16 +66,40 @@ export class OptionsFormService {
         this.reset()
     }
 
-    async setTemplate(id: string): Promise<{ id: string, name: string } | undefined> {
+    async setTemplate(id: string): Promise<TemplateViewInfo | undefined> {
         const template = await this.templateService.get(id)
         if (template) {
             this.optionsForm = { ...template }
+            this.template = template
             this.updateGeneticAlgorithmOptions()
             return { id: template.id, name: template.name }
         } else {
             this.reset()
             return undefined
         }
+    }
+
+    async saveTemplate(newName?: string): Promise<SuccessResponse<TemplateViewInfo>> {
+        if (!this.template) {
+            return { isSuccessful: false, errorMessage: 'No template has been selected.' }
+        }
+        const result = await this.templateService.put({
+            ...this.template,
+            ...this.optionsForm,
+            name: newName ?? this.template.name
+        })
+        if (result.isSuccessful) {
+            this.template = result.result
+        }
+        return result
+    }
+
+    async createTemplate(name: string): Promise<SuccessResponse<TemplateViewInfo>> {
+        const result = await this.templateService.add({ ...this.optionsForm }, name)
+        if (result.isSuccessful) {
+            this.template = result.result
+        }
+        return result
     }
 
     reset() {

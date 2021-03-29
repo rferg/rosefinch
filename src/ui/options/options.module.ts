@@ -18,6 +18,7 @@ import { ChordFitnessElement } from './fitness/chord-fitness.element'
 import { OptionsNavElement } from './options-nav.element'
 import { RepeatedSequencesFitnessElement } from './fitness/repeated-sequences-fitness.element'
 import { OptionsTemplateService } from '../../services/options-template.service'
+import { OptionsTemplateElement } from './options-template.element'
 
 export default {
     providers: [
@@ -118,6 +119,10 @@ export default {
         {
             element: RepeatedSequencesFitnessElement,
             name: 'rf-repeated-sequences-fitness'
+        },
+        {
+            element: OptionsTemplateElement,
+            name: 'rf-options-template'
         }
     ]
 } as Module

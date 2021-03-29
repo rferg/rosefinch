@@ -1,12 +1,7 @@
 import { Injectable } from 'cewdi'
 import { OptionsForm, OptionsTemplateRepository, OptionsTemplateStore } from '../storage'
 import { UuidService } from '../common/uuid-service'
-
-interface SuccessResponse<T> {
-    isSuccessful: boolean
-    errorMessage?: string
-    result?: T
-}
+import { SuccessResponse } from '../common/success-response'
 
 @Injectable()
 export class OptionsTemplateService {
@@ -25,9 +20,9 @@ export class OptionsTemplateService {
 
         const now = new Date()
         const store: OptionsTemplateStore = {
+            ...form,
             id: this.uuid.getUuid(),
             storeName: 'optionsTemplate',
-            ...form,
             name,
             createdOn: now,
             updatedOn: now,
