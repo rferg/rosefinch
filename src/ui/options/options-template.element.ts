@@ -18,7 +18,7 @@ export class OptionsTemplateElement extends BaseElement {
                     display: flex;
                     flex-flow: row nowrap;
                     width: 100%;
-                    align-items: flex-end;
+                    align-items: center;
                     justify-content: flex-end;
                     padding-top: var(--half-small-padding);
                 }
@@ -27,7 +27,7 @@ export class OptionsTemplateElement extends BaseElement {
                 }
                 p {
                     text-align: left;
-                    padding: 0 var(--half-small-padding);
+                    padding: var(--half-small-padding);
                     margin: 0;
                     font-size: var(--small-font-size);
                 }
