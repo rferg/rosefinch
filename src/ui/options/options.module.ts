@@ -17,7 +17,6 @@ import { NoteAdjusterElement } from './fitness/note-adjuster.element'
 import { ChordFitnessElement } from './fitness/chord-fitness.element'
 import { OptionsNavElement } from './options-nav.element'
 import { RepeatedSequencesFitnessElement } from './fitness/repeated-sequences-fitness.element'
-import { OptionsTemplateService } from '../../services/options-template.service'
 import { OptionsTemplateElement } from './options-template.element'
 
 export default {
@@ -26,7 +25,6 @@ export default {
         OptionsFormMapperService,
         ScaleService,
         OptionsFormService,
-        OptionsTemplateService,
         ...getNotationProviders()
     ],
     routes: [

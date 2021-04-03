@@ -7,10 +7,12 @@ import { TooltipElement } from './tooltip.element'
 import { getProviders as getStorageProviders } from '../../storage'
 import { RangeInputElement } from './range-input.element'
 import { UuidService } from '../../common/uuid-service'
+import { OptionsTemplateService } from '../../services/options-template.service'
 
 export default {
     providers: [
         ...getStorageProviders(),
+        OptionsTemplateService,
         UuidService
     ],
     elements: [

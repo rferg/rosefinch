@@ -3,6 +3,11 @@ import { OptionsForm, OptionsTemplateRepository, OptionsTemplateStore } from '..
 import { UuidService } from '../common/uuid-service'
 import { SuccessResponse } from '../common/success-response'
 
+export interface OptionsTemplateSummary {
+    id: string
+    name: string
+    lastAccessedOn: Date
+}
 @Injectable()
 export class OptionsTemplateService {
 
@@ -49,7 +54,7 @@ export class OptionsTemplateService {
         }
     }
 
-    async getRecent(take?: number): Promise<{ id: string, name: string, lastAccessedOn: Date }[]> {
+    async getRecent(take?: number): Promise<OptionsTemplateSummary[]> {
         return (await this.repo.getAll() || [])
             .map(({ id, name, lastAccessedOn }) => ({ id, name, lastAccessedOn }))
             .sort((a, b) => a.lastAccessedOn > b.lastAccessedOn ? -1 : 1)

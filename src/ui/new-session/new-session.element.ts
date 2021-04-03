@@ -8,6 +8,7 @@ import { GeneticAlgorithmSummaryStore } from '../../storage'
 import { scrollbarStyles } from '../common/scrollbar.styles'
 import { animationsStyles } from '../common/animations.styles'
 import { linkLikeButtonStyles } from '../common/link-like-button.styles'
+import { OptionsTemplateService, OptionsTemplateSummary } from '../../services/options-template.service'
 
 @Injectable()
 export class NewSessionElement extends BaseElement {
@@ -39,37 +40,42 @@ export class NewSessionElement extends BaseElement {
                 rf-inside-container > * {
                     margin: 1rem;
                 }
-                div {
+                button.link-like-button {
+                    margin-left: auto;
+                }
+                .new-container {
+                    margin-bottom: var(--padding);
+                }
+                h2 {
+                    width: 100%;
+                    text-align: left;
+                }
+                a.item-link h3 {
+                    text-decoration: underline;
+                }
+                a.item-link h3 {
+                    transition: color var(--animation-duration) var(--easing);
+                }
+                a.item-link:hover h3 {
+                    color: var(--medium-primary-color);
+                }
+                .item {
+                    flex-grow: 1;
+                    width: auto;
                     display: flex;
                     flex-flow: column nowrap;
                     align-items: center;
                     justify-content: center;
                     text-align: center;
-                }
-                div h5, div p {
-                    margin: 0;
-                }
-                button.link-like-button {
-                    margin-left: auto;
-                }
-                .new-container {
-                    margin-bottom: calc(var(--padding) * 2);
-                }
-                a.summary-link {
-                    text-decoration: none;
-                }
-                a.summary-link h5, button {
-                    transition: color var(--animation-duration) var(--easing);
-                }
-                a.summary-link:hover h5 {
-                    color: var(--medium-primary-color);
-                }
-                .summary {
-                    width: auto;
-                    flex-direction: column;
                     animation: fadeIn var(--animation-duration) var(--easing);
                 }
-                .summaries-container {
+                .item h3, .item p {
+                    margin: 0;
+                }
+                .item p {
+                    font-size: var(--small-font-size);
+                }
+                .items-container {
                     padding: 0;
                     margin: 0;
                     width: 100%;
@@ -77,11 +83,11 @@ export class NewSessionElement extends BaseElement {
                     flex-flow: row wrap;
                     align-items: center;
                     justify-content: center;
-                    max-height: 50vh;
+                    max-height: 33vh;
                     overflow-y: auto;
                 }
                 @media screen and (max-width: 500px) {
-                    .summaries-container {
+                    .items-container {
                         max-height: 500px;
                     }
                 }
@@ -93,16 +99,19 @@ export class NewSessionElement extends BaseElement {
     summaries: GeneticAlgorithmSummaryStore[] = []
 
     @property()
-    showMore = false
-
-    private readonly summariesToShow = 3
+    templates: OptionsTemplateSummary[] = []
 
     constructor(
-        private readonly summaryService: SummaryQueryService) {
+        private readonly summaryService: SummaryQueryService,
+        private readonly templateService: OptionsTemplateService) {
         super()
 
         this.summaryService.getRecent()
             .then(summaries => this.summaries = summaries || [])
+            .catch(err => console.error(err))
+
+        this.templateService.getRecent()
+            .then(templates => this.templates = templates)
             .catch(err => console.error(err))
     }
 
@@ -115,35 +124,48 @@ export class NewSessionElement extends BaseElement {
                         <rf-icon icon="${Icon.Plus}"></rf-icon>
                     </rf-button>
                 </a>
-                <h3>New Session</h3>
+                <h1 class="as-h3">New Session</h1>
             </rf-inside-container>
-            <div class="summaries-container">
-                ${this.summaries.slice(0, this.showMore ? undefined : this.summariesToShow)
-                    .map(({ id, lastRunOn, generation }) => html`
-                            <rf-inside-container class="summary">
-                                <a title="Open this session" class="summary-link" href="/representatives/${id}">
-                                    <h5>Generation ${generation}</h5>
-                                </a>
-                                <p>${this.formatDate(lastRunOn)}</p>
-                            </rf-inside-container>
-                        `
-                )}
-            </div>
-            ${this.summaries.length > this.summariesToShow
+            ${this.templates.length
                 ? html`
-                    <button class="link-like-button" title="Show more past sessions" @click=${this.toggleMore}>
-                        ${this.showMore ? 'Less' : 'More'}
-                    </button>`
+                    <h2 class="as-h5">Templates</h2>
+                    <ul class="items-container">
+                        ${this.templates.map(({ id, lastAccessedOn, name }) => html`
+                            <li>
+                                <rf-inside-container class="item template">
+                                    <a title="Create new session using this template" class="item-link" href="/options/size/${id}">
+                                        <h3 class="as-h5">${name}</h3>
+                                    </a>
+                                    <p>Last Accessed: ${this.formatDate(lastAccessedOn)}</p>
+                                </rf-inside-container>
+                            </li>
+                        `)}
+                    </ul>
+                `
+                : html``}
+            ${this.summaries.length
+                ? html`
+                    <h2 class="as-h5">Past Sessions</h2>
+                    <ul class="items-container">
+                        ${this.summaries.map(({ id, lastRunOn, generation }) => html`
+                            <li>
+                                <rf-inside-container class="item summary">
+                                    <a title="Open this session" class="item-link" href="/representatives/${id}">
+                                        <h3 class="as-h5">Generation ${generation}</h3>
+                                    </a>
+                                    <p>Last Run: ${this.formatDate(lastRunOn)}</p>
+                                </rf-inside-container>
+                            </li>
+                        `)}
+                    </ul>
+                `
                 : html``}
         </rf-container>
         `
     }
 
     private formatDate(date: Date): string {
+        if (!date) { return '- - -' }
         return date.toLocaleDateString(undefined, { hour: 'numeric', minute: 'numeric' })
-    }
-
-    private toggleMore() {
-        this.showMore = !this.showMore
     }
 }
