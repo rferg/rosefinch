@@ -2,6 +2,7 @@ import { Injectable } from 'cewdi'
 import { css, html, internalProperty, property } from 'lit-element'
 import { FitnessMethod, RepeatedSequencesConfig, RepeatedSequenceType } from '../../../genetic-algorithm'
 import { OptionsFormService } from '../../../services'
+import { StateMediatorService, StateSubscription, StateTopic } from '../../../services/state'
 import { headingsStyles } from '../../common/headings.styles'
 import { ValueChangeEvent } from '../../common/value-change-event'
 import { BaseElement } from '../../core/base-element'
@@ -59,24 +60,36 @@ export class RepeatedSequencesFitnessElement extends BaseElement {
     @internalProperty()
     private minLength = 3
 
-    private readonly maxLength: number
+    @internalProperty()
+    private maxLength = 10
+    private readonly stateSubscription: StateSubscription
 
-    constructor(private readonly formService: OptionsFormService) {
+    constructor(
+        private readonly formService: OptionsFormService,
+        private readonly stateMediatorService: StateMediatorService) {
         super()
 
-        this.config = this.formService.get('repeatedSequences') as RepeatedSequencesConfig
-        if (!this.config) {
-            throw new Error('RepeatedSequencesConfig is undefined')
-        }
-        // We will temporarily only support the Pitch type sequences.
-        if (!this.config.options?.types?.length) {
-            throw new Error('RepeatedSequencesConfig types array is empty or undefined')
-        }
-        if (!this.config.options.types.find(t => t.type === RepeatedSequenceType.Pitch)) {
-            throw new Error('RepeatedSequencesConfig does not contain Pitch type')
-        }
+        this.stateSubscription = this.stateMediatorService
+            .subscribe(StateTopic.OptionsForm, ({ repeatedSequences }) => {
+                this._config = { ...repeatedSequences }
+                if (!this._config) {
+                    throw new Error('RepeatedSequencesConfig is undefined')
+                }
+                // We will temporarily only support the Pitch type sequences.
+                if (!this._config.options?.types?.length) {
+                    throw new Error('RepeatedSequencesConfig types array is empty or undefined')
+                }
+                if (!this._config.options.types.find(t => t.type === RepeatedSequenceType.Pitch)) {
+                    throw new Error('RepeatedSequencesConfig does not contain Pitch type')
+                }
+                this.maxLength = this.formService.getMaxRepeatedSequenceLength()
+                this.minLength = this.getPitchConfigMinLength()
+            })
+    }
 
-        this.maxLength = this.formService.getMaxRepeatedSequenceLength()
+    disconnectedCallback() {
+        this.stateSubscription && this.stateSubscription.unsubscribe()
+        super.disconnectedCallback()
     }
 
     render() {

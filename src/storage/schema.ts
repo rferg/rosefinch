@@ -21,7 +21,8 @@ export interface Schema extends DBSchema {
     }
     optionsTemplate: {
         key: string,
-        value: OptionsTemplateStore
+        value: OptionsTemplateStore,
+        indexes: { 'by-lastAccessedOn': Date }
     }
     clusterResult: {
         key: string,

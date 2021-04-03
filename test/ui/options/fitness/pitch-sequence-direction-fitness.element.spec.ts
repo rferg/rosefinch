@@ -3,7 +3,7 @@ import { html } from 'lit-element'
 import { FitnessMethod } from '../../../../src/genetic-algorithm'
 import { PitchSequenceDirectionConfig } from '../../../../src/genetic-algorithm/fitness/pitch-sequence-direction-config'
 import { PitchSequenceType } from '../../../../src/genetic-algorithm/fitness/pitch-sequence-type'
-import { OptionsFormService } from '../../../../src/services'
+import { StateMediatorService, StateTopic } from '../../../../src/services/state'
 import { ValueChangeEvent } from '../../../../src/ui/common/value-change-event'
 import { PitchSequenceDirectionFitnessElement } from '../../../../src/ui/options/fitness/pitch-sequence-direction-fitness.element'
 import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
@@ -22,10 +22,7 @@ describe('PitchSequenceDirectionFitnessElement', () => {
             }
         }
     }
-    const formServiceSpy = jasmine.createSpyObj<OptionsFormService>(
-        'OptionsFormService',
-        [ 'get' ]
-    )
+    const stateSpy = jasmine.createSpyObj<StateMediatorService>('StateMediatorService', [ 'subscribe' ])
     let el: PitchSequenceDirectionFitnessElement
 
     beforeAll(() => {
@@ -34,15 +31,19 @@ describe('PitchSequenceDirectionFitnessElement', () => {
         CustomElementRegistrar.instance.register(
             'rf-pitch-sequence-direction-fitness-test',
             class extends PitchSequenceDirectionFitnessElement {
-                constructor() { super(formServiceSpy) }
+                constructor() { super(stateSpy) }
             })
     })
 
     beforeEach(async () => {
-        formServiceSpy.get.calls.reset()
+        stateSpy.subscribe.calls.reset()
 
-        formServiceSpy.get.and.returnValue(defaultConfig)
         el = await fixture(html`<rf-pitch-sequence-direction-fitness-test></rf-pitch-sequence-direction-fitness-test>`)
+        const [ topic, listener ] = stateSpy.subscribe.calls.mostRecent().args
+        if (topic !== StateTopic.OptionsForm) {
+            throw new Error('Incorrect state topic')
+        }
+        listener({ pitchSequence: defaultConfig } as any)
     })
 
     it('should create', () => {

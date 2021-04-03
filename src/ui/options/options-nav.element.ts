@@ -49,8 +49,7 @@ export class OptionsNavElement extends BaseElement {
             .subscribe(
                 StateTopic.RouteParams,
                 ({ params }) => {
-                    const cast = params as { [key: number ]: string }
-                    this.activeSection = (cast && cast[0]) || ''
+                    this.activeSection = params?.sub?.toString() ?? ''
                 }
             )
     }

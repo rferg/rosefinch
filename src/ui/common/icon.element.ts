@@ -2,10 +2,12 @@ import { BaseElement } from '../core/base-element'
 import { css, html, property } from 'lit-element'
 import { Icon } from './icon'
 
+import addTemplate from '../../../assets/images/icons/add-template.svg'
 import check from '../../../assets/images/icons/check.svg'
 import cross from '../../../assets/images/icons/cross.svg'
 import download from '../../../assets/images/icons/download.svg'
 import downChevron from '../../../assets/images/icons/down-chevron.svg'
+import floppy from '../../../assets/images/icons/floppy.svg'
 import leftArrow from '../../../assets/images/icons/left-arrow.svg'
 import pause from '../../../assets/images/icons/pause.svg'
 import play from '../../../assets/images/icons/play.svg'
@@ -39,10 +41,12 @@ export class IconElement extends BaseElement {
     height?: string
 
     private readonly iconMap: { [key in Icon]: string } = {
+        [Icon.AddTemplate]: addTemplate,
         [Icon.Check]: check,
         [Icon.Cross]: cross,
         [Icon.Download]: download,
         [Icon.DownChevron]: downChevron,
+        [Icon.Floppy]: floppy,
         [Icon.LeftArrow]: leftArrow,
         [Icon.Pause]: pause,
         [Icon.Play]: play,

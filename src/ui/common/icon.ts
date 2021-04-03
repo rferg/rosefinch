@@ -1,8 +1,10 @@
 export enum Icon {
+    AddTemplate = 'add-template',
     Check = 'check',
     Cross = 'cross',
     Download = 'download',
     DownChevron = 'down-chevron',
+    Floppy = 'floppy',
     LeftArrow = 'left-arrow',
     Pause = 'pause',
     Play = 'play',

@@ -1,14 +1,14 @@
 import { FormElement } from '../form.element'
-import { SizeForm } from '../../../services/size-form'
+import { SizeForm } from '../../../storage'
 import { css, html, TemplateResult } from 'lit-element'
 import { FieldValidator } from '../field-validator'
 import { GeneUtil } from '../../../common/gene-util'
 import { numberRangeFieldValidatorFactory } from '../number-range-field-validator-factory'
 import { animationsStyles } from '../../common/animations.styles'
 import { Injectable } from 'cewdi'
-import { OptionsFormService } from '../../../services'
 import { FormSubmitEvent } from '../form-submit-event'
 import { headingsStyles } from '../../common/headings.styles'
+import { StateMediatorService, StateSubscription, StateTopic } from '../../../services/state'
 
 @Injectable()
 export class SizeFormElement extends FormElement<SizeForm> {
@@ -196,11 +196,19 @@ export class SizeFormElement extends FormElement<SizeForm> {
             ]
         }
     ]
+    private readonly stateSubscription: StateSubscription
 
-    constructor(private readonly formService: OptionsFormService) {
+    constructor(private readonly stateMediatorService: StateMediatorService) {
         super()
 
-        this.value = this.formService.get('size') as SizeForm
+        this.stateSubscription = this.stateMediatorService.subscribe(StateTopic.OptionsForm, ({ size }) => {
+            this.value = { ...size }
+        })
+    }
+
+    disconnectedCallback() {
+        this.stateSubscription && this.stateSubscription.unsubscribe()
+        super.disconnectedCallback()
     }
 
     render() {

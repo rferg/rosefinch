@@ -3,7 +3,7 @@ import { GeneUtil } from '../../../../src/common/gene-util'
 import { Pitch } from '../../../../src/common/pitch'
 import { Uint8 } from '../../../../src/common/uint8'
 import { FitnessMethod, ScaleIntervalOptions } from '../../../../src/genetic-algorithm'
-import { OptionsFormService, ScaleName, ScaleService } from '../../../../src/services'
+import { ScaleName, ScaleService } from '../../../../src/services'
 import { ValueChangeEvent } from '../../../../src/ui/common/value-change-event'
 import { FormFieldChangeEvent } from '../../../../src/ui/options/form-field-change-event'
 import { ScaleFitnessElement } from '../../../../src/ui/options/fitness/scale-fitness.element'
@@ -12,6 +12,7 @@ import { InputElementStub } from '../../../helpers/input-element-stub'
 import { RangeInputElementStub } from '../../../helpers/range-input-element-stub'
 import { ScaleIntervalConfig } from '../../../../src/genetic-algorithm/fitness/scale-interval-config'
 import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
+import { StateMediatorService, StateTopic } from '../../../../src/services/state'
 
 describe('ScaleFitnessElement', () => {
     const defaultConfig: ScaleIntervalConfig = {
@@ -20,9 +21,9 @@ describe('ScaleFitnessElement', () => {
         options: { scale: { pitches: [] }, intervalScores: [] }
     }
     const scaleService = jasmine.createSpyObj<ScaleService>('ScaleService', [ 'getPitches' ])
-    const formService = jasmine.createSpyObj<OptionsFormService>(
-        'OptionsFormService',
-        [ 'get' ]
+    const stateSpy = jasmine.createSpyObj<StateMediatorService>(
+        'StateMediatorService',
+        [ 'subscribe' ]
     )
     let el: ScaleFitnessElement
 
@@ -30,16 +31,20 @@ describe('ScaleFitnessElement', () => {
         CustomElementRegistrar.instance.register(InputElementStub.is, InputElementStub)
         CustomElementRegistrar.instance.register(RangeInputElementStub.is, RangeInputElementStub)
         CustomElementRegistrar.instance.register('rf-scale-fitness-test', class extends ScaleFitnessElement {
-            constructor() { super(scaleService, formService) }
+            constructor() { super(scaleService, stateSpy) }
         })
     })
 
     beforeEach(async () => {
         scaleService.getPitches.calls.reset()
-        formService.get.calls.reset()
+        stateSpy.subscribe.calls.reset()
 
-        formService.get.and.returnValue(defaultConfig)
         el = await fixture(html`<rf-scale-fitness-test></rf-scale-fitness-test>`)
+        const [ topic, listener ] = stateSpy.subscribe.calls.mostRecent().args
+        if (topic !== StateTopic.OptionsForm) {
+            throw new Error('Incorrect state topic')
+        }
+        listener({ scale: defaultConfig } as any)
     })
 
     it('should create', () => {

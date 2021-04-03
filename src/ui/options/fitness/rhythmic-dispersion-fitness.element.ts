@@ -1,7 +1,7 @@
 import { Injectable } from 'cewdi'
 import { css, html, property } from 'lit-element'
-import { RhythmicDispersionConfig } from '../../../genetic-algorithm'
-import { OptionsFormService } from '../../../services'
+import { FitnessMethod, RhythmicDispersionConfig } from '../../../genetic-algorithm'
+import { StateMediatorService, StateSubscription, StateTopic } from '../../../services/state'
 import { headingsStyles } from '../../common/headings.styles'
 import { ValueChangeEvent } from '../../common/value-change-event'
 import { BaseElement } from '../../core/base-element'
@@ -41,7 +41,7 @@ export class RhythmicDispersionFitnessElement extends BaseElement {
     }
 
     @property()
-    config: RhythmicDispersionConfig
+    config: RhythmicDispersionConfig = { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 0 } }
 
     private readonly labels = {
         0: 'Constant - mostly the same note length',
@@ -49,13 +49,23 @@ export class RhythmicDispersionFitnessElement extends BaseElement {
         2: 'Extreme - mostly very short and very long notes'
     }
 
-    constructor(private readonly formService: OptionsFormService) {
+    private readonly stateSubscription: StateSubscription
+
+    constructor(private readonly stateMediatorService: StateMediatorService) {
         super()
 
-        this.config = this.formService.get('rhythmicDispersion') as RhythmicDispersionConfig
-        if (!this.config) {
-            throw new Error('RhythmicDispersion config was undefined')
-        }
+        this.stateSubscription = this.stateMediatorService
+            .subscribe(StateTopic.OptionsForm, ({ rhythmicDispersion }) => {
+                this.config = { ...rhythmicDispersion }
+                if (!this.config) {
+                    throw new Error('RhythmicDispersion config was undefined')
+                }
+            })
+    }
+
+    disconnectedCallback() {
+        this.stateSubscription && this.stateSubscription.unsubscribe()
+        super.disconnectedCallback()
     }
 
     render() {

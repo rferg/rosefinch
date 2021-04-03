@@ -6,7 +6,7 @@ import {
 import { Inject, Injectable } from 'cewdi'
 import { ExistingPipelineRunParams, NewPipelineRunParams, StateMediatorService, StateTopic, UpdateStateEvent } from '../state'
 import { globalEventTargetToken } from '../../common/global-event-target-token'
-import { UuidService } from './uuid-service'
+import { UuidService } from '../../common/uuid-service'
 import { PipelineProgressEvent } from './pipeline-progress-event'
 import { cancelPipelineEventType } from './cancel-pipeline-event-type'
 import { PipelineError } from './pipeline-error'

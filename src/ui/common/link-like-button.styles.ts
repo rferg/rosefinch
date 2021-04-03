@@ -14,7 +14,10 @@ export const linkLikeButtonStyles =
         button.link-like-button, button.link-like-button > * {
             transition: color var(--animation-duration) var(--easing);
         }
-        button.link-like-button:hover, button.link-like-button:hover > * {
+        button.link-like-button:hover,
+        button.link-like-button:hover > *,
+        button.link-like-button:focus,
+        button.link-like-button:focus > * {
             color: var(--medium-primary-color);
         }
     `

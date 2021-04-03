@@ -33,9 +33,6 @@ export class InputElement extends BaseElement {
                     width: auto;
                     text-overflow: ellipsis;
                 }
-                input {
-                    max-width: 6rem;
-                }
                 input[type=number]::-webkit-outer-spin-button,
                 input[type=number]::-webkit-inner-spin-button {
                     -webkit-appearance: none;
@@ -43,6 +40,7 @@ export class InputElement extends BaseElement {
                 }
                 input[type=number] {
                     -moz-appearance: textfield;
+                    max-width: 6rem;
                 }
                 input:focus, input:hover, select:hover, select:focus  {
                     background-color: var(--light-primary-color);
@@ -74,6 +72,9 @@ export class InputElement extends BaseElement {
     @property({ reflect: true, type: Boolean })
     invalid = false
 
+    @property()
+    maxLength?: number
+
     @query('input, select')
     inputElement?: HTMLInputElement | HTMLSelectElement
 
@@ -91,6 +92,7 @@ export class InputElement extends BaseElement {
             case 'text':
                 return html`
                     <input type="text"
+                        maxlength="${this.maxLength ?? ''}"
                         .value="${this.value?.toString() ?? ''}"
                         @input=${this.onChange}/>
                     `

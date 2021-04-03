@@ -7,7 +7,6 @@ import { PipelineFactory } from './pipeline-factory'
 import { PipelineService } from './pipeline-service'
 import { RepresentativeGenesService } from './representative-genes-service'
 import { UserRatedFitnessWorkerService } from './user-rated-fitness-worker-service'
-import { UuidService } from './uuid-service'
 import { WorkerFactory } from './worker-factory'
 
 export function getProviders(): Provider[] {
@@ -21,7 +20,6 @@ export function getProviders(): Provider[] {
         PipelineService,
         RepresentativeGenesService,
         UserRatedFitnessWorkerService,
-        UuidService,
         WorkerFactory
     ]
 }

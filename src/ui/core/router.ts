@@ -48,9 +48,11 @@ export class Router {
                 subRoutes = await this.loadModule(moduleName)
             }
 
+            this.eventTarget.dispatchEvent(new UpdateStateEvent(StateTopic.RouteParams, { params }))
+
             if (this.isSubRoute(route.path)) {
                 const subRoute = this.findSubRoute(params, subRoutes)
-                subRoute && this.onSubRoute(subRoute, moduleName, params)
+                subRoute && this.onSubRoute(subRoute, moduleName)
                 return
             }
 
@@ -59,11 +61,10 @@ export class Router {
                 moduleName: moduleName
             }))
 
-            this.eventTarget.dispatchEvent(new UpdateStateEvent(StateTopic.RouteParams, { params }))
         }
     }
 
-    private onSubRoute(route: Route, parentModuleName?: ModuleName, params?: any) {
+    private onSubRoute(route: Route, parentModuleName?: ModuleName) {
         if (!parentModuleName) {
             throw new Error(`Routed to sub-route ${route.path} but no parent module name was given`)
         }
@@ -86,8 +87,6 @@ export class Router {
                 moduleName: parentModuleName
             }))
         }, 0)
-
-        this.eventTarget.dispatchEvent(new UpdateStateEvent(StateTopic.RouteParams, { params }))
     }
 
     private async loadModule(moduleName: ModuleName): Promise<Route[] | undefined> {
@@ -102,12 +101,12 @@ export class Router {
     }
 
     private isSubRoute(path: string): boolean {
-        return path.endsWith('/*')
+        return path.endsWith('/:sub') || path.includes('/:sub/')
     }
 
     private findSubRoute(params: any, subRoutes?: Route[]): Route | undefined {
         if (!(params || subRoutes)) { return undefined }
-        const endPath = (params[0] as string | undefined)?.toLowerCase()?.trim()
+        const endPath = (params['sub'] as string | undefined)?.toLowerCase()?.trim()
         return subRoutes?.find(({ path }) => endPath && path === endPath)
     }
 }

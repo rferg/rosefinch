@@ -1,17 +1,19 @@
 import { elementUpdated, fixture, html, oneEvent } from '@open-wc/testing-helpers'
 import { FitnessMethod, RepeatedSequencesConfig, RepeatedSequenceType } from '../../../../src/genetic-algorithm'
 import { OptionsFormService } from '../../../../src/services'
+import { StateMediatorService, StateTopic } from '../../../../src/services/state'
 import { ValueChangeEvent } from '../../../../src/ui/common/value-change-event'
 import { RepeatedSequencesFitnessElement } from '../../../../src/ui/options/fitness/repeated-sequences-fitness.element'
 import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
 import { CustomElementRegistrar } from '../../../helpers/custom-element-registrar'
 import { RangeInputElementStub } from '../../../helpers/range-input-element-stub'
 
-describe('RepeatedSequences', () => {
+describe('RepeatedSequencesFitnessElement', () => {
     let el: RepeatedSequencesFitnessElement
     const formServiceSpy = jasmine.createSpyObj<OptionsFormService>(
         'OptionsFormService',
-        [ 'get', 'getMaxRepeatedSequenceLength' ])
+        [ 'getMaxRepeatedSequenceLength' ])
+    const stateSpy = jasmine.createSpyObj<StateMediatorService>('StateMediatorService', [ 'subscribe' ])
     const defaultMinLength = 3
     const defaultConfig: RepeatedSequencesConfig = {
         method: FitnessMethod.RepeatedSequences,
@@ -29,28 +31,32 @@ describe('RepeatedSequences', () => {
             'rf-repeated-sequences-fitness-test',
             class extends RepeatedSequencesFitnessElement {
                 constructor() {
-                    super(formServiceSpy)
+                    super(formServiceSpy, stateSpy)
                 }
             }
         )
     })
 
     beforeEach(async () => {
-        formServiceSpy.get.calls.reset()
+        stateSpy.subscribe.calls.reset()
         formServiceSpy.getMaxRepeatedSequenceLength.calls.reset()
 
-        formServiceSpy.get.and.returnValue(defaultConfig)
         formServiceSpy.getMaxRepeatedSequenceLength.and.returnValue(maxLength)
 
         el = await fixture(html`<rf-repeated-sequences-fitness-test></rf-repeated-sequences-fitness-test>`)
+
+        const [ topic, listener ] = stateSpy.subscribe.calls.mostRecent().args
+        if (topic !== StateTopic.OptionsForm) {
+            throw new Error('Incorrect state topic')
+        }
+        listener({ repeatedSequences: defaultConfig } as any)
     })
 
     it('should create', () => {
         expect(el).toBeDefined()
     })
 
-    it('should set config to value retrieved from OptionsFormService', () => {
-        expect(formServiceSpy.get).toHaveBeenCalledWith('repeatedSequences')
+    it('should set config to value returned from StateMediatorService', () => {
         expect(el.config).toEqual(defaultConfig)
     })
 

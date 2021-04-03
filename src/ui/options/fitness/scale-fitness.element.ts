@@ -5,7 +5,8 @@ import { Pitch } from '../../../common/pitch'
 import { Uint8 } from '../../../common/uint8'
 import { FitnessMethod } from '../../../genetic-algorithm'
 import { ScaleIntervalConfig } from '../../../genetic-algorithm/fitness/scale-interval-config'
-import { OptionsFormService, ScaleName, ScaleService } from '../../../services'
+import { ScaleName, ScaleService } from '../../../services'
+import { StateMediatorService, StateSubscription, StateTopic } from '../../../services/state'
 import { headingsStyles } from '../../common/headings.styles'
 import { scrollbarStyles } from '../../common/scrollbar.styles'
 import { ValueChangeEvent } from '../../common/value-change-event'
@@ -163,13 +164,25 @@ export class ScaleFitnessElement extends BaseElement {
             .filter(pitch => pitch !== Pitch.Rest && pitch !== Pitch.Hold)
             .map(pitch => ({ value: pitch, label: Pitch[pitch] }))
 
-    constructor(private readonly service: ScaleService, private readonly formService: OptionsFormService) {
+    private readonly stateSubscription: StateSubscription
+
+    constructor(private readonly service: ScaleService, private readonly stateMediatorService: StateMediatorService) {
         super()
 
-        this.config = this.formService.get('scale') as ScaleIntervalConfig
-        if (!this.config) {
-            throw new Error('Scale config was undefined')
-        }
+        this.stateSubscription = this.stateMediatorService.subscribe(StateTopic.OptionsForm, ({ scale }) => {
+            this._config = { ...scale }
+            if (!this._config) {
+                throw new Error('Scale config was undefined')
+            }
+            this.setIntervalScores(
+                this._config.options.scale.pitches,
+                this._config.options.intervalScores)
+        })
+    }
+
+    disconnectedCallback() {
+        this.stateSubscription && this.stateSubscription.unsubscribe()
+        super.disconnectedCallback()
     }
 
     render() {

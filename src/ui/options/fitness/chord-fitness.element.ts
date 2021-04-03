@@ -7,6 +7,7 @@ import { Uint8 } from '../../../common/uint8'
 import { ChordFitConfig, ChordFitOptions, FitnessMethod, SerializedGeneticAlgorithmOptions } from '../../../genetic-algorithm'
 import { OptionsFormService } from '../../../services'
 import { DenominatedNote } from '../../../services/notation'
+import { StateMediatorService, StateSubscription, StateTopic } from '../../../services/state'
 import { animationsStyles } from '../../common/animations.styles'
 import { headingsStyles } from '../../common/headings.styles'
 import { Icon } from '../../common/icon'
@@ -72,7 +73,7 @@ export class ChordFitnessElement extends BaseElement {
         if (val !== this._config) {
             const oldVal = this._config
             this._config = val
-            this.requestUpdate('options', oldVal)
+            this.requestUpdate('config', oldVal)
                 .then(() => {
                     if (this._config && this.geneticAlgorithmOptions) {
                         this.setNotes(this._config.options, this.geneticAlgorithmOptions)
@@ -113,13 +114,23 @@ export class ChordFitnessElement extends BaseElement {
 
     private lastChordSelectedForChange: number[] | undefined
 
-    constructor(private readonly formService: OptionsFormService) {
+    private readonly stateSubscription: StateSubscription
+
+    constructor(
+        private readonly formService: OptionsFormService,
+        private readonly stateMediatorService: StateMediatorService) {
         super()
 
-        this.config = this.formService.get('chords') as ChordFitConfig
-        if (!this.config) { throw new Error('ChordFitConfig was undefined') }
+        this.stateSubscription = this.stateMediatorService.subscribe(StateTopic.OptionsForm, ({ chords }) => {
+            this._config = { ...chords }
+            if (!this._config) { throw new Error('ChordFitConfig was undefined') }
+            this.geneticAlgorithmOptions = this.formService.getGeneticAlgorithmOptions()
+        })
+    }
 
-        this.geneticAlgorithmOptions = this.formService.getGeneticAlgorithmOptions()
+    disconnectedCallback() {
+        this.stateSubscription && this.stateSubscription.unsubscribe()
+        super.disconnectedCallback()
     }
 
     render() {

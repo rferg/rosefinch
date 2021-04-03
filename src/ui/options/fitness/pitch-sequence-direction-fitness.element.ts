@@ -1,7 +1,7 @@
 import { Injectable } from 'cewdi'
 import { css, html, property } from 'lit-element'
-import { PitchSequenceDirectionConfig, PitchSequenceType } from '../../../genetic-algorithm'
-import { OptionsFormService } from '../../../services'
+import { FitnessMethod, PitchSequenceDirectionConfig, PitchSequenceType } from '../../../genetic-algorithm'
+import { StateMediatorService, StateSubscription, StateTopic } from '../../../services/state'
 import { headingsStyles } from '../../common/headings.styles'
 import { ValueChangeEvent } from '../../common/value-change-event'
 import { BaseElement } from '../../core/base-element'
@@ -68,7 +68,18 @@ export class PitchSequenceDirectionFitnessElement extends BaseElement {
     }
 
     @property()
-    config: PitchSequenceDirectionConfig
+    config: PitchSequenceDirectionConfig = {
+        weight: 1,
+        method: FitnessMethod.PitchSequenceDirection,
+        options: {
+            sequenceLength: 3,
+            scores: {
+                'ascending': 2,
+                'descending': 2,
+                'stable': 1
+            }
+        }
+    }
 
     private readonly scoreKeys: { key: PitchSequenceType, label: string }[] = [
         { key: PitchSequenceType.Ascending, label: 'Ascending' },
@@ -76,13 +87,22 @@ export class PitchSequenceDirectionFitnessElement extends BaseElement {
         { key: PitchSequenceType.Stable, label: 'Stable' }
     ]
 
-    constructor(private readonly formService: OptionsFormService) {
+    private readonly stateSubscription: StateSubscription
+
+    constructor(private readonly stateMediatorService: StateMediatorService) {
         super()
 
-        this.config = this.formService.get('pitchSequence') as PitchSequenceDirectionConfig
-        if (!this.config) {
-            throw new Error('PitchSequenceDirectionConfig is undefined')
-        }
+        this.stateSubscription = this.stateMediatorService.subscribe(StateTopic.OptionsForm, ({ pitchSequence }) => {
+            this.config = { ...pitchSequence }
+            if (!this.config) {
+                throw new Error('PitchSequenceDirectionConfig is undefined')
+            }
+        })
+    }
+
+    disconnectedCallback() {
+        this.stateSubscription && this.stateSubscription.unsubscribe()
+        super.disconnectedCallback()
     }
 
     render() {

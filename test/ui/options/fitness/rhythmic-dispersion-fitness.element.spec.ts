@@ -5,9 +5,9 @@ import { ValueChangeEvent } from '../../../../src/ui/common/value-change-event'
 import { RhythmicDispersionFitnessElement } from '../../../../src/ui/options/fitness/rhythmic-dispersion-fitness.element'
 import { CustomElementRegistrar } from '../../../helpers/custom-element-registrar'
 import { RangeInputElementStub } from '../../../helpers/range-input-element-stub'
-import { OptionsFormService } from '../../../../src/services'
 import { RhythmicDispersionConfig } from '../../../../src/genetic-algorithm/fitness/rhythmic-dispersion-config'
 import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
+import { StateMediatorService, StateTopic } from '../../../../src/services/state'
 
 describe('RhythmicDispersionFitnessElement', () => {
     const defaultConfig: RhythmicDispersionConfig = {
@@ -16,9 +16,9 @@ describe('RhythmicDispersionFitnessElement', () => {
             target: 0
         }
     }
-    const formServiceSpy = jasmine.createSpyObj<OptionsFormService>(
-        'OptionsFormService',
-        [ 'get' ]
+    const stateSpy = jasmine.createSpyObj<StateMediatorService>(
+        'StateMediatorService',
+        [ 'subscribe' ]
     )
     let el: RhythmicDispersionFitnessElement
 
@@ -27,15 +27,19 @@ describe('RhythmicDispersionFitnessElement', () => {
         CustomElementRegistrar.instance.register(
             'rf-rhythmic-dispersion-fitness-test',
             class extends RhythmicDispersionFitnessElement {
-                constructor() { super(formServiceSpy) }
+                constructor() { super(stateSpy) }
             })
     })
 
     beforeEach(async () => {
-        formServiceSpy.get.calls.mostRecent()
+        stateSpy.subscribe.calls.mostRecent()
 
-        formServiceSpy.get.and.returnValue(defaultConfig)
         el = await fixture(html`<rf-rhythmic-dispersion-fitness-test></rf-rhythmic-dispersion-fitness-test>`)
+        const [ topic, listener ] = stateSpy.subscribe.calls.mostRecent().args
+        if (topic !== StateTopic.OptionsForm) {
+            throw new Error('Incorrect state topic')
+        }
+        listener({ rhythmicDispersion: defaultConfig } as any)
     })
 
     it('should create', () => {

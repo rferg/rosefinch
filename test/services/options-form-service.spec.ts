@@ -9,84 +9,92 @@ import {
 } from '../../src/genetic-algorithm'
 import { RestProportionConfig } from '../../src/genetic-algorithm/fitness/rest-proportion-config'
 import { OptionsFormService } from '../../src/services'
-import { OptionsForm } from '../../src/services/options-form'
 import { OptionsFormMapperService } from '../../src/services/options-form-mapper-service'
-import { SizeForm } from '../../src/services/size-form'
+import { OptionsForm, OptionsTemplateStore, SizeForm } from '../../src/storage'
 import { NewPipelineRunParams, StateTopic, UpdateStateEvent } from '../../src/services/state'
+import { OptionsTemplateService } from '../../src/services/options-template.service'
 
-const defaultOptions: OptionsForm = {
-    size: {
-        populationSize: 1000,
-        timeSignatureTop: 4,
-        timeSignatureBottom: 4,
-        octaveMax: 5,
-        octaveMin: 4,
-        shortestNoteDuration: 8,
-        measures: 4
-    },
-    chords: { weight: 1, method: FitnessMethod.ChordFit, options: { chords: {} } },
-    scale: {
-        weight: 1,
-        method: FitnessMethod.ScaleInterval,
-        options: { scale: { pitches: [] }, intervalScores: [] }
-    },
-    restProportion: { weight: 1, method: FitnessMethod.RestProportion, options: { targetProportion: 0.1 } },
-    pitchSequence: {
-        weight: 1,
-        method: FitnessMethod.PitchSequenceDirection,
-        options: {
-            sequenceLength: 3,
-            scores: {
-                'ascending': 2,
-                'descending': 2,
-                'stable': 1
-            }
-        }
-    },
-    rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 0 } },
-    repeatedSequences: {
-        weight: 1,
-        method: FitnessMethod.RepeatedSequences,
-        options: {
-            types: [
-                { type: RepeatedSequenceType.Pitch, minLength: 3 }
-            ]
-        }
-    }
-}
+let defaultOptions: OptionsForm
 
-const defaultGAOptions: SerializedGeneticAlgorithmOptions = {
-    crossoverMethod: CrossoverMethod.HybridPoint,
-    mutationConfig: {
-        method: MutationMethod.Point,
-        mutationRate: 0.05
-    },
-    selectionConfig: {
-        method: SelectionMethod.Tournament,
-        tournamentSize: 2
-    },
-    fitnessConfigs: [],
-    geneFactoryOptions: {
-        octaveRange: [ 3, 6 ],
-        excludedPitches: []
-    },
-    timeSignature: [ 4, 4 ],
-    measures: 4,
-    shortestNoteDuration: 8
-}
+let defaultGAOptions: SerializedGeneticAlgorithmOptions
 
 describe('OptionsFormService', () => {
     let mapperServiceSpy: jasmine.SpyObj<OptionsFormMapperService>
     let eventTargetSpy: jasmine.SpyObj<EventTarget>
+    let templateServiceSpy: jasmine.SpyObj<OptionsTemplateService>
     let service: OptionsFormService
 
     beforeEach(() => {
+        defaultOptions = {
+            size: {
+                populationSize: 1000,
+                timeSignatureTop: 4,
+                timeSignatureBottom: 4,
+                octaveMax: 5,
+                octaveMin: 4,
+                shortestNoteDuration: 8,
+                measures: 4
+            },
+            chords: { weight: 1, method: FitnessMethod.ChordFit, options: { chords: {} } },
+            scale: {
+                weight: 1,
+                method: FitnessMethod.ScaleInterval,
+                options: { scale: { pitches: [] }, intervalScores: [] }
+            },
+            restProportion: { weight: 1, method: FitnessMethod.RestProportion, options: { targetProportion: 0.1 } },
+            pitchSequence: {
+                weight: 1,
+                method: FitnessMethod.PitchSequenceDirection,
+                options: {
+                    sequenceLength: 3,
+                    scores: {
+                        'ascending': 2,
+                        'descending': 2,
+                        'stable': 1
+                    }
+                }
+            },
+            rhythmicDispersion: { weight: 1, method: FitnessMethod.RhythmicDispersion, options: { target: 0 } },
+            repeatedSequences: {
+                weight: 1,
+                method: FitnessMethod.RepeatedSequences,
+                options: {
+                    types: [
+                        { type: RepeatedSequenceType.Pitch, minLength: 3 }
+                    ]
+                }
+            }
+        }
+        defaultGAOptions = {
+            crossoverMethod: CrossoverMethod.HybridPoint,
+            mutationConfig: {
+                method: MutationMethod.Point,
+                mutationRate: 0.05
+            },
+            selectionConfig: {
+                method: SelectionMethod.Tournament,
+                tournamentSize: 2
+            },
+            fitnessConfigs: [],
+            geneFactoryOptions: {
+                octaveRange: [ 3, 6 ],
+                excludedPitches: []
+            },
+            timeSignature: [ 4, 4 ],
+            measures: 4,
+            shortestNoteDuration: 8
+        }
         mapperServiceSpy = jasmine.createSpyObj<OptionsFormMapperService>(
             'OptionsFormMapperService',
             [ 'mapFitnessForm', 'mapSizeForm' ])
         eventTargetSpy = jasmine.createSpyObj<EventTarget>('EventTarget', [ 'dispatchEvent' ])
+        templateServiceSpy = jasmine.createSpyObj<OptionsTemplateService>(
+            'OptionsTemplateService',
+            [ 'get', 'put', 'add' ]
+        )
+        templateServiceSpy.get.and.returnValue(Promise.resolve(undefined))
 
-        service = new OptionsFormService(mapperServiceSpy, eventTargetSpy)
+        service = new OptionsFormService(mapperServiceSpy, templateServiceSpy, eventTargetSpy)
     })
 
     it('should create', () => {
@@ -97,6 +105,118 @@ describe('OptionsFormService', () => {
         it('should map geneticAlgorithmOptions from default options', () => {
             expect(mapperServiceSpy.mapFitnessForm).toHaveBeenCalledWith(defaultOptions, undefined)
             expect(mapperServiceSpy.mapSizeForm).toHaveBeenCalledWith(defaultOptions.size, undefined)
+        })
+    })
+
+    describe('setTemplate', () => {
+        it('should retrieve template with given id', async () => {
+            const id = 'id'
+
+            await service.setTemplate(id)
+
+            expect(templateServiceSpy.get).toHaveBeenCalledWith(id)
+        })
+
+        it('should update options form with template', async () => {
+            const id = 'id'
+            const expectedMeasures = defaultOptions.size.measures + 1
+            const template: OptionsTemplateStore = {
+                ...defaultOptions,
+                size: { ...defaultOptions.size, measures: expectedMeasures },
+                storeName: 'optionsTemplate',
+                createdOn: new Date(),
+                lastAccessedOn: new Date(),
+                updatedOn: new Date(),
+                id,
+                name: 'test'
+            }
+            templateServiceSpy.get.and.returnValue(Promise.resolve(template))
+
+            const result = await service.setTemplate(id)
+
+            expect(result).toEqual({
+                id: template.id,
+                name: template.name
+            })
+            const updatedMeasures = (service.get('size') as SizeForm).measures
+            expect(updatedMeasures).toEqual(expectedMeasures)
+            expect(mapperServiceSpy.mapFitnessForm).toHaveBeenCalledWith(template, undefined)
+            expect(mapperServiceSpy.mapSizeForm).toHaveBeenCalledWith(template.size, undefined)
+        })
+
+        it('should set to default options and return undefined if template does not exist', async () => {
+            const result = await service.setTemplate('')
+
+            expect(result).toBeUndefined()
+            expect(mapperServiceSpy.mapFitnessForm).toHaveBeenCalledWith(defaultOptions, undefined)
+            expect(mapperServiceSpy.mapSizeForm).toHaveBeenCalledWith(defaultOptions.size, undefined)
+        })
+    })
+
+    describe('saveTemplate', () => {
+        it('should return failed if no template has been set', async () => {
+            const result = await service.saveTemplate()
+
+            expect(result.isSuccessful).toBeFalse()
+            expect(result.errorMessage).toContain('template')
+        })
+
+        it('should save template with updated options form values', async () => {
+            const id = 'id'
+            const originalTemplate: OptionsTemplateStore = {
+                ...defaultOptions,
+                storeName: 'optionsTemplate',
+                createdOn: new Date(),
+                lastAccessedOn: new Date(),
+                updatedOn: new Date(),
+                id,
+                name: 'test'
+            }
+            const expectedMeasures = defaultOptions.size.measures + 1
+            const expectedSize = { ...originalTemplate.size, measures: expectedMeasures }
+            const expectedTemplate: OptionsTemplateStore = {
+                ...originalTemplate,
+                size: expectedSize
+            }
+            templateServiceSpy.put.and.returnValue(Promise.resolve({
+                isSuccessful: true,
+                result: expectedTemplate
+            }))
+            templateServiceSpy.get.and.returnValue(Promise.resolve(originalTemplate))
+            await service.setTemplate(id)
+            service.update('size', expectedSize)
+
+            const result = await service.saveTemplate()
+
+            expect(result.isSuccessful).toBeTrue()
+            expect(result.result).toEqual(expectedTemplate)
+            expect(service.get('size')).toEqual(expectedSize)
+        })
+    })
+
+    describe('createTemplate', () => {
+        it('should add template with options form values and given name', async () => {
+            const name = 'name'
+            const expectedRestProportion = {
+                ...defaultOptions.restProportion,
+                options: { ...defaultOptions.restProportion.options, targetProportion: 0.75 }
+            }
+            const expectedOptions = { ...defaultOptions, restProportion: expectedRestProportion }
+            service.update('restProportion', expectedRestProportion)
+            templateServiceSpy.add.and.returnValue(Promise.resolve({ isSuccessful: true }))
+
+            const result = await service.createTemplate(name)
+
+            expect(result.isSuccessful).toBeTrue()
+            expect(templateServiceSpy.add).toHaveBeenCalledWith(expectedOptions, name)
+        })
+
+        it('should return failed if add fails', async () => {
+            templateServiceSpy.add.and.returnValue(Promise.resolve({ isSuccessful: false }))
+
+            const result = await service.createTemplate('a')
+
+            expect(result.isSuccessful).toBeFalse()
         })
     })
 
