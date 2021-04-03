@@ -14,6 +14,7 @@ import {
 } from '../../../../src/genetic-algorithm'
 import { ChordFitConfig } from '../../../../src/genetic-algorithm/fitness/chord-fit-config'
 import { OptionsFormService } from '../../../../src/services'
+import { StateMediatorService, StateTopic } from '../../../../src/services/state'
 import { BaseElement } from '../../../../src/ui/core/base-element'
 import { ChordFitnessElement } from '../../../../src/ui/options/fitness/chord-fitness.element'
 import { FormFieldChangeEvent } from '../../../../src/ui/options/form-field-change-event'
@@ -38,7 +39,8 @@ class ChordSelectorElementStub extends BaseElement {
 describe('ChordFitnessElement', () => {
     const formServiceSpy = jasmine.createSpyObj<OptionsFormService>(
         'OptionsFormService',
-        [ 'get', 'getGeneticAlgorithmOptions' ])
+        [ 'getGeneticAlgorithmOptions' ])
+    const stateSpy = jasmine.createSpyObj<StateMediatorService>('StateMediatorService', [ 'subscribe' ])
     let el: ChordFitnessElement
     const defaultConfig: ChordFitConfig = {
         method: FitnessMethod.ChordFit,
@@ -78,17 +80,21 @@ describe('ChordFitnessElement', () => {
         CustomElementRegistrar.instance.register(
             'rf-chord-fitness-test',
             class extends ChordFitnessElement {
-                constructor() { super(formServiceSpy) }
+                constructor() { super(formServiceSpy, stateSpy) }
             })
     })
 
     beforeEach(async () => {
-        formServiceSpy.get.calls.reset()
+        stateSpy.subscribe.calls.reset()
         formServiceSpy.getGeneticAlgorithmOptions.calls.reset()
 
-        formServiceSpy.get.and.returnValue(defaultConfig)
         formServiceSpy.getGeneticAlgorithmOptions.and.returnValue(defaultOptions)
         el = await fixture(html`<rf-chord-fitness-test></rf-chord-fitness-test>`)
+        const [ topic, listener ] = stateSpy.subscribe.calls.mostRecent().args
+        if (topic !== StateTopic.OptionsForm) {
+            throw new Error('Incorrect state topic')
+        }
+        listener({ chords: defaultConfig } as any)
     })
 
     it('should create', () => {

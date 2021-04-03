@@ -122,7 +122,7 @@ export class OptionsElement extends BaseElement {
     }
 
     render() {
-        return this.formIsSet ? html`
+        return html`
             <rf-container id="optionsNav">
                 <rf-button
                     id="hideButton"
@@ -150,7 +150,7 @@ export class OptionsElement extends BaseElement {
                 <rf-run-confirm-form @cancel=${() => this.showConfirm = false} @form-submit=${this.onRunConfirmed}>
                 </rf-run-confirm-form>
             </rf-popup>
-        ` : html``
+        `
     }
 
     private onFormSubmitEvent(event: Event) {

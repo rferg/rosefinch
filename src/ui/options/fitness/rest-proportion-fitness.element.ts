@@ -1,7 +1,7 @@
 import { Injectable } from 'cewdi'
 import { css, html, property } from 'lit-element'
-import { RestProportionConfig } from '../../../genetic-algorithm'
-import { OptionsFormService } from '../../../services'
+import { FitnessMethod, RestProportionConfig } from '../../../genetic-algorithm'
+import { StateMediatorService, StateSubscription, StateTopic } from '../../../services/state'
 import { headingsStyles } from '../../common/headings.styles'
 import { ValueChangeEvent } from '../../common/value-change-event'
 import { BaseElement } from '../../core/base-element'
@@ -40,15 +40,28 @@ export class RestProportionFitnessElement extends BaseElement {
     }
 
     @property()
-    config: RestProportionConfig
+    config: RestProportionConfig = {
+        weight: 1,
+        method: FitnessMethod.RestProportion,
+        options: { targetProportion: 0.1 }
+    }
 
-    constructor(private readonly formService: OptionsFormService) {
+    private readonly stateSubscription: StateSubscription
+
+    constructor(private readonly stateMediatorService: StateMediatorService) {
         super()
 
-        this.config = this.formService.get('restProportion') as RestProportionConfig
-        if (!this.config) {
-            throw new Error('RestProportionConfig was undefined')
-        }
+        this.stateSubscription = this.stateMediatorService.subscribe(StateTopic.OptionsForm, ({ restProportion }) => {
+            this.config = { ...restProportion }
+            if (!this.config) {
+                throw new Error('RestProportionConfig was undefined')
+            }
+        })
+    }
+
+    disconnectedCallback() {
+        this.stateSubscription && this.stateSubscription.unsubscribe()
+        super.disconnectedCallback()
     }
 
     render() {

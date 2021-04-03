@@ -8,12 +8,12 @@ import { GeneUtil } from '../../../../src/common/gene-util'
 import { FormFieldChangeEvent } from '../../../../src/ui/options/form-field-change-event'
 import { TooltipElementStub } from '../../../helpers/tooltip-element-stub'
 import { CustomElementRegistrar } from '../../../helpers/custom-element-registrar'
-import { OptionsFormService } from '../../../../src/services'
 import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
+import { StateMediatorService, StateTopic } from '../../../../src/services/state'
 
 describe('SizeFormElement', () => {
     let el: SizeFormElement
-    const formServiceSpy = jasmine.createSpyObj<OptionsFormService>('OptionsFormService', [ 'get' ])
+    const stateSpy = jasmine.createSpyObj<StateMediatorService>('StateMediatorService', [ 'subscribe' ])
     interface IndexableSizeForm extends SizeForm {
         [key: string]: number
     }
@@ -34,14 +34,18 @@ describe('SizeFormElement', () => {
         CustomElementRegistrar.instance.register(
             'rf-size-form-test',
             class extends SizeFormElement {
-                constructor() { super(formServiceSpy) }
+                constructor() { super(stateSpy) }
             })
     })
 
     beforeEach(async () => {
-        formServiceSpy.get.calls.reset()
-        formServiceSpy.get.and.returnValue(defaultValue)
+        stateSpy.subscribe.calls.reset()
         el = await fixture(html`<rf-size-form-test></rf-size-form-test>`)
+        const [ topic, listener ] = stateSpy.subscribe.calls.mostRecent().args
+        if (topic !== StateTopic.OptionsForm) {
+            throw new Error('Incorrect state topic')
+        }
+        listener({ size: defaultValue } as any)
     })
 
     it('should render all input fields', async () => {

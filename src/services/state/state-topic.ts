@@ -3,5 +3,6 @@ export enum StateTopic {
     RepresentativeGenes,
     ClusterConfig,
     RouteParams,
-    PipelineRunParams
+    PipelineRunParams,
+    OptionsForm
 }

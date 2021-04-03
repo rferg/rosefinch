@@ -1,7 +1,7 @@
 import { elementUpdated, fixture, html, oneEvent } from '@open-wc/testing-helpers'
 import { FitnessMethod } from '../../../../src/genetic-algorithm'
 import { RestProportionConfig } from '../../../../src/genetic-algorithm/fitness/rest-proportion-config'
-import { OptionsFormService } from '../../../../src/services'
+import { StateMediatorService, StateTopic } from '../../../../src/services/state'
 import { ValueChangeEvent } from '../../../../src/ui/common/value-change-event'
 import { RestProportionFitnessElement } from '../../../../src/ui/options/fitness/rest-proportion-fitness.element'
 import { FormSubmitEvent } from '../../../../src/ui/options/form-submit-event'
@@ -16,24 +16,28 @@ describe('RestProportionFitnessElement', () => {
             targetProportion: 0
         }
     }
-    const formServiceSpy = jasmine.createSpyObj<OptionsFormService>(
-        'OptionsFormService',
-        [ 'get' ]
+    const stateSpy = jasmine.createSpyObj<StateMediatorService>(
+        'StateMediatorService',
+        [ 'subscribe' ]
     )
     beforeAll(() => {
         CustomElementRegistrar.instance.register(RangeInputElementStub.is, RangeInputElementStub)
         CustomElementRegistrar.instance.register(
             'rf-rest-proportion-fitness-test',
             class extends RestProportionFitnessElement {
-                constructor() { super(formServiceSpy) }
+                constructor() { super(stateSpy) }
             })
     })
 
     beforeEach(async () => {
-        formServiceSpy.get.calls.reset()
+        stateSpy.subscribe.calls.reset()
 
-        formServiceSpy.get.and.returnValue(defaultConfig)
         el = await fixture(html`<rf-rest-proportion-fitness-test></rf-rest-proportion-fitness-test>`)
+        const [ topic, listener ] = stateSpy.subscribe.calls.mostRecent().args
+        if (topic !== StateTopic.OptionsForm) {
+            throw new Error('Incorrect state topic')
+        }
+        listener({ restProportion: defaultConfig } as any)
     })
 
     it('should create', () => {

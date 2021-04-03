@@ -2,7 +2,7 @@ import { Inject, Injectable } from 'cewdi'
 import { calculateGenomeSize } from '../common/calculate-genome-size'
 import { globalEventTargetToken } from '../common/global-event-target-token'
 import { SuccessResponse } from '../common/success-response'
-import { FitnessMethod, RepeatedSequencesConfig, RepeatedSequenceType, SerializedGeneticAlgorithmOptions } from '../genetic-algorithm'
+import { FitnessMethod, RepeatedSequenceType, SerializedGeneticAlgorithmOptions } from '../genetic-algorithm'
 import { OptionsForm, OptionsTemplateStore } from '../storage'
 import { OptionsFormMapperService } from './options-form-mapper-service'
 import { OptionsTemplateService } from './options-template.service'
@@ -55,8 +55,17 @@ export class OptionsFormService {
         }
     }
     private geneticAlgorithmOptions: SerializedGeneticAlgorithmOptions | undefined
-    private optionsForm: OptionsForm = { ...this.defaultOptions }
     private template: OptionsTemplateStore | undefined
+    private _optionsForm: OptionsForm = { ...this.defaultOptions }
+    private set optionsForm(val: OptionsForm) {
+        if (val !== this._optionsForm) {
+            this._optionsForm = val
+            this.eventTarget.dispatchEvent(new UpdateStateEvent(StateTopic.OptionsForm, { ...this._optionsForm }))
+        }
+    }
+    private get optionsForm(): OptionsForm {
+        return this._optionsForm
+    }
 
     constructor(
         private readonly mapper: OptionsFormMapperService,
@@ -123,7 +132,7 @@ export class OptionsFormService {
     }
 
     get(property: keyof OptionsForm): OptionsForm[typeof property] {
-        return { ...this.optionsForm }[property]
+        return this.optionsForm[property]
     }
 
     update(property: keyof OptionsForm, value: OptionsForm[typeof property]) {
@@ -167,10 +176,9 @@ export class OptionsFormService {
     }
 
     private checkRepeatedSequencesMinLength() {
-        const repeatedSequencesConfig = this.get('repeatedSequences') as RepeatedSequencesConfig
+        const repeatedSequencesConfig = { ...this.optionsForm['repeatedSequences'] }
         const newTypes = repeatedSequencesConfig?.options?.types ?? []
         const maxValue = this.getMaxRepeatedSequenceLength()
-        console.log(maxValue)
         const typesAboveMax = newTypes.filter(t => t.minLength > maxValue)
         if (typesAboveMax.length) {
             typesAboveMax.forEach(t => t.minLength = maxValue)
