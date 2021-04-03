@@ -55,7 +55,7 @@ export class OptionsFormService {
         }
     }
     private geneticAlgorithmOptions: SerializedGeneticAlgorithmOptions | undefined
-    private optionsForm: OptionsForm = this.defaultOptions
+    private optionsForm: OptionsForm = { ...this.defaultOptions }
     private template: OptionsTemplateStore | undefined
 
     constructor(
@@ -79,14 +79,13 @@ export class OptionsFormService {
         }
     }
 
-    async saveTemplate(newName?: string): Promise<SuccessResponse<TemplateViewInfo>> {
+    async saveTemplate(): Promise<SuccessResponse<TemplateViewInfo>> {
         if (!this.template) {
             return { isSuccessful: false, errorMessage: 'No template has been selected.' }
         }
         const result = await this.templateService.put({
             ...this.template,
-            ...this.optionsForm,
-            name: newName ?? this.template.name
+            ...this.optionsForm
         })
         if (result.isSuccessful) {
             this.template = result.result
@@ -103,7 +102,7 @@ export class OptionsFormService {
     }
 
     reset() {
-        this.optionsForm = { ...this.defaultOptions }
+        this.optionsForm = JSON.parse(JSON.stringify({ ...this.defaultOptions }))
         this.updateGeneticAlgorithmOptions()
     }
 
@@ -171,6 +170,7 @@ export class OptionsFormService {
         const repeatedSequencesConfig = this.get('repeatedSequences') as RepeatedSequencesConfig
         const newTypes = repeatedSequencesConfig?.options?.types ?? []
         const maxValue = this.getMaxRepeatedSequenceLength()
+        console.log(maxValue)
         const typesAboveMax = newTypes.filter(t => t.minLength > maxValue)
         if (typesAboveMax.length) {
             typesAboveMax.forEach(t => t.minLength = maxValue)

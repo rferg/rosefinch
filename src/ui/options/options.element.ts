@@ -171,7 +171,7 @@ export class OptionsElement extends BaseElement {
 
     private async onSaveTemplate() {
         if (this.templateInfo) {
-            const result = await this.formService.saveTemplate(this.templateInfo.name)
+            const result = await this.formService.saveTemplate()
             this.handleTemplateSaveResult(result)
         }
     }

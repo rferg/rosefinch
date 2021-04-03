@@ -196,7 +196,7 @@ describe('OptionsElement', () => {
                 templateEl.dispatchEvent(new CustomEvent('save-template'))
                 await elementUpdated(elWithTemplate)
 
-                expect(formsServiceSpy.saveTemplate).toHaveBeenCalledWith(templateInfo.name)
+                expect(formsServiceSpy.saveTemplate).toHaveBeenCalled()
                 expect(templateEl.templateId).toEqual(result.result?.id)
                 expect(templateEl.templateName).toEqual(result.result?.name)
                 expect(templateEl.errorMessage).toBeFalsy()
@@ -213,7 +213,7 @@ describe('OptionsElement', () => {
                 templateEl.dispatchEvent(new CustomEvent('save-template'))
                 await elementUpdated(elWithTemplate)
 
-                expect(formsServiceSpy.saveTemplate).toHaveBeenCalledWith(templateInfo.name)
+                expect(formsServiceSpy.saveTemplate).toHaveBeenCalled()
                 expect(templateEl.templateId).toEqual(templateInfo.id)
                 expect(templateEl.templateName).toEqual(templateInfo.name)
                 expect(templateEl.errorMessage).toEqual(errorMessage)
