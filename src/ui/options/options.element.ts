@@ -60,6 +60,15 @@ export class OptionsElement extends BaseElement {
                     right: 0;
                     transition: transform var(--animation-duration) var(--easing);
                 }
+                #runButton {
+                    position: fixed;
+                    bottom: var(--padding);
+                    right: var(--padding);
+                    z-index: 2;
+                    animation: fadeIn var(--animation-duration) var(--easing);
+                    box-shadow: var(--primary-shadow);
+                    border-radius: var(--border-radius);
+                }
                 @media
                 screen and (max-width: 768px) and (orientation: portrait),
                 screen and (max-width: 1024px) and (orientation: landscape) {
@@ -132,20 +141,23 @@ export class OptionsElement extends BaseElement {
                     <rf-icon icon=${this.navIsHidden ? Icon.RightArrow : Icon.LeftArrow }></rf-icon>
                 </rf-button>
                 <rf-options-nav></rf-options-nav>
-                <rf-button @click=${() => this.showConfirm = true} title="Run" buttonRole="success" size="large">
-                    <rf-icon icon=${Icon.Check}></rf-icon>
-                </rf-button>
                 <rf-options-template
-                    templateId=${this.templateInfo?.id ?? ''}
-                    templateName=${this.templateInfo?.name ?? ''}
-                    errorMessage=${this.templateErrorMessage ?? ''}
-                    @save-template=${this.onSaveTemplate}
-                    @save-as-template=${this.onSaveAsTemplate}>
-                </rf-options-template>
+                templateId=${this.templateInfo?.id ?? ''}
+                templateName=${this.templateInfo?.name ?? ''}
+                errorMessage=${this.templateErrorMessage ?? ''}
+                @save-template=${this.onSaveTemplate}
+                @save-as-template=${this.onSaveAsTemplate}>
+            </rf-options-template>
             </rf-container>
             <rf-container id="optionsOutlet">
                 <rf-router-outlet moduleName="${ModuleName.Options}"></rf-router-outlet>
             </rf-container>
+            <rf-button @click=${() => this.showConfirm = true}
+                id="runButton"
+                title="Run"
+                buttonRole="success">
+                <rf-icon icon=${Icon.Check}></rf-icon>
+            </rf-button>
             <rf-popup ?show=${this.showConfirm}>
                 <rf-run-confirm-form @cancel=${() => this.showConfirm = false} @form-submit=${this.onRunConfirmed}>
                 </rf-run-confirm-form>
