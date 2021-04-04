@@ -48,6 +48,9 @@
     "last 2 Chrome version"
   ],
   "staticFiles": {
-    "staticPath": [ "assets/audio", "_redirects" ]
+    "staticPath": [
+      "assets/audio",
+      "_redirects"
+    ]
   }
 }

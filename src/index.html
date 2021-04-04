@@ -40,7 +40,7 @@
             --padding: 2rem;
             --small-padding: 1rem;
 
-            --logo-height: 3rem;
+            --logo-height: 1.5rem;
 
             --animation-duration: 300ms;
             --short-animation-duration: calc(var(--animation-duration) / 2);
@@ -115,6 +115,11 @@
         }
         #logo {
             height: var(--logo-height);
+        }
+        nav a {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         nav::before {
             content: '';

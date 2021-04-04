@@ -50,7 +50,7 @@ export class OptionsElement extends BaseElement {
                 }
                 :host([navishidden]) #optionsNav {
                     position: absolute;
-                    top: 80px;
+                    top: 55px;
                     left: 0;
                     transform: translateX(-100%);
                 }
