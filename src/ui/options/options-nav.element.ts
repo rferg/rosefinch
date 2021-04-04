@@ -2,6 +2,7 @@ import { Injectable } from 'cewdi'
 import { css, html, internalProperty } from 'lit-element'
 import { StateMediatorService, StateSubscription, StateTopic } from '../../services/state'
 import { BaseElement } from '../core/base-element'
+import { optionsRoutes } from './options-routes'
 
 @Injectable()
 export class OptionsNavElement extends BaseElement {
@@ -28,17 +29,13 @@ export class OptionsNavElement extends BaseElement {
     }
 
     @internalProperty()
-    activeSection = ''
+    private activeSection = ''
 
-    private readonly routes: { label: string, href: string }[] = [
-        { href: '/options/size', label: 'Size and Time' },
-        { href: '/options/chord', label: 'Chords' },
-        { href: '/options/scale', label: 'Scale' },
-        { href: '/options/pitch-sequence-direction', label: 'Pitch Sequences' },
-        { href: '/options/rest-proportion', label: 'Rest Proportion' },
-        { href: '/options/rhythmic-dispersion', label: 'Rhythmic Dispersion' },
-        { href: '/options/patterns', label: 'Pitch Patterns' }
-    ]
+    @internalProperty()
+    private templateId: string | undefined
+
+    private readonly routes: { label: string, href: string }[] = optionsRoutes
+        .map(({ path, label }) => ({ label, href: `/options/${path}` }))
 
     private readonly subscription: StateSubscription
 
@@ -50,6 +47,7 @@ export class OptionsNavElement extends BaseElement {
                 StateTopic.RouteParams,
                 ({ params }) => {
                     this.activeSection = params?.sub?.toString() ?? ''
+                    this.templateId = params?.templateId?.toString()
                 }
             )
     }
@@ -66,7 +64,9 @@ export class OptionsNavElement extends BaseElement {
                     ${this.routes.map(({ label, href }) =>
                         html`
                         <li ?data-active=${href.endsWith(this.activeSection)}>
-                            <a href="${href}">${label}</a>
+                            <a href="${href + (this.templateId ? '/' + this.templateId : '')}">
+                                ${label}
+                            </a>
                         </li>`)}
                 </ul>
             </nav>

@@ -18,6 +18,7 @@ import { ChordFitnessElement } from './fitness/chord-fitness.element'
 import { OptionsNavElement } from './options-nav.element'
 import { RepeatedSequencesFitnessElement } from './fitness/repeated-sequences-fitness.element'
 import { OptionsTemplateElement } from './options-template.element'
+import { optionsRoutes } from './options-routes'
 
 export default {
     providers: [
@@ -27,36 +28,7 @@ export default {
         OptionsFormService,
         ...getNotationProviders()
     ],
-    routes: [
-        {
-            path: 'size',
-            elementName: 'rf-size-form'
-        },
-        {
-            path: 'chord',
-            elementName: 'rf-chord-fitness'
-        },
-        {
-            path: 'scale',
-            elementName: 'rf-scale-fitness'
-        },
-        {
-            path: 'pitch-sequence-direction',
-            elementName: 'rf-pitch-sequence-direction-fitness'
-        },
-        {
-            path: 'rest-proportion',
-            elementName: 'rf-rest-proportion-fitness'
-        },
-        {
-            path: 'rhythmic-dispersion',
-            elementName: 'rf-rhythmic-dispersion-fitness'
-        },
-        {
-            path: 'patterns',
-            elementName: 'rf-repeated-sequences-fitness'
-        }
-    ],
+    routes: [ ...optionsRoutes ],
     elements: [
         {
             element: OptionsElement,
