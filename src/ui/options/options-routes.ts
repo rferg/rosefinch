@@ -32,7 +32,7 @@ export const optionsRoutes: LabeledRoute[] = [
     {
         path: 'rhythmic-dispersion',
         elementName: 'rf-rhythmic-dispersion-fitness',
-        label: 'Rhythmic Dipsersion'
+        label: 'Rhythmic Dispersion'
     },
     {
         path: 'patterns',
