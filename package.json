@@ -50,6 +50,7 @@
   "staticFiles": {
     "staticPath": [
       "assets/audio",
+      "assets/favicons",
       "_redirects"
     ]
   }
