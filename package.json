@@ -16,7 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@abraham/reflection": "^0.7.0",
-    "abcjs": "^5.12.0",
+    "abcjs": "^6.0.0-beta.32",
     "cewdi": "^0.2.4",
     "idb": "^5.0.4",
     "lit-element": "^2.4.0",
