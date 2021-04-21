@@ -28,7 +28,7 @@ export class GenomeNotationElement extends BaseElement {
                 .abcjs-staff, .abcjs-staff-extra, .abcjs-bar {
                     fill: var(--danger-color);
                 }
-                :host([clickable]) .abcjs-note + rect, :host([clickable]) .abcjs-rest + rect {
+                :host([clickable]) .abcjs-note, :host([clickable]) .abcjs-rest {
                     cursor: pointer;
                 }
                 :host([clickable]) .abcjs-note_selected {

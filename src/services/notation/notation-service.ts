@@ -168,7 +168,7 @@ export class NotationService {
             const noteRegex = /abcjs-n(\d+)/
             let noteIndex: number | undefined
             let measureIndex: number | undefined
-            classes.forEach(classList => {
+            classes.split(' ').forEach(classList => {
                 const measureMatch = classList.match(measureRegex)
                 if (measureMatch && measureIndex === undefined) {
                     measureIndex = Number.parseInt(measureMatch[1])

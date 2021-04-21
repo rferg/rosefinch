@@ -456,25 +456,25 @@ describe('NotationService', () => {
             })
 
             it('should not call listener if abc element is not a note', () => {
-                abcListener({ el_type: 'beam' }, 0, [ 'abcjs-m0 abcjs-n0' ], {}, null)
+                abcListener({ el_type: 'beam' }, 0, 'abcjs-m0 abcjs-n0', {}, null)
 
                 expect(listener).not.toHaveBeenCalled()
             })
 
             it('should not call listener if classes do not contain measure or note', () => {
-                abcListener({ el_type: 'note' }, 0, [ 'abcjs-x abcjs-y' ], {}, null)
+                abcListener({ el_type: 'note' }, 0, 'abcjs-x abcjs-y', {}, null)
 
                 expect(listener).not.toHaveBeenCalled()
             })
 
             it('should not call listener if classes do not contain note', () => {
-                abcListener({ el_type: 'note' }, 0, [ 'abcjs-m0 abcjs-y' ], {}, null)
+                abcListener({ el_type: 'note' }, 0, 'abcjs-m0 abcjs-y', {}, null)
 
                 expect(listener).not.toHaveBeenCalled()
             })
 
             it('should not call listener if classes do not contain measure', () => {
-                abcListener({ el_type: 'note' }, 0, [ 'abcjs-n0 abcjs-y' ], {}, null)
+                abcListener({ el_type: 'note' }, 0, 'abcjs-n0 abcjs-y', {}, null)
 
                 expect(listener).not.toHaveBeenCalled()
             })
@@ -485,7 +485,7 @@ describe('NotationService', () => {
                         abcListener(
                             { el_type: 'note' },
                             0,
-                            [ `abcjs-abc abcjs-n${noteIndex} abcjs-m${measureIndex} abcjs-xyz` ],
+                            `abcjs-abc abcjs-n${noteIndex} abcjs-m${measureIndex} abcjs-xyz`,
                             {},
                             null)
 
@@ -502,7 +502,7 @@ describe('NotationService', () => {
                         abcListener(
                             { el_type: 'note' },
                             0,
-                            [ `abcjs-abc abcjs-n${noteIndex}`, `abcjs-m${measureIndex} abcjs-xyz` ],
+                            `abcjs-abc abcjs-n${noteIndex} abcjs-m${measureIndex} abcjs-xyz`,
                             {},
                             null)
 
@@ -517,10 +517,8 @@ describe('NotationService', () => {
                         abcListener(
                             { el_type: 'note' },
                             0,
-                            [
-                                `abcjs-n${noteIndex} abcjs-m${measureIndex}`,
-                                `abcjs-n${noteIndex + 1} abcjs-m${measureIndex + 1}`
-                            ],
+                            `abcjs-n${noteIndex} abcjs-m${measureIndex} ` +
+                            `abcjs-n${noteIndex + 1} abcjs-m${measureIndex + 1}`,
                             {},
                             null)
 

@@ -31,7 +31,7 @@ declare module 'abcjs' {
     export type AbcClickListener = (
         abcElement: AbcElement,
         tuneNumber: number,
-        classes: string[],
+        classes: string,
         analysis: any,
         drag: any) => void
 }
