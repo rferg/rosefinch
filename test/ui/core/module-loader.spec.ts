@@ -258,7 +258,7 @@ describe('ModuleLoader', () => {
             expect(config.Common.loader).toHaveBeenCalledTimes(1)
         })
 
-        it('should return any sub routes', async () => {
+        it('should return any sub routes for that module', async () => {
             loader.registerRoot({ providers: [], elements: [] }, containerSpy)
             const module: Module = {
                 providers: [],
@@ -278,12 +278,76 @@ describe('ModuleLoader', () => {
             (config.Common.loader as jasmine.Spy).and.returnValue(
                 Promise.resolve({ default: module }))
 
-            const routes = await loader.load(ModuleName.Common)
+            const subRoutes = await loader.load(ModuleName.Common)
 
-            expect(routes).toEqual(module.routes)
+            expect(subRoutes.find(({ module }) => module === ModuleName.Common)?.routes).toEqual(module.routes)
         })
 
-        it('should return undefined if no sub routes', async () => {
+        it('should return any sub routes for parent modules that have not been loaded', async () => {
+            loader.registerRoot({ providers: [], elements: [] }, containerSpy)
+            const commonModule: Module = {
+                providers: [],
+                elements: [
+                    {
+                        name: 'common-el',
+                        element: CustomEl
+                    }
+                ],
+                routes: [
+                    {
+                        path: 'commonTest',
+                        elementName: 'test'
+                    }
+                ]
+            };
+            (config.Common.loader as jasmine.Spy)
+                .and.returnValue(Promise.resolve({ default: commonModule }))
+            const rdModule: Module = {
+                providers: [],
+                elements: [
+                    {
+                        name: 'rd-el',
+                        element: CustomEl
+                    }
+                ],
+                routes: [
+                    {
+                        path: 'rdTest',
+                        elementName: 'rdTest'
+                    }
+                ]
+            };
+            (config.RepresentativeDisplay.loader as jasmine.Spy)
+                .and.returnValue(Promise.resolve({ default: rdModule }))
+                const audioModule: Module = {
+                    providers: [],
+                    elements: [
+                        {
+                            name: 'audio-el',
+                            element: CustomEl
+                        }
+                    ],
+                    routes: [
+                        {
+                            path: 'audioTest',
+                            elementName: 'audioTest'
+                        }
+                    ]
+                };
+                (config.Audio.loader as jasmine.Spy)
+                    .and.returnValue(Promise.resolve({ default: audioModule }))
+
+            const subRoutes = await loader.load(ModuleName.Audio)
+
+            expect(subRoutes.length).toBe(3)
+            expect(subRoutes.find(({ module }) => module === ModuleName.Common)?.routes).toEqual(commonModule.routes)
+            expect(subRoutes.find(({ module }) => module === ModuleName.Representatives)?.routes)
+                .toEqual(rdModule.routes)
+            expect(subRoutes.find(({ module }) => module === ModuleName.Audio)?.routes)
+                .toEqual(audioModule.routes)
+        })
+
+        it('should return undefined for that module if no sub routes', async () => {
             loader.registerRoot({ providers: [], elements: [] }, containerSpy)
             const module: Module = {
                 providers: [],
@@ -297,9 +361,9 @@ describe('ModuleLoader', () => {
             (config.Common.loader as jasmine.Spy).and.returnValue(
                 Promise.resolve({ default: module }))
 
-            const routes = await loader.load(ModuleName.Common)
+            const subRoutes = await loader.load(ModuleName.Common)
 
-            expect(routes).toBeUndefined()
+            expect(subRoutes.find(({ module }) => module === ModuleName.Common)?.routes).toBeUndefined()
         })
     })
 })

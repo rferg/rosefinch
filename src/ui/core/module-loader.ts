@@ -8,6 +8,7 @@ import { globalEventTargetToken } from '../../common/global-event-target-token'
 import { PendingStateEvent } from '../common/pending-state-event'
 import { Route } from './route'
 
+type ModuleSubRoutes = { module: ModuleName, routes: Route[] | undefined }
 @Injectable()
 export class ModuleLoader {
     private rootContainer?: InjectionContainer
@@ -29,9 +30,9 @@ export class ModuleLoader {
         }
     }
 
-    async load(name: ModuleName): Promise<Route[] | undefined> {
+    async load(name: ModuleName, subRoutes: ModuleSubRoutes[] = []): Promise<ModuleSubRoutes[]> {
         if (this.moduleContainers.has(name)) {
-            return undefined
+            return subRoutes
         }
 
         if (!this.rootContainer) {
@@ -43,10 +44,10 @@ export class ModuleLoader {
         if (!config) {
             throw new Error(`No config found to load module ${name}.`)
         }
-
-        const parentContainer = await this.getParentContainer(this.rootContainer, config.parentModule)
+        const parentContainer = await this.getParentContainer(this.rootContainer, subRoutes, config.parentModule)
 
         const { providers, elements, routes } = await this.callLoader(config.loader)
+        subRoutes.push({ module: name, routes })
         const container = parentContainer.createChildContainer(providers)
         this.moduleContainers.set(name, container)
         if (elements.length) {
@@ -54,14 +55,17 @@ export class ModuleLoader {
                 .register(...elements)
         }
 
-        return routes
+        return subRoutes
     }
 
-    private async getParentContainer(root: InjectionContainer, parentName?: ModuleName): Promise<InjectionContainer> {
+    private async getParentContainer(
+        root: InjectionContainer,
+        subRoutes: ModuleSubRoutes[],
+        parentName?: ModuleName): Promise<InjectionContainer> {
         if (!parentName) { return root }
 
         if (!this.moduleContainers.has(parentName)) {
-            await this.load(parentName)
+            await this.load(parentName, subRoutes)
         }
 
         const parentContainer = this.moduleContainers.get(parentName)

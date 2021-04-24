@@ -104,7 +104,8 @@ describe('Router', () => {
             let callback: PageJS.Callback
 
             beforeEach(() => {
-                moduleLoaderSpy.load.and.returnValue(Promise.resolve(subRoutes))
+                moduleLoaderSpy.load.and.returnValue(Promise.resolve(
+                    [ { module: ModuleName.Common, routes: subRoutes } ]))
                 router.registerRoutes([ route ])
                 callback = pageSpy.register.calls.mostRecent().args[1]
             })

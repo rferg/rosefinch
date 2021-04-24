@@ -91,10 +91,8 @@ export class Router {
 
     private async loadModule(moduleName: ModuleName): Promise<Route[] | undefined> {
         const subRoutes = await this.moduleLoader.load(moduleName)
-
         if (subRoutes && subRoutes.length) {
-            this.subRoutes.set(moduleName, subRoutes)
-            return subRoutes
+            subRoutes.forEach(({ module, routes }) => this.subRoutes.set(module, routes || []))
         }
 
         return this.subRoutes.get(moduleName)
